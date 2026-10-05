@@ -6,8 +6,11 @@ import { RegisterPage } from '../features/auth/RegisterPage.tsx'
 import { ResetPasswordPage } from '../features/auth/ResetPasswordPage.tsx'
 import { VerifyEmailPage } from '../features/auth/VerifyEmailPage.tsx'
 import { RequireAuth, RedirectIfAuthenticated, SessionGate } from '../features/auth/AuthGuard.tsx'
+import { AccountsPage } from '../features/accounts/AccountsPage.tsx'
+import { CategoriesPage } from '../features/categories/CategoriesPage.tsx'
 import { DashboardPage } from '../features/dashboard/DashboardPage.tsx'
 import { HealthPage } from '../features/health/HealthPage.tsx'
+import { MovementsPage } from '../features/movements/MovementsPage.tsx'
 import { ProfilePage } from '../features/profile/ProfilePage.tsx'
 import { SessionsPage } from '../features/sessions/SessionsPage.tsx'
 import { SettingsPage } from '../features/settings/SettingsPage.tsx'
@@ -34,6 +37,9 @@ export const routes: RouteObject[] = [
             element: <AppShell />,
             children: [
               { path: '/', element: <DashboardPage /> },
+              { path: '/cuentas', element: <AccountsPage /> },
+              { path: '/movimientos', element: <MovementsPage /> },
+              { path: '/categorias', element: <CategoriesPage /> },
               { path: '/perfil', element: <ProfilePage /> },
               { path: '/configuracion', element: <SettingsPage /> },
               { path: '/sesiones', element: <SessionsPage /> },

@@ -35,6 +35,23 @@ export const refreshOk = http.post(`${API_BASE}/api/v1/auth/refresh`, () =>
   HttpResponse.json(authResponse('tok-1')),
 )
 
+export const userSettingsFixture = {
+  timezone: 'America/Mexico_City',
+  locale: 'es-MX',
+  holidayCalendarCode: 'MX_BANKING',
+  minCashBuffer: 0,
+  maxUtilizationBps: 3000,
+  variableIncomeFactorBps: 9000,
+  pendingIncomeGraceDays: 3,
+  backdateLimitDays: 60,
+  projectionMinDays: 60,
+  updatedAt: '2026-10-01T00:00:00.000Z',
+}
+
+export const settingsHandler = http.get(`${API_BASE}/api/v1/users/me/settings`, () =>
+  HttpResponse.json(userSettingsFixture),
+)
+
 /** Resumen y proyección vacíos: para pruebas que solo llegan al inicio. */
 export const emptyDashboardHandlers = [
   http.get(`${API_BASE}/api/v1/dashboard/summary`, () =>

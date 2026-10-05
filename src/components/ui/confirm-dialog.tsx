@@ -35,6 +35,8 @@ export function ConfirmDialog({
     try {
       await onConfirm()
       onOpenChange(false)
+    } catch {
+      // El padre muestra el error (ErrorAlert); el diálogo queda abierto.
     } finally {
       setPending(false)
     }
