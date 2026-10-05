@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router'
 import { Card, CardDescription, CardTitle } from '../../components/ui/card.tsx'
 import { LoadingScreen } from '../../components/shared/LoadingScreen.tsx'
@@ -17,7 +17,11 @@ export function SessionGate() {
     return <LoadingScreen message="Recuperando sesión…" />
   }
 
-  return <Outlet />
+  return (
+    <Suspense fallback={<LoadingScreen message="Cargando…" />}>
+      <Outlet />
+    </Suspense>
+  )
 }
 
 export function RequireAuth() {

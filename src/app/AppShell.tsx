@@ -1,9 +1,10 @@
-import { ChevronDown, LogOut, Wallet } from 'lucide-react'
+import { ChevronDown, LogOut, WifiOff, Wallet } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet } from 'react-router'
 import { Button } from '../components/ui/button.tsx'
 import { useSessionUser } from '../features/auth/use-session.ts'
 import { useLogout } from '../features/auth/use-logout.ts'
+import { useOnlineStatus } from '../lib/online.ts'
 import { cn } from '../lib/utils.ts'
 import { NAV_ITEMS } from './nav.ts'
 
@@ -12,6 +13,7 @@ export function AppShell() {
   const user = useSessionUser()
   const { logout, pending } = useLogout()
   const [menuOpen, setMenuOpen] = useState(false)
+  const online = useOnlineStatus()
 
   const items = NAV_ITEMS.filter((item) => !item.adminOnly || user?.role === 'ADMIN')
 
@@ -91,6 +93,17 @@ export function AppShell() {
           </div>
         </div>
       </header>
+
+      {!online && (
+        <div
+          role="status"
+          className="flex items-center justify-center gap-2 border-b border-slate-300 bg-slate-200 px-4 py-2 text-center text-sm text-slate-700"
+        >
+          <WifiOff className="size-4" aria-hidden="true" />
+          Sin conexión: se muestran los últimos datos guardados. Las operaciones se reactivan al
+          reconectarte.
+        </div>
+      )}
 
       {user?.status === 'PENDING_DELETION' && (
         <div className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-center text-sm text-amber-800">

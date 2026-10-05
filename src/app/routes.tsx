@@ -1,33 +1,95 @@
+import { lazy } from 'react'
 import type { RouteObject } from 'react-router'
 import { NotFoundPage } from '../components/shared/NotFoundPage.tsx'
-import { ForgotPasswordPage } from '../features/auth/ForgotPasswordPage.tsx'
-import { LoginPage } from '../features/auth/LoginPage.tsx'
-import { RegisterPage } from '../features/auth/RegisterPage.tsx'
-import { ResetPasswordPage } from '../features/auth/ResetPasswordPage.tsx'
-import { VerifyEmailPage } from '../features/auth/VerifyEmailPage.tsx'
 import { RequireAdmin, RequireAuth, RedirectIfAuthenticated, SessionGate } from '../features/auth/AuthGuard.tsx'
-import { AccountPage } from '../features/account/AccountPage.tsx'
-import { AdminRulesPage } from '../features/admin/AdminRulesPage.tsx'
-import { MaintenancePage } from '../features/admin/MaintenancePage.tsx'
-import { AccountsPage } from '../features/accounts/AccountsPage.tsx'
-import { CardDetailPage } from '../features/cards/CardDetailPage.tsx'
-import { CardsPage } from '../features/cards/CardsPage.tsx'
-import { CategoriesPage } from '../features/categories/CategoriesPage.tsx'
-import { DashboardPage } from '../features/dashboard/DashboardPage.tsx'
-import { ExpensesPage } from '../features/expenses/ExpensesPage.tsx'
-import { RecurringPage } from '../features/expenses/RecurringPage.tsx'
-import { HealthPage } from '../features/health/HealthPage.tsx'
-import { IncomePage } from '../features/income/IncomePage.tsx'
-import { MovementsPage } from '../features/movements/MovementsPage.tsx'
-import { CardPaymentsPage } from '../features/payments/CardPaymentsPage.tsx'
-import { ProfilePage } from '../features/profile/ProfilePage.tsx'
-import { PurchasesPage } from '../features/purchases/PurchasesPage.tsx'
-import { RecommendationHistoryPage } from '../features/recommendations/RecommendationHistoryPage.tsx'
-import { RecommendationRulesPage } from '../features/recommendations/RecommendationRulesPage.tsx'
-import { RecomendadorPage } from '../features/recommendations/RecomendadorPage.tsx'
-import { SessionsPage } from '../features/sessions/SessionsPage.tsx'
-import { SettingsPage } from '../features/settings/SettingsPage.tsx'
 import { AppShell } from './AppShell.tsx'
+
+// Las páginas se cargan por ruta (code splitting): el shell y las guardas van
+// en el chunk principal; cada pantalla pesa solo cuando se visita.
+const AccountPage = lazy(() =>
+  import('../features/account/AccountPage.tsx').then((m) => ({ default: m.AccountPage })),
+)
+const AdminRulesPage = lazy(() =>
+  import('../features/admin/AdminRulesPage.tsx').then((m) => ({ default: m.AdminRulesPage })),
+)
+const MaintenancePage = lazy(() =>
+  import('../features/admin/MaintenancePage.tsx').then((m) => ({ default: m.MaintenancePage })),
+)
+const AccountsPage = lazy(() =>
+  import('../features/accounts/AccountsPage.tsx').then((m) => ({ default: m.AccountsPage })),
+)
+const CardDetailPage = lazy(() =>
+  import('../features/cards/CardDetailPage.tsx').then((m) => ({ default: m.CardDetailPage })),
+)
+const CardsPage = lazy(() =>
+  import('../features/cards/CardsPage.tsx').then((m) => ({ default: m.CardsPage })),
+)
+const CategoriesPage = lazy(() =>
+  import('../features/categories/CategoriesPage.tsx').then((m) => ({ default: m.CategoriesPage })),
+)
+const DashboardPage = lazy(() =>
+  import('../features/dashboard/DashboardPage.tsx').then((m) => ({ default: m.DashboardPage })),
+)
+const ExpensesPage = lazy(() =>
+  import('../features/expenses/ExpensesPage.tsx').then((m) => ({ default: m.ExpensesPage })),
+)
+const RecurringPage = lazy(() =>
+  import('../features/expenses/RecurringPage.tsx').then((m) => ({ default: m.RecurringPage })),
+)
+const ForgotPasswordPage = lazy(() =>
+  import('../features/auth/ForgotPasswordPage.tsx').then((m) => ({ default: m.ForgotPasswordPage })),
+)
+const HealthPage = lazy(() =>
+  import('../features/health/HealthPage.tsx').then((m) => ({ default: m.HealthPage })),
+)
+const IncomePage = lazy(() =>
+  import('../features/income/IncomePage.tsx').then((m) => ({ default: m.IncomePage })),
+)
+const LoginPage = lazy(() =>
+  import('../features/auth/LoginPage.tsx').then((m) => ({ default: m.LoginPage })),
+)
+const MovementsPage = lazy(() =>
+  import('../features/movements/MovementsPage.tsx').then((m) => ({ default: m.MovementsPage })),
+)
+const CardPaymentsPage = lazy(() =>
+  import('../features/payments/CardPaymentsPage.tsx').then((m) => ({ default: m.CardPaymentsPage })),
+)
+const ProfilePage = lazy(() =>
+  import('../features/profile/ProfilePage.tsx').then((m) => ({ default: m.ProfilePage })),
+)
+const PurchasesPage = lazy(() =>
+  import('../features/purchases/PurchasesPage.tsx').then((m) => ({ default: m.PurchasesPage })),
+)
+const RecommendationHistoryPage = lazy(() =>
+  import('../features/recommendations/RecommendationHistoryPage.tsx').then((m) => ({
+    default: m.RecommendationHistoryPage,
+  })),
+)
+const RecommendationRulesPage = lazy(() =>
+  import('../features/recommendations/RecommendationRulesPage.tsx').then((m) => ({
+    default: m.RecommendationRulesPage,
+  })),
+)
+const RecomendadorPage = lazy(() =>
+  import('../features/recommendations/RecomendadorPage.tsx').then((m) => ({
+    default: m.RecomendadorPage,
+  })),
+)
+const RegisterPage = lazy(() =>
+  import('../features/auth/RegisterPage.tsx').then((m) => ({ default: m.RegisterPage })),
+)
+const ResetPasswordPage = lazy(() =>
+  import('../features/auth/ResetPasswordPage.tsx').then((m) => ({ default: m.ResetPasswordPage })),
+)
+const SessionsPage = lazy(() =>
+  import('../features/sessions/SessionsPage.tsx').then((m) => ({ default: m.SessionsPage })),
+)
+const SettingsPage = lazy(() =>
+  import('../features/settings/SettingsPage.tsx').then((m) => ({ default: m.SettingsPage })),
+)
+const VerifyEmailPage = lazy(() =>
+  import('../features/auth/VerifyEmailPage.tsx').then((m) => ({ default: m.VerifyEmailPage })),
+)
 
 export const routes: RouteObject[] = [
   {

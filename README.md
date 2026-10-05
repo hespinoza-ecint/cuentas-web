@@ -16,7 +16,7 @@ repositorio hermano [`cuentas-api`](../cuentas-api).
 | 4D | Tarjetas, cortes, pagos y compras | ✅ Implementada |
 | 4E | Recomendador, historial y reglas | ✅ Implementada |
 | 5 | Dashboard analítico, administración y cuenta/datos | ✅ Implementada |
-| 6 | Optimización (code splitting, offline de lectura, accesibilidad, despliegue) | ⏳ Pendiente |
+| 6 | Optimización (code splitting, offline de lectura, accesibilidad, despliegue) | ✅ Implementada |
 | 5 | Dashboard analítico, reglas y administración | ⏳ Pendiente |
 | 6 | Optimización (PWA offline de lectura, accesibilidad, rendimiento, despliegue) | ⏳ Pendiente |
 
@@ -105,3 +105,4 @@ public/                  Íconos de la PWA
 - [Fase 4D — Tarjetas, pagos y compras](docs/fase-04d-tarjetas-pagos-compras.md)
 - [Fase 4E — Recomendador, historial y reglas](docs/fase-04e-recomendador.md)
 - [Fase 5 — Dashboard analítico, administración y cuenta/datos](docs/fase-05-analitica-admin-cuenta.md)
+- [Fase 6 — Optimización y despliegue](docs/fase-06-optimizacion.md)

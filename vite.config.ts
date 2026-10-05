@@ -13,6 +13,24 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg', 'maskable-icon.svg'],
+      workbox: {
+        navigateFallback: '/index.html',
+        runtimeCaching: [
+          {
+            // Lecturas de la API: primero red y, si no hay, la última copia
+            // guardada (modo sin conexión de solo lectura).
+            urlPattern: ({ url, request }) =>
+              request.method === 'GET' && url.pathname.startsWith('/api/v1/'),
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'cuentas-api-read',
+              networkTimeoutSeconds: 5,
+              expiration: { maxEntries: 150, maxAgeSeconds: 86_400 },
+              cacheableResponse: { statuses: [200] },
+            },
+          },
+        ],
+      },
       manifest: {
         name: 'Cuentas',
         short_name: 'Cuentas',
