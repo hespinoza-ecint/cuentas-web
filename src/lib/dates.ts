@@ -46,3 +46,19 @@ export function formatLocalDate(date: string, locale = 'es-MX'): string {
     year: 'numeric',
   }).format(midday)
 }
+
+/** "2026-10" → "octubre de 2026". */
+export function formatMonth(month: string, locale = 'es-MX'): string {
+  const [year, monthNumber] = month.split('-').map(Number)
+  return new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(
+    new Date(Date.UTC(year, monthNumber - 1, 1, 12)),
+  )
+}
+
+/** Marca de tiempo ISO → "5 oct 2026, 14:30". */
+export function formatDateTime(iso: string, locale = 'es-MX'): string {
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(new Date(iso))
+}

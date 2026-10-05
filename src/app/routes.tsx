@@ -6,8 +6,12 @@ import { RegisterPage } from '../features/auth/RegisterPage.tsx'
 import { ResetPasswordPage } from '../features/auth/ResetPasswordPage.tsx'
 import { VerifyEmailPage } from '../features/auth/VerifyEmailPage.tsx'
 import { RequireAuth, RedirectIfAuthenticated, SessionGate } from '../features/auth/AuthGuard.tsx'
+import { DashboardPage } from '../features/dashboard/DashboardPage.tsx'
 import { HealthPage } from '../features/health/HealthPage.tsx'
-import { HomePage } from '../features/home/HomePage.tsx'
+import { ProfilePage } from '../features/profile/ProfilePage.tsx'
+import { SessionsPage } from '../features/sessions/SessionsPage.tsx'
+import { SettingsPage } from '../features/settings/SettingsPage.tsx'
+import { AppShell } from './AppShell.tsx'
 
 export const routes: RouteObject[] = [
   {
@@ -26,8 +30,16 @@ export const routes: RouteObject[] = [
       {
         element: <RequireAuth />,
         children: [
-          { path: '/', element: <HomePage /> },
-          { path: '/estado', element: <HealthPage /> },
+          {
+            element: <AppShell />,
+            children: [
+              { path: '/', element: <DashboardPage /> },
+              { path: '/perfil', element: <ProfilePage /> },
+              { path: '/configuracion', element: <SettingsPage /> },
+              { path: '/sesiones', element: <SessionsPage /> },
+              { path: '/estado', element: <HealthPage /> },
+            ],
+          },
         ],
       },
       { path: '*', element: <NotFoundPage /> },

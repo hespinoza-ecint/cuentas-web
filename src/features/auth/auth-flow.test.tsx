@@ -1,9 +1,9 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { HttpResponse, http } from 'msw'
 import { describe, expect, it } from 'vitest'
 import { getStatus } from '../../lib/auth/session.ts'
-import { API_BASE, authResponse, problem, testUser } from '../../test/fixtures.ts'
+import { API_BASE, authResponse, emptyDashboardHandlers, problem, testUser } from '../../test/fixtures.ts'
 import { server } from '../../test/msw/server.ts'
 import { renderApp } from '../../test/render-app.tsx'
 
@@ -27,13 +27,16 @@ describe('flujo de autenticación', () => {
     server.use(
       http.post(`${API_BASE}/api/v1/auth/login`, () => HttpResponse.json(authResponse('tok-1'))),
       refreshUnauthorized,
+      ...emptyDashboardHandlers,
     )
 
     renderApp(['/login'])
     await submitLogin('ana@test.local', 'password-1234')
 
     expect(await screen.findByText('Hola, Ana')).toBeInTheDocument()
-    expect(screen.getByText('ana@test.local')).toBeInTheDocument()
+    const menuUser = userEvent.setup()
+    await menuUser.click(screen.getByRole('button', { name: /Ana/ }))
+    expect(await screen.findByText('ana@test.local')).toBeInTheDocument()
     expect(getStatus()).toBe('authenticated')
   })
 
@@ -147,12 +150,15 @@ describe('flujo de autenticación', () => {
           checks: { database: { status: 'up', latencyMs: 1 } },
         })
       }),
+      ...emptyDashboardHandlers,
     )
 
     renderApp(['/login'])
     await submitLogin('ana@test.local', 'password-1234')
     const user = userEvent.setup()
-    await user.click(await screen.findByRole('link', { name: 'Estado del backend' }))
+    await user.click(await screen.findByRole('button', { name: /Ana/ }))
+    const menu = await screen.findByRole('menu')
+    await user.click(within(menu).getByRole('menuitem', { name: 'Estado' }))
 
     await waitFor(() => {
       expect(healthCalls).toBe(2)

@@ -9,7 +9,7 @@ repositorio hermano [`cuentas-api`](../cuentas-api).
 |---|---|---|
 | 1 | Configuración inicial (Vite + React + TS, Tailwind, PWA, tipos OpenAPI, utilidades base) | ✅ Implementada |
 | 2 | Autenticación (login, registro, verificación, recuperación, sesión con refresh) | ✅ Implementada |
-| 3 | Layout principal y componentes compartidos | ⏳ Pendiente |
+| 3 | Layout principal, componentes compartidos y dashboard | ✅ Implementada |
 | 4 | CRUDs financieros (cuentas, movimientos, gastos, ingresos, tarjetas, pagos, compras, recomendador) | ⏳ Pendiente |
 | 5 | Dashboard analítico, reglas y administración | ⏳ Pendiente |
 | 6 | Optimización (PWA offline de lectura, accesibilidad, rendimiento, despliegue) | ⏳ Pendiente |
@@ -62,15 +62,18 @@ npm.cmd run api:types
 
 ```
 src/
-├─ app/                  Arranque: providers de React Query, router y query client
+├─ app/                  Shell autenticado (sidebar, header, tab bar), providers, router y navegación
+├─ components/
+│  ├─ ui/                Primitivos estilo shadcn (Button, Card, Badge, Dialog, Skeleton, …)
+│  └─ shared/            MoneyDisplay, MoneyInput, StatusBadge, ErrorAlert, Field, …
 ├─ lib/
 │  ├─ api/               Cliente tipado (openapi-fetch) y tipos generados (schema.d.ts)
-│  ├─ dates.ts           Fechas YYYY-MM-DD y "hoy" en la zona horaria del usuario
+│  ├─ auth/              Sesión en memoria y refresh con single-flight
+│  ├─ dates.ts           Fechas YYYY-MM-DD, mes y "hoy" en la zona horaria del usuario
 │  ├─ money.ts           Pesos ↔ centavos (sin errores de punto flotante) y formato MXN
 │  └─ problem.ts         Errores RFC 9457 (application/problem+json)
-├─ features/             Un directorio por dominio (health, y en siguientes fases:
-│                        auth, accounts, movements, income, expenses, cards, …)
-└─ test/                 Configuración de Vitest
+├─ features/             Un directorio por dominio (auth, dashboard, profile, settings, sessions, users, health)
+└─ test/                 MSW, helpers de render y configuración de Vitest
 public/                  Íconos de la PWA
 ```
 
@@ -89,3 +92,4 @@ public/                  Íconos de la PWA
 
 - [Fase 1 — Configuración inicial](docs/fase-01-configuracion.md)
 - [Fase 2 — Autenticación](docs/fase-02-auth.md)
+- [Fase 3 — Layout principal, componentes y dashboard](docs/fase-03-layout.md)

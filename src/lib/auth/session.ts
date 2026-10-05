@@ -58,6 +58,15 @@ export function setSession(next: AuthSession): void {
   emit()
 }
 
+/** Actualiza los datos del usuario (por ejemplo, tras editar el perfil). */
+export function setSessionUser(user: AuthUser): void {
+  if (!session) {
+    return
+  }
+  session = { ...session, user }
+  emit()
+}
+
 export function clearSession(): void {
   session = null
   status = 'anonymous'

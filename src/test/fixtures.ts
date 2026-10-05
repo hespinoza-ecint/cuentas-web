@@ -1,4 +1,4 @@
-import { HttpResponse } from 'msw'
+import { HttpResponse, http } from 'msw'
 import type { AuthUser } from '../lib/auth/session.ts'
 
 export const API_BASE = 'http://cuentas.test'
@@ -29,3 +29,44 @@ export function problem(
 export function authResponse(accessToken: string) {
   return { accessToken, tokenType: 'Bearer', expiresInSeconds: 900, user: testUser }
 }
+
+/** Renovación exitosa: la app arranca autenticada en las pruebas. */
+export const refreshOk = http.post(`${API_BASE}/api/v1/auth/refresh`, () =>
+  HttpResponse.json(authResponse('tok-1')),
+)
+
+/** Resumen y proyección vacíos: para pruebas que solo llegan al inicio. */
+export const emptyDashboardHandlers = [
+  http.get(`${API_BASE}/api/v1/dashboard/summary`, () =>
+    HttpResponse.json({
+      today: '2026-10-05',
+      timezone: 'America/Mexico_City',
+      month: '2026-10',
+      cash: { spendableBalance: 0, totalBalance: 0, accountCount: 0 },
+      cards: { totalDebt: 0, totalAvailableCredit: 0, items: [] },
+      upcomingIncome: { horizonDays: 30, total: 0, items: [] },
+      upcomingPayments: { horizonDays: 30, total: 0, items: [] },
+      expenses: {
+        month: '2026-10',
+        spent: 0,
+        previousMonth: '2026-09',
+        previousSpent: 0,
+        topCategories: [],
+      },
+      lastRecommendation: null,
+    }),
+  ),
+  http.get(`${API_BASE}/api/v1/cashflow/projection`, () =>
+    HttpResponse.json({
+      today: '2026-10-05',
+      timezone: 'America/Mexico_City',
+      horizonDays: 60,
+      startingBalance: 0,
+      minCashBuffer: 0,
+      points: [],
+      minimum: { date: '2026-10-05', balance: 0 },
+      finalBalance: 0,
+      belowBuffer: false,
+    }),
+  ),
+]
