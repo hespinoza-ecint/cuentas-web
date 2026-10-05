@@ -12,6 +12,7 @@ import { DashboardPage } from '../features/dashboard/DashboardPage.tsx'
 import { ExpensesPage } from '../features/expenses/ExpensesPage.tsx'
 import { RecurringPage } from '../features/expenses/RecurringPage.tsx'
 import { HealthPage } from '../features/health/HealthPage.tsx'
+import { IncomePage } from '../features/income/IncomePage.tsx'
 import { MovementsPage } from '../features/movements/MovementsPage.tsx'
 import { ProfilePage } from '../features/profile/ProfilePage.tsx'
 import { SessionsPage } from '../features/sessions/SessionsPage.tsx'
@@ -43,6 +44,7 @@ export const routes: RouteObject[] = [
               { path: '/movimientos', element: <MovementsPage /> },
               { path: '/gastos', element: <ExpensesPage /> },
               { path: '/recurrentes', element: <RecurringPage /> },
+              { path: '/ingresos', element: <IncomePage /> },
               { path: '/categorias', element: <CategoriesPage /> },
               { path: '/perfil', element: <ProfilePage /> },
               { path: '/configuracion', element: <SettingsPage /> },
