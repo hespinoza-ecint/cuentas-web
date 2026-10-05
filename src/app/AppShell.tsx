@@ -60,7 +60,7 @@ export function AppShell() {
                 />
                 <div
                   role="menu"
-                  className="absolute right-0 z-50 mt-2 w-56 rounded-xl border border-slate-200 bg-white p-1 shadow-lg"
+                  className="absolute right-0 z-50 mt-2 max-h-[70vh] w-56 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1 shadow-lg"
                 >
                   <p className="truncate px-3 py-2 text-xs text-slate-500">{user?.email}</p>
                   {items.map((item) => (

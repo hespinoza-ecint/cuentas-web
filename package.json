@@ -11,6 +11,8 @@
     "typecheck": "tsc -b",
     "test": "vitest run",
     "test:watch": "vitest",
+    "pretest:e2e": "npm.cmd --prefix ../cuentas-api run build",
+    "test:e2e": "playwright test",
     "api:types": "openapi-typescript ../cuentas-api/docs/openapi-3.1.json -o src/lib/api/schema.d.ts"
   },
   "dependencies": {
@@ -29,6 +31,7 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/vite": "^4.3.3",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",

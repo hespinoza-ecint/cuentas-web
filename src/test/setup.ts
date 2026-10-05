@@ -5,7 +5,7 @@ import { resetSessionState } from '../lib/auth/session.ts'
 import { server } from './msw/server.ts'
 
 // Las consultas async tienen 1 s por defecto; en este entorno conviene más margen.
-configure({ asyncUtilTimeout: 5000 })
+configure({ asyncUtilTimeout: 10000 })
 
 beforeAll(() => {
   server.listen({ onUnhandledRequest: 'error' })

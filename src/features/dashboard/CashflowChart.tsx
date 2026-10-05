@@ -102,9 +102,9 @@ export function CashflowChart({ projection }: { projection: CashflowProjection }
             Mínimo {formatLocalDate(minPoint.date)}: {formatted(minPoint.balance)}
           </title>
         </circle>
-        {dateTicks.map((tick) => (
+        {dateTicks.map((tick, index) => (
           <text
-            key={tick.date}
+            key={`${tick.date}-${index}`}
             x={Math.min(Math.max(tick.x, PADDING.left + 16), WIDTH - PADDING.right - 16)}
             y={HEIGHT - 6}
             textAnchor="middle"

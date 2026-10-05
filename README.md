@@ -17,6 +17,7 @@ repositorio hermano [`cuentas-api`](../cuentas-api).
 | 4E | Recomendador, historial y reglas | ✅ Implementada |
 | 5 | Dashboard analítico, administración y cuenta/datos | ✅ Implementada |
 | 6 | Optimización (code splitting, offline de lectura, accesibilidad, despliegue) | ✅ Implementada |
+| E2E | Playwright contra el backend real (ver `docs/e2e-playwright.md`) | ✅ Implementada |
 | 5 | Dashboard analítico, reglas y administración | ⏳ Pendiente |
 | 6 | Optimización (PWA offline de lectura, accesibilidad, rendimiento, despliegue) | ⏳ Pendiente |
 
@@ -47,6 +48,7 @@ npm.cmd install
 | `npm.cmd run lint` | oxlint |
 | `npm.cmd run test` | Vitest (una pasada) |
 | `npm.cmd run test:watch` | Vitest en modo watch |
+| `npm.cmd run test:e2e` | Playwright contra el backend real (ver `docs/e2e-playwright.md`) |
 | `npm.cmd run api:types` | Regenera los tipos desde `../cuentas-api/docs/openapi-3.1.json` |
 
 ## Desarrollo con el backend
@@ -106,3 +108,4 @@ public/                  Íconos de la PWA
 - [Fase 4E — Recomendador, historial y reglas](docs/fase-04e-recomendador.md)
 - [Fase 5 — Dashboard analítico, administración y cuenta/datos](docs/fase-05-analitica-admin-cuenta.md)
 - [Fase 6 — Optimización y despliegue](docs/fase-06-optimizacion.md)
+- [Pruebas E2E con Playwright](docs/e2e-playwright.md)

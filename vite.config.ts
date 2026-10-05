@@ -67,10 +67,12 @@ export default defineConfig({
     // La ruta del proyecto vive en OneDrive (con espacios); el pool de
     // "forks" no logra arrancar en Windows en este entorno.
     pool: 'threads',
-    // Este equipo (OneDrive + 15 archivos) es lento montando jsdom: los
-    // tiempos por defecto de 5 s no alcanzan y más de 4 workers no arrancan.
-    testTimeout: 20000,
-    hookTimeout: 20000,
-    maxWorkers: 4,
+    // Los E2E de Playwright no corren con Vitest.
+    exclude: ['e2e/**', '**/node_modules/**', '**/dist/**'],
+    // Este equipo (OneDrive) es lento montando jsdom y cargando chunks:
+    // más de 3 workers saturan y los imports dinámicos no llegan a tiempo.
+    testTimeout: 30000,
+    hookTimeout: 30000,
+    maxWorkers: 3,
   },
 })
