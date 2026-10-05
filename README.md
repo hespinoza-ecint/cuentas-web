@@ -96,6 +96,22 @@ public/                  Íconos de la PWA
   (status, `detail`, `reason`, `requestId`, errores por campo).
 - **Tipos:** no se escriben a mano los contratos; se generan desde OpenAPI.
 
+## Despliegue en producción
+
+El escenario objetivo son **tres máquinas Ubuntu**: frontend (nginx), backend
+(Nest) y MySQL dedicado. Como el navegador solo habla con el dominio del front,
+nginx reenvía `/api` y `/health` a la máquina de la API, y así la cookie del
+refresh (`SameSite=Strict`) sigue funcionando sin CORS.
+
+1. `npm.cmd run build` en esta carpeta.
+2. Copia `dist/` a `/var/www/cuentas-web/dist` en la máquina del front.
+3. Adapta `deploy/nginx.conf.example` (dominio y `set $api_backend`) y actívalo.
+4. HTTPS con `certbot` (obligatorio para la PWA y las cookies `Secure`).
+
+La guía completa (MySQL, systemd del backend, nginx, respaldos y
+actualizaciones) está en
+[`cuentas-api/docs/despliegue-3-maquinas.md`](../cuentas-api/docs/despliegue-3-maquinas.md).
+
 ## Documentación por fase
 
 - [Fase 1 — Configuración inicial](docs/fase-01-configuracion.md)

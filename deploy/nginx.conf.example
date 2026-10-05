@@ -1,23 +1,37 @@
-# Ejemplo de nginx para produccion: el frontend y la API en el mismo dominio.
-# El service worker requiere que /sw.js y /index.html no se cacheen.
+# Ejemplo de nginx para produccion con el front y la API en maquinas distintas.
 #
-#   1) npm.cmd run build            (en cuentas-web)
+#   Front (esta maquina):  sirve dist/ del build de cuentas-web
+#   API   (otra maquina):  recibe /api y /health por proxy interno
+#   MySQL (otra maquina):  solo la API se conecta (nada que configurar aqui)
+#
+# Ajusta estas DOS lineas:
+#   server_name app.tudominio.com;
+#   set $api_backend http://10.0.0.20:3000;   # IP privada de la maquina de la API
+#
+# Instalacion:
+#   1) npm.cmd run build                 (en cuentas-web)
 #   2) copiar dist/ a /var/www/cuentas-web/dist
-#   3) systemctl reload nginx
+#   3) sudo cp deploy/nginx.conf.example /etc/nginx/sites-available/cuentas
+#   4) sudo nginx -t && sudo systemctl reload nginx
+#   5) HTTPS: sudo certbot --nginx -d app.tudominio.com
 
 server {
     listen 80;
-    server_name cuentas.example.com;
+    server_name app.tudominio.com;
 
     root /var/www/cuentas-web/dist;
     index index.html;
 
+    # IP privada de la maquina de la API
+    set $api_backend http://10.0.0.20:3000;
+
     gzip on;
     gzip_types text/plain text/css application/javascript application/json image/svg+xml;
 
-    # API y salud al backend (Nest + Fastify en el puerto 3000)
+    # La cookie del refresh (SameSite=Strict) viaja al mismo origen:
+    # el navegador solo habla con este dominio y nginx reenvia a la API.
     location /api/ {
-        proxy_pass http://127.0.0.1:3000;
+        proxy_pass $api_backend;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -26,10 +40,13 @@ server {
     }
 
     location = /health {
-        proxy_pass http://127.0.0.1:3000;
+        proxy_pass $api_backend;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    # El service worker nunca se cachea (si no, no se actualiza)
+    # El service worker nunca se cachea (si no, la PWA no se actualiza)
     location = /sw.js {
         add_header Cache-Control "no-cache";
         try_files $uri =404;
