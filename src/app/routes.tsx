@@ -9,6 +9,8 @@ import { RequireAuth, RedirectIfAuthenticated, SessionGate } from '../features/a
 import { AccountsPage } from '../features/accounts/AccountsPage.tsx'
 import { CategoriesPage } from '../features/categories/CategoriesPage.tsx'
 import { DashboardPage } from '../features/dashboard/DashboardPage.tsx'
+import { ExpensesPage } from '../features/expenses/ExpensesPage.tsx'
+import { RecurringPage } from '../features/expenses/RecurringPage.tsx'
 import { HealthPage } from '../features/health/HealthPage.tsx'
 import { MovementsPage } from '../features/movements/MovementsPage.tsx'
 import { ProfilePage } from '../features/profile/ProfilePage.tsx'
@@ -39,6 +41,8 @@ export const routes: RouteObject[] = [
               { path: '/', element: <DashboardPage /> },
               { path: '/cuentas', element: <AccountsPage /> },
               { path: '/movimientos', element: <MovementsPage /> },
+              { path: '/gastos', element: <ExpensesPage /> },
+              { path: '/recurrentes', element: <RecurringPage /> },
               { path: '/categorias', element: <CategoriesPage /> },
               { path: '/perfil', element: <ProfilePage /> },
               { path: '/configuracion', element: <SettingsPage /> },

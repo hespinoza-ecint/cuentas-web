@@ -11,8 +11,8 @@ repositorio hermano [`cuentas-api`](../cuentas-api).
 | 2 | Autenticación (login, registro, verificación, recuperación, sesión con refresh) | ✅ Implementada |
 | 3 | Layout principal, componentes compartidos y dashboard | ✅ Implementada |
 | 4A | Finanzas base: cuentas, movimientos y categorías | ✅ Implementada |
-| 4B | Gastos, recurrentes e ingresos | ⏳ Pendiente |
-| 4C | Tarjetas, cortes, pagos y compras | ⏳ Pendiente |
+| 4B | Gastos y gastos recurrentes | ✅ Implementada |
+| 4C | Ingresos, tarjetas, cortes, pagos y compras | ⏳ Pendiente |
 | 4D | Recomendador e historial | ⏳ Pendiente |
 | 5 | Dashboard analítico, reglas y administración | ⏳ Pendiente |
 | 6 | Optimización (PWA offline de lectura, accesibilidad, rendimiento, despliegue) | ⏳ Pendiente |
@@ -97,3 +97,4 @@ public/                  Íconos de la PWA
 - [Fase 2 — Autenticación](docs/fase-02-auth.md)
 - [Fase 3 — Layout principal, componentes y dashboard](docs/fase-03-layout.md)
 - [Fase 4A — Finanzas base: cuentas, movimientos y categorías](docs/fase-04a-finanzas-base.md)
+- [Fase 4B — Gastos y gastos recurrentes](docs/fase-04b-gastos-recurrentes.md)

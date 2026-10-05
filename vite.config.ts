@@ -49,9 +49,10 @@ export default defineConfig({
     // La ruta del proyecto vive en OneDrive (con espacios); el pool de
     // "forks" no logra arrancar en Windows en este entorno.
     pool: 'threads',
-    // Este equipo (OneDrive + 10 archivos en paralelo) es lento montando
-    // jsdom: los tiempos por defecto de 5 s no alcanzan.
+    // Este equipo (OneDrive + 15 archivos) es lento montando jsdom: los
+    // tiempos por defecto de 5 s no alcanzan y más de 4 workers no arrancan.
     testTimeout: 20000,
     hookTimeout: 20000,
+    maxWorkers: 4,
   },
 })
