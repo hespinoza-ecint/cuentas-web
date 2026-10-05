@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { ArrowDownRight, ArrowUpRight, CreditCard, Sparkles } from 'lucide-react'
+import { Link } from 'react-router'
 import { MoneyDisplay } from '../../components/shared/MoneyDisplay.tsx'
 import { ErrorState } from '../../components/shared/ErrorState.tsx'
 import { Badge } from '../../components/ui/badge.tsx'
@@ -38,6 +39,15 @@ export function DashboardPage() {
           summary.data
             ? `Resumen de ${formatMonth(summary.data.month)} · hoy ${formatLocalDate(summary.data.today)}`
             : 'Cargando resumen…'
+        }
+        actions={
+          <Link
+            to="/recomendador"
+            className="inline-flex h-8 items-center gap-2 rounded-lg bg-slate-900 px-3 text-xs font-medium text-white hover:bg-slate-700"
+          >
+            <Sparkles className="size-4" aria-hidden="true" />
+            ¿Qué tarjeta uso?
+          </Link>
         }
       />
 

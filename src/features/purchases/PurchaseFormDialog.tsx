@@ -54,11 +54,21 @@ export function PurchaseFormDialog({
   categories,
   open,
   onOpenChange,
+  initial,
 }: {
   cards: CreditCard[]
   categories: Category[]
   open: boolean
   onOpenChange: (open: boolean) => void
+  initial?: {
+    creditCardId?: string
+    amount?: number
+    purchaseDate?: string
+    type?: 'REGULAR' | 'MSI' | 'DEFERRED_INTEREST'
+    months?: string
+    annualRatePercent?: string
+    recommendationId?: string
+  }
 }) {
   const queryClient = useQueryClient()
   const today = useToday()
@@ -66,14 +76,14 @@ export function PurchaseFormDialog({
   const form = useForm<PurchaseForm>({
     resolver: zodResolver(purchaseSchema),
     defaultValues: {
-      creditCardId: cards[0]?.id ?? '',
+      creditCardId: initial?.creditCardId ?? cards[0]?.id ?? '',
       categoryId: '',
       description: '',
-      amount: undefined,
-      purchaseDate: today,
-      type: 'REGULAR',
-      months: '3',
-      annualRatePercent: '0',
+      amount: initial?.amount,
+      purchaseDate: initial?.purchaseDate ?? today,
+      type: initial?.type ?? 'REGULAR',
+      months: initial?.months ?? '3',
+      annualRatePercent: initial?.annualRatePercent ?? '0',
       commissionMode: 'NONE',
       commissionAmount: undefined,
     },
@@ -103,6 +113,7 @@ export function PurchaseFormDialog({
         ...(values.commissionMode !== 'NONE' && values.commissionAmount
           ? { commissionAmount: values.commissionAmount, commissionMode: values.commissionMode }
           : {}),
+        ...(initial?.recommendationId ? { recommendationId: initial.recommendationId } : {}),
       }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['purchases'] })

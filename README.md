@@ -14,7 +14,8 @@ repositorio hermano [`cuentas-api`](../cuentas-api).
 | 4B | Gastos y gastos recurrentes | ✅ Implementada |
 | 4C | Ingresos (fuentes, calendarios, confirmaciones e historial) | ✅ Implementada |
 | 4D | Tarjetas, cortes, pagos y compras | ✅ Implementada |
-| 4E | Recomendador e historial | ⏳ Pendiente |
+| 4E | Recomendador, historial y reglas | ✅ Implementada |
+| 5 | Dashboard analítico, administración y cuenta/datos | ⏳ Pendiente |
 | 5 | Dashboard analítico, reglas y administración | ⏳ Pendiente |
 | 6 | Optimización (PWA offline de lectura, accesibilidad, rendimiento, despliegue) | ⏳ Pendiente |
 
@@ -101,3 +102,4 @@ public/                  Íconos de la PWA
 - [Fase 4B — Gastos y gastos recurrentes](docs/fase-04b-gastos-recurrentes.md)
 - [Fase 4C — Ingresos](docs/fase-04c-ingresos.md)
 - [Fase 4D — Tarjetas, pagos y compras](docs/fase-04d-tarjetas-pagos-compras.md)
+- [Fase 4E — Recomendador, historial y reglas](docs/fase-04e-recomendador.md)

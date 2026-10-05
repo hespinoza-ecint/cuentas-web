@@ -19,6 +19,9 @@ import { MovementsPage } from '../features/movements/MovementsPage.tsx'
 import { CardPaymentsPage } from '../features/payments/CardPaymentsPage.tsx'
 import { ProfilePage } from '../features/profile/ProfilePage.tsx'
 import { PurchasesPage } from '../features/purchases/PurchasesPage.tsx'
+import { RecommendationHistoryPage } from '../features/recommendations/RecommendationHistoryPage.tsx'
+import { RecommendationRulesPage } from '../features/recommendations/RecommendationRulesPage.tsx'
+import { RecomendadorPage } from '../features/recommendations/RecomendadorPage.tsx'
 import { SessionsPage } from '../features/sessions/SessionsPage.tsx'
 import { SettingsPage } from '../features/settings/SettingsPage.tsx'
 import { AppShell } from './AppShell.tsx'
@@ -44,6 +47,9 @@ export const routes: RouteObject[] = [
             element: <AppShell />,
             children: [
               { path: '/', element: <DashboardPage /> },
+              { path: '/recomendador', element: <RecomendadorPage /> },
+              { path: '/recomendaciones', element: <RecommendationHistoryPage /> },
+              { path: '/reglas', element: <RecommendationRulesPage /> },
               { path: '/cuentas', element: <AccountsPage /> },
               { path: '/movimientos', element: <MovementsPage /> },
               { path: '/gastos', element: <ExpensesPage /> },
