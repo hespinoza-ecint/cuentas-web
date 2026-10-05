@@ -54,3 +54,39 @@ export async function updateSettings(input: UpdateSettingsInput): Promise<UserSe
   }
   return data
 }
+
+export interface ExportResult {
+  data: unknown
+  filename: string
+}
+
+export async function exportAccountData(): Promise<ExportResult> {
+  const { data, error, response } = await api.GET('/api/v1/users/me/export')
+  if (error || !data) {
+    throw problemFrom(error, response)
+  }
+  const disposition = response.headers.get('content-disposition') ?? ''
+  const match = /filename="?([^";]+)"?/.exec(disposition)
+  return {
+    data,
+    filename: match?.[1] ?? `cuentas-export-${new Date().toISOString().slice(0, 10)}.json`,
+  }
+}
+
+export async function deleteAccount(password: string): Promise<string> {
+  const { data, error, response } = await api.POST('/api/v1/users/me/delete', { body: { password } })
+  if (error) {
+    throw problemFrom(error, response)
+  }
+  const message = (data as { message?: string } | undefined)?.message
+  return message ?? 'La cuenta se eliminará en 30 días.'
+}
+
+export async function cancelDeletion(): Promise<string> {
+  const { data, error, response } = await api.POST('/api/v1/users/me/cancel-deletion')
+  if (error) {
+    throw problemFrom(error, response)
+  }
+  const message = (data as { message?: string } | undefined)?.message
+  return message ?? 'La eliminación fue cancelada.'
+}

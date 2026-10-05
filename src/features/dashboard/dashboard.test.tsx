@@ -98,9 +98,10 @@ describe('dashboard', () => {
     renderApp(['/'])
 
     expect(await screen.findByText('Hola, Ana')).toBeInTheDocument()
-    expect(await screen.findByText('$9,750.00')).toBeInTheDocument()
+    expect((await screen.findAllByText('$9,750.00')).length).toBeGreaterThan(0)
     expect(screen.getByText('$12,000.00')).toBeInTheDocument()
-    expect(screen.getByText('-$500.00')).toBeInTheDocument()
+    expect(screen.getByTestId('cashflow-chart')).toBeInTheDocument()
+    expect(screen.getAllByText('-$500.00').length).toBeGreaterThan(0)
     expect(screen.getByText('Por debajo del colchón')).toBeInTheDocument()
     expect(screen.getByText('20.0%')).toBeInTheDocument()
     expect(screen.getByText('Oro ····4321')).toBeInTheDocument()

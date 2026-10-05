@@ -5,7 +5,10 @@ import { LoginPage } from '../features/auth/LoginPage.tsx'
 import { RegisterPage } from '../features/auth/RegisterPage.tsx'
 import { ResetPasswordPage } from '../features/auth/ResetPasswordPage.tsx'
 import { VerifyEmailPage } from '../features/auth/VerifyEmailPage.tsx'
-import { RequireAuth, RedirectIfAuthenticated, SessionGate } from '../features/auth/AuthGuard.tsx'
+import { RequireAdmin, RequireAuth, RedirectIfAuthenticated, SessionGate } from '../features/auth/AuthGuard.tsx'
+import { AccountPage } from '../features/account/AccountPage.tsx'
+import { AdminRulesPage } from '../features/admin/AdminRulesPage.tsx'
+import { MaintenancePage } from '../features/admin/MaintenancePage.tsx'
 import { AccountsPage } from '../features/accounts/AccountsPage.tsx'
 import { CardDetailPage } from '../features/cards/CardDetailPage.tsx'
 import { CardsPage } from '../features/cards/CardsPage.tsx'
@@ -63,7 +66,15 @@ export const routes: RouteObject[] = [
               { path: '/perfil', element: <ProfilePage /> },
               { path: '/configuracion', element: <SettingsPage /> },
               { path: '/sesiones', element: <SessionsPage /> },
+              { path: '/cuenta', element: <AccountPage /> },
               { path: '/estado', element: <HealthPage /> },
+              {
+                element: <RequireAdmin />,
+                children: [
+                  { path: '/admin/reglas', element: <AdminRulesPage /> },
+                  { path: '/admin/mantenimiento', element: <MaintenancePage /> },
+                ],
+              },
             ],
           },
         ],

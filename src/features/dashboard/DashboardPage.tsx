@@ -11,6 +11,7 @@ import { Skeleton } from '../../components/ui/skeleton.tsx'
 import { formatLocalDate, formatMonth } from '../../lib/dates.ts'
 import { cn } from '../../lib/utils.ts'
 import { useSessionUser } from '../auth/use-session.ts'
+import { CashflowChart } from './CashflowChart.tsx'
 import { fetchCashflowProjection, fetchDashboardSummary } from './dashboard-api.ts'
 
 const PAYMENT_TYPES: Record<string, string> = {
@@ -124,6 +125,8 @@ export function DashboardPage() {
               )}
             </Card>
           </div>
+
+          {projection.data && <CashflowChart projection={projection.data} />}
 
           <Card>
             <div className="flex items-center justify-between gap-3">

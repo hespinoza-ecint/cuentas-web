@@ -13,6 +13,8 @@ export function AppShell() {
   const { logout, pending } = useLogout()
   const [menuOpen, setMenuOpen] = useState(false)
 
+  const items = NAV_ITEMS.filter((item) => !item.adminOnly || user?.role === 'ADMIN')
+
   useEffect(() => {
     if (!menuOpen) {
       return
@@ -59,7 +61,7 @@ export function AppShell() {
                   className="absolute right-0 z-50 mt-2 w-56 rounded-xl border border-slate-200 bg-white p-1 shadow-lg"
                 >
                   <p className="truncate px-3 py-2 text-xs text-slate-500">{user?.email}</p>
-                  {NAV_ITEMS.map((item) => (
+                  {items.map((item) => (
                     <NavLink
                       key={item.to}
                       to={item.to}
@@ -90,10 +92,19 @@ export function AppShell() {
         </div>
       </header>
 
+      {user?.status === 'PENDING_DELETION' && (
+        <div className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-center text-sm text-amber-800">
+          Tu cuenta está en proceso de eliminación.{' '}
+          <Link to="/cuenta" className="font-medium underline">
+            Gestionar
+          </Link>
+        </div>
+      )}
+
       <div className="mx-auto flex max-w-6xl gap-6 px-4 py-6">
         <aside className="hidden w-52 shrink-0 md:block">
           <nav className="space-y-1" aria-label="Principal">
-            {NAV_ITEMS.map((item) => (
+            {items.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
@@ -124,7 +135,7 @@ export function AppShell() {
         className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white md:hidden"
       >
         <div className="mx-auto grid max-w-md grid-cols-4">
-          {NAV_ITEMS.slice(0, 4).map((item) => (
+          {items.slice(0, 4).map((item) => (
             <NavLink
               key={item.to}
               to={item.to}

@@ -3,6 +3,7 @@ import {
   ArrowLeftRight,
   Banknote,
   CreditCard,
+  Hammer,
   History,
   LayoutDashboard,
   Receipt,
@@ -15,7 +16,9 @@ import {
   Tags,
   TrendingUp,
   User,
+  UserCog,
   Wallet,
+  Wrench,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -24,6 +27,7 @@ export interface NavItem {
   label: string
   icon: LucideIcon
   end?: boolean
+  adminOnly?: boolean
 }
 
 export const NAV_ITEMS: NavItem[] = [
@@ -43,5 +47,8 @@ export const NAV_ITEMS: NavItem[] = [
   { to: '/perfil', label: 'Perfil', icon: User },
   { to: '/configuracion', label: 'Configuración', icon: Settings },
   { to: '/sesiones', label: 'Sesiones', icon: ShieldCheck },
+  { to: '/cuenta', label: 'Cuenta y datos', icon: UserCog },
   { to: '/estado', label: 'Estado', icon: Activity },
+  { to: '/admin/reglas', label: 'Reglas globales', icon: Wrench, adminOnly: true },
+  { to: '/admin/mantenimiento', label: 'Mantenimiento', icon: Hammer, adminOnly: true },
 ]
