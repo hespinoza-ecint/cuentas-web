@@ -52,6 +52,26 @@ export function isProblemError(error: unknown): error is ProblemError {
   return error instanceof ProblemError
 }
 
+/**
+ * Construye el `ProblemError` a partir del error ya parseado por `openapi-fetch`
+ * (que consume el cuerpo de la respuesta) con respaldo en el status HTTP.
+ */
+export function problemFrom(error: unknown, response: Response): ProblemError {
+  if (error && typeof error === 'object' && !(error instanceof ProblemError)) {
+    const details = error as Partial<ProblemDetails>
+    return new ProblemError({
+      ...details,
+      title: details.title ?? (response.statusText || 'Error de la API'),
+      status: typeof details.status === 'number' ? details.status : response.status,
+    })
+  }
+
+  return new ProblemError({
+    status: response.status,
+    title: response.statusText || 'Error de la API',
+  })
+}
+
 /** Convierte una respuesta fallida del backend en `ProblemError`. */
 export async function toProblemError(response: Response): Promise<ProblemError> {
   try {

@@ -1,9 +1,4 @@
 import { createBrowserRouter } from 'react-router'
-import { HealthPage } from '../features/health/HealthPage.tsx'
+import { routes } from './routes.tsx'
 
-export const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <HealthPage />,
-  },
-])
+export const router = createBrowserRouter(routes)

@@ -8,7 +8,7 @@ repositorio hermano [`cuentas-api`](../cuentas-api).
 | Fase | Descripción | Estado |
 |---|---|---|
 | 1 | Configuración inicial (Vite + React + TS, Tailwind, PWA, tipos OpenAPI, utilidades base) | ✅ Implementada |
-| 2 | Autenticación (login, registro, verificación, recuperación, sesión con refresh) | ⏳ Pendiente |
+| 2 | Autenticación (login, registro, verificación, recuperación, sesión con refresh) | ✅ Implementada |
 | 3 | Layout principal y componentes compartidos | ⏳ Pendiente |
 | 4 | CRUDs financieros (cuentas, movimientos, gastos, ingresos, tarjetas, pagos, compras, recomendador) | ⏳ Pendiente |
 | 5 | Dashboard analítico, reglas y administración | ⏳ Pendiente |
@@ -88,3 +88,4 @@ public/                  Íconos de la PWA
 ## Documentación por fase
 
 - [Fase 1 — Configuración inicial](docs/fase-01-configuracion.md)
+- [Fase 2 — Autenticación](docs/fase-02-auth.md)

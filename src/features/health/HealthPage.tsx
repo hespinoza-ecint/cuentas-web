@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../../lib/api/client.ts'
-import { isProblemError, toProblemError, type ProblemError } from '../../lib/problem.ts'
+import { isProblemError, problemFrom, type ProblemError } from '../../lib/problem.ts'
 
 interface HealthResponse {
   status: string
@@ -19,7 +19,7 @@ export function HealthPage() {
     queryFn: async (): Promise<HealthResponse> => {
       const { data, error, response } = await api.GET('/health')
       if (error) {
-        throw await toProblemError(response)
+        throw problemFrom(error, response)
       }
       return data as HealthResponse
     },
