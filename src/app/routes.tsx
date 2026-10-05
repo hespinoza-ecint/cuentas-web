@@ -7,6 +7,8 @@ import { ResetPasswordPage } from '../features/auth/ResetPasswordPage.tsx'
 import { VerifyEmailPage } from '../features/auth/VerifyEmailPage.tsx'
 import { RequireAuth, RedirectIfAuthenticated, SessionGate } from '../features/auth/AuthGuard.tsx'
 import { AccountsPage } from '../features/accounts/AccountsPage.tsx'
+import { CardDetailPage } from '../features/cards/CardDetailPage.tsx'
+import { CardsPage } from '../features/cards/CardsPage.tsx'
 import { CategoriesPage } from '../features/categories/CategoriesPage.tsx'
 import { DashboardPage } from '../features/dashboard/DashboardPage.tsx'
 import { ExpensesPage } from '../features/expenses/ExpensesPage.tsx'
@@ -14,7 +16,9 @@ import { RecurringPage } from '../features/expenses/RecurringPage.tsx'
 import { HealthPage } from '../features/health/HealthPage.tsx'
 import { IncomePage } from '../features/income/IncomePage.tsx'
 import { MovementsPage } from '../features/movements/MovementsPage.tsx'
+import { CardPaymentsPage } from '../features/payments/CardPaymentsPage.tsx'
 import { ProfilePage } from '../features/profile/ProfilePage.tsx'
+import { PurchasesPage } from '../features/purchases/PurchasesPage.tsx'
 import { SessionsPage } from '../features/sessions/SessionsPage.tsx'
 import { SettingsPage } from '../features/settings/SettingsPage.tsx'
 import { AppShell } from './AppShell.tsx'
@@ -45,6 +49,10 @@ export const routes: RouteObject[] = [
               { path: '/gastos', element: <ExpensesPage /> },
               { path: '/recurrentes', element: <RecurringPage /> },
               { path: '/ingresos', element: <IncomePage /> },
+              { path: '/compras', element: <PurchasesPage /> },
+              { path: '/tarjetas', element: <CardsPage /> },
+              { path: '/tarjetas/:id', element: <CardDetailPage /> },
+              { path: '/pagos', element: <CardPaymentsPage /> },
               { path: '/categorias', element: <CategoriesPage /> },
               { path: '/perfil', element: <ProfilePage /> },
               { path: '/configuracion', element: <SettingsPage /> },
