@@ -29,6 +29,7 @@ const purchaseSchema = z
     type: z.enum(['REGULAR', 'MSI', 'DEFERRED_INTEREST']),
     months: z.string().optional(),
     annualRatePercent: z.string().optional(),
+    firstStatementMonth: z.string().optional(),
     commissionMode: z.enum(['NONE', 'UPFRONT', 'PRORATED']),
     commissionAmount: z.number().int().min(0).optional(),
   })
@@ -84,6 +85,7 @@ export function PurchaseFormDialog({
       type: initial?.type ?? 'REGULAR',
       months: initial?.months ?? '3',
       annualRatePercent: initial?.annualRatePercent ?? '0',
+      firstStatementMonth: '',
       commissionMode: 'NONE',
       commissionAmount: undefined,
     },
@@ -108,6 +110,9 @@ export function PurchaseFormDialog({
                 values.type === 'DEFERRED_INTEREST'
                   ? Math.round(Number((values.annualRatePercent ?? '0').replace(',', '.')) * 100)
                   : 0,
+              ...(/^\d{4}-\d{2}$/.test(values.firstStatementMonth ?? '')
+                ? { firstStatementMonth: values.firstStatementMonth }
+                : {}),
             }
           : {}),
         ...(values.commissionMode !== 'NONE' && values.commissionAmount
@@ -183,21 +188,37 @@ export function PurchaseFormDialog({
             </SelectField>
 
             {type !== 'REGULAR' && (
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field
-                  label="Meses"
-                  inputMode="numeric"
-                  error={form.formState.errors.months?.message}
-                  {...form.register('months')}
-                />
-                {type === 'DEFERRED_INTEREST' && (
+              <div className="space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2">
                   <Field
-                    label="Tasa anual (%)"
-                    inputMode="decimal"
-                    error={form.formState.errors.annualRatePercent?.message}
-                    {...form.register('annualRatePercent')}
+                    label="Meses"
+                    inputMode="numeric"
+                    error={form.formState.errors.months?.message}
+                    {...form.register('months')}
                   />
-                )}
+                  {type === 'DEFERRED_INTEREST' && (
+                    <Field
+                      label="Tasa anual (%)"
+                      inputMode="decimal"
+                      error={form.formState.errors.annualRatePercent?.message}
+                      {...form.register('annualRatePercent')}
+                    />
+                  )}
+                </div>
+                <div>
+                  <Field
+                    label="Mes del primer corte"
+                    type="month"
+                    max={today.slice(0, 7)}
+                    error={form.formState.errors.firstStatementMonth?.message}
+                    {...form.register('firstStatementMonth')}
+                  />
+                  <p className="mt-1 text-xs text-slate-500">
+                    Déjalo vacío si es una compra nueva. Si ya venía en pagos, elige el mes de su
+                    primer corte: las mensualidades ya vencidas se registran como pagadas y la
+                    tarjeta solo suma el principal pendiente.
+                  </p>
+                </div>
               </div>
             )}
 

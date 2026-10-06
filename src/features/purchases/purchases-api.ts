@@ -72,6 +72,8 @@ export interface CreatePurchaseInput {
   annualRateBps?: number
   commissionAmount?: number
   commissionMode?: 'NONE' | 'UPFRONT' | 'PRORATED'
+  /** Mes del primer corte ("YYYY-MM") para compras a meses ya iniciadas. */
+  firstStatementMonth?: string
   notes?: string
   recommendationId?: string
 }

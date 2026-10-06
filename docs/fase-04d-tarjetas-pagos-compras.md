@@ -59,3 +59,12 @@ Cobertura nueva:
   explicado, historial y reglas propias.
 - La edición de una ocurrencia recurrente con monto real (`actualAmount`)
   puede agregarse como mejora en la Fase 5.
+
+## 6. Actualización — compras a meses ya iniciadas (backend Fase 10)
+
+En MSI y diferidas el formulario tiene un campo opcional **Mes del primer
+corte**: se elige el mes en que empezó a pagarse la compra (deja vacío si es
+nueva). El backend marca las mensualidades ya vencidas como pagadas, la tarjeta
+solo suma el principal pendiente y `Mensualidad` pasa a ser la primera vigente;
+el detalle muestra las mensualidades pagadas y las pendientes. Cobertura nueva:
+alta MSI con mes del primer corte.

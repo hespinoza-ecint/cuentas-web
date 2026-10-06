@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from '@testing-library/react'
+import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { HttpResponse, http } from 'msw'
 import { describe, expect, it } from 'vitest'
@@ -142,7 +142,37 @@ describe('compras', () => {
     expect(created?.months).toBe(3)
     expect(created?.amount).toBe(1200000)
     expect(created?.annualRateBps).toBe(0)
+    expect(created?.firstStatementMonth).toBeUndefined()
     expect(created?.purchaseDate).toBe(todayInTimeZone(userSettingsFixture.timezone))
+  })
+
+  it('registra una compra MSI ya iniciada con mes del primer corte', async () => {
+    let created: Record<string, unknown> | null = null
+
+    server.use(
+      ...baseHandlers(),
+      http.post(`${API_BASE}/api/v1/purchases`, async ({ request }) => {
+        created = (await request.json()) as Record<string, unknown>
+        return HttpResponse.json(purchase, { status: 201 })
+      }),
+    )
+
+    renderApp(['/compras'])
+    const user = userEvent.setup()
+
+    await user.click(await screen.findByRole('button', { name: 'Registrar compra' }))
+    const dialog = await screen.findByRole('dialog')
+    await user.type(within(dialog).getByLabelText('Descripción'), 'Telefono viejo')
+    await user.type(within(dialog).getByLabelText('Monto'), '6000')
+    await user.selectOptions(within(dialog).getByLabelText('Tipo'), 'MSI')
+    fireEvent.change(within(dialog).getByLabelText('Mes del primer corte'), {
+      target: { value: '2026-05' },
+    })
+    await user.click(within(dialog).getByRole('button', { name: 'Registrar compra' }))
+
+    await waitFor(() => expect(created).not.toBeNull())
+    expect(created?.type).toBe('MSI')
+    expect(created?.firstStatementMonth).toBe('2026-05')
   })
 
   it('cancela una compra con motivo', async () => {

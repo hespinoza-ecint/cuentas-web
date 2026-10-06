@@ -1471,6 +1471,7 @@ export interface components {
             commissionAmount?: number;
             /** @enum {string} */
             commissionMode?: "NONE" | "UPFRONT" | "PRORATED";
+            firstStatementMonth?: string;
             notes?: string;
             /** Format: uuid */
             recommendationId?: string;
