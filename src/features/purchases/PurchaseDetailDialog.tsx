@@ -110,7 +110,7 @@ export function PurchaseDetailDialog({
                     <MoneyDisplay cents={plan.outstandingPrincipal} className="font-medium" />
                   </div>
                   <div>
-                    Mensualidad:{' '}
+                    Mensualidad promedio:{' '}
                     <MoneyDisplay cents={plan.estimatedMonthlyPayment} className="font-medium" />
                   </div>
                   {plan.totalInterest > 0 && (
