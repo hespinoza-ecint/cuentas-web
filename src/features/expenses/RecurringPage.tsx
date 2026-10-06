@@ -13,6 +13,7 @@ import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
 import { formatLocalDate } from '../../lib/dates.ts'
 import { listAccounts } from '../accounts/accounts-api.ts'
+import { listCards } from '../cards/cards-api.ts'
 import { listCategories } from '../categories/categories-api.ts'
 import { useToday } from '../users/use-settings.ts'
 import {
@@ -32,6 +33,15 @@ const FREQUENCY_LABELS: Record<string, string> = {
   ONE_TIME: 'Única',
 }
 
+function paymentSource(item: RecurringExpense): string {
+  if (item.paymentMethod === 'CREDIT_CARD') {
+    return item.creditCard
+      ? `Tarjeta ${item.creditCard.alias} •••• ${item.creditCard.last4}`
+      : 'Tarjeta de crédito'
+  }
+  return item.cashAccount ? `Cuenta ${item.cashAccount.name}` : 'Cuenta de efectivo'
+}
+
 export function RecurringPage() {
   const queryClient = useQueryClient()
   const today = useToday()
@@ -44,6 +54,7 @@ export function RecurringPage() {
   const [notice, setNotice] = useState<string | null>(null)
 
   const accounts = useQuery({ queryKey: ['accounts'], queryFn: listAccounts })
+  const cards = useQuery({ queryKey: ['cards'], queryFn: listCards })
   const categories = useQuery({
     queryKey: ['categories', 'EXPENSE'],
     queryFn: () => listCategories('EXPENSE'),
@@ -60,12 +71,18 @@ export function RecurringPage() {
   const confirm = useMutation({
     mutationFn: ({ id, occurrenceDate }: { id: string; occurrenceDate: string }) =>
       confirmRecurring(id, { occurrenceDate, actualDate: today }),
-    onSuccess: () => {
-      setNotice('Ocurrencia confirmada: se registró el gasto y su movimiento.')
+    onSuccess: (result) => {
+      setNotice(
+        result.purchaseId
+          ? 'Ocurrencia confirmada: se registró la compra en la tarjeta.'
+          : 'Ocurrencia confirmada: se registró el gasto y su movimiento.',
+      )
       setConfirmingId(null)
       void queryClient.invalidateQueries({ queryKey: ['recurring-upcoming'] })
       void queryClient.invalidateQueries({ queryKey: ['expenses'] })
       void queryClient.invalidateQueries({ queryKey: ['accounts'] })
+      void queryClient.invalidateQueries({ queryKey: ['cards'] })
+      void queryClient.invalidateQueries({ queryKey: ['purchases'] })
     },
     onError: () => setConfirmingId(null),
   })
@@ -87,7 +104,11 @@ export function RecurringPage() {
         title="Gastos recurrentes"
         description="Servicios y rentas que se repiten: confirma cada ocurrencia para registrarla"
         actions={
-          <Button size="sm" onClick={() => setCreateOpen(true)} disabled={(accounts.data ?? []).length === 0}>
+          <Button
+            size="sm"
+            onClick={() => setCreateOpen(true)}
+            disabled={(accounts.data ?? []).length === 0 && (cards.data ?? []).length === 0}
+          >
             Nuevo recurrente
           </Button>
         }
@@ -196,7 +217,8 @@ export function RecurringPage() {
                   </p>
                   <p className="mt-1 text-xs text-slate-500">
                     Desde {formatLocalDate(item.startDate)}
-                    {item.endDate ? ` hasta ${formatLocalDate(item.endDate)}` : ''}
+                    {item.endDate ? ` hasta ${formatLocalDate(item.endDate)}` : ''} ·{' '}
+                    {paymentSource(item)}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -217,6 +239,7 @@ export function RecurringPage() {
       {createOpen && (
         <RecurringFormDialog
           accounts={accounts.data ?? []}
+          cards={cards.data ?? []}
           categories={categories.data ?? []}
           open
           onOpenChange={setCreateOpen}
@@ -225,6 +248,7 @@ export function RecurringPage() {
       {editing && (
         <RecurringFormDialog
           accounts={accounts.data ?? []}
+          cards={cards.data ?? []}
           categories={categories.data ?? []}
           open
           onOpenChange={(open) => {

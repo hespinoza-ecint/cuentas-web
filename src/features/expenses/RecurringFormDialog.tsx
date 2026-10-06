@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { Controller, useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
 import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
 import { Field } from '../../components/shared/Field.tsx'
@@ -24,6 +24,7 @@ import {
   DialogTitle,
 } from '../../components/ui/dialog.tsx'
 import type { CashAccount } from '../accounts/accounts-api.ts'
+import type { CreditCard } from '../cards/cards-api.ts'
 import type { Category } from '../categories/categories-api.ts'
 import { useToday } from '../users/use-settings.ts'
 import {
@@ -32,25 +33,38 @@ import {
   type RecurringExpense,
 } from './recurring-expenses-api.ts'
 
-const recurringSchema = z.object({
-  name: z.string().trim().min(1, 'El nombre es obligatorio').max(120, 'Máximo 120 caracteres'),
-  amount: z.number({ message: 'Captura el monto' }).int().min(1, 'El monto debe ser mayor a cero'),
-  amountType: z.enum(['FIXED', 'VARIABLE']),
-  cashAccountId: z.string().min(1, 'Elige la cuenta'),
-  categoryId: z.string().optional(),
-  isActive: z.boolean(),
-})
+const recurringSchema = z
+  .object({
+    name: z.string().trim().min(1, 'El nombre es obligatorio').max(120, 'Máximo 120 caracteres'),
+    amount: z.number({ message: 'Captura el monto' }).int().min(1, 'El monto debe ser mayor a cero'),
+    amountType: z.enum(['FIXED', 'VARIABLE']),
+    paymentMethod: z.enum(['CASH_ACCOUNT', 'CREDIT_CARD']),
+    cashAccountId: z.string().optional(),
+    creditCardId: z.string().optional(),
+    categoryId: z.string().optional(),
+    isActive: z.boolean(),
+  })
+  .superRefine((values, ctx) => {
+    if (values.paymentMethod === 'CASH_ACCOUNT' && !values.cashAccountId) {
+      ctx.addIssue({ code: 'custom', path: ['cashAccountId'], message: 'Elige la cuenta' })
+    }
+    if (values.paymentMethod === 'CREDIT_CARD' && !values.creditCardId) {
+      ctx.addIssue({ code: 'custom', path: ['creditCardId'], message: 'Elige la tarjeta' })
+    }
+  })
 
 type RecurringForm = z.infer<typeof recurringSchema>
 
 export function RecurringFormDialog({
   accounts,
+  cards,
   categories,
   open,
   onOpenChange,
   editing,
 }: {
   accounts: CashAccount[]
+  cards: CreditCard[]
   categories: Category[]
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -72,27 +86,47 @@ export function RecurringFormDialog({
   )
   const [scheduleError, setScheduleError] = useState<string | null>(null)
 
+  const selectableCards = cards.filter(
+    (card) => card.status === 'ACTIVE' || card.id === editing?.creditCardId,
+  )
+  const defaultPaymentMethod: 'CASH_ACCOUNT' | 'CREDIT_CARD' =
+    (editing?.paymentMethod as 'CASH_ACCOUNT' | 'CREDIT_CARD' | undefined) ??
+    (accounts.length > 0 ? 'CASH_ACCOUNT' : 'CREDIT_CARD')
+
   const form = useForm<RecurringForm>({
     resolver: zodResolver(recurringSchema),
     defaultValues: {
       name: editing?.name ?? '',
       amount: editing?.amount,
       amountType: (editing?.amountType as 'FIXED' | 'VARIABLE') ?? 'FIXED',
+      paymentMethod: defaultPaymentMethod,
       cashAccountId: editing?.cashAccountId ?? accounts[0]?.id ?? '',
+      creditCardId: editing?.creditCardId ?? selectableCards[0]?.id ?? '',
       categoryId: editing?.categoryId ?? '',
       isActive: editing?.isActive ?? true,
     },
   })
+  const paymentMethod = useWatch({ control: form.control, name: 'paymentMethod' })
 
   const mutation = useMutation({
     mutationFn: (values: RecurringForm) => {
       const schedulePayload = scheduleValueToPayload(schedule)
+      const payment =
+        values.paymentMethod === 'CREDIT_CARD'
+          ? {
+              paymentMethod: 'CREDIT_CARD' as const,
+              ...(values.creditCardId ? { creditCardId: values.creditCardId } : {}),
+            }
+          : {
+              paymentMethod: 'CASH_ACCOUNT' as const,
+              ...(values.cashAccountId ? { cashAccountId: values.cashAccountId } : {}),
+            }
       if (editing) {
         return updateRecurring(editing.id, {
           name: values.name,
           amount: values.amount,
           amountType: values.amountType,
-          cashAccountId: values.cashAccountId,
+          ...payment,
           ...(values.categoryId ? { categoryId: values.categoryId } : {}),
           config: schedulePayload.config,
           nonBusinessDayRule: schedulePayload.nonBusinessDayRule,
@@ -106,7 +140,7 @@ export function RecurringFormDialog({
         name: values.name,
         amount: values.amount,
         amountType: values.amountType,
-        cashAccountId: values.cashAccountId,
+        ...payment,
         ...(values.categoryId ? { categoryId: values.categoryId } : {}),
         schedule: schedulePayload,
       })
@@ -133,8 +167,8 @@ export function RecurringFormDialog({
         <form onSubmit={onSubmit} noValidate>
           <DialogTitle>{editing ? 'Editar gasto recurrente' : 'Nuevo gasto recurrente'}</DialogTitle>
           <DialogDescription>
-            El gasto se registra al confirmar cada ocurrencia; los días inhábiles ajustan la fecha
-            (RN-09).
+            El gasto se registra al confirmar cada ocurrencia, en efectivo o con tarjeta de crédito;
+            los días inhábiles ajustan la fecha (RN-09).
           </DialogDescription>
 
           <div className="mt-4 space-y-4">
@@ -162,14 +196,37 @@ export function RecurringFormDialog({
                 <option value="FIXED">Fijo</option>
                 <option value="VARIABLE">Variable</option>
               </SelectField>
-              <SelectField label="Cuenta" {...form.register('cashAccountId')}>
+              <SelectField label="Método de pago" {...form.register('paymentMethod')}>
+                <option value="CASH_ACCOUNT">Cuenta de efectivo</option>
+                <option value="CREDIT_CARD">Tarjeta de crédito</option>
+              </SelectField>
+            </div>
+            {paymentMethod === 'CREDIT_CARD' ? (
+              <SelectField
+                label="Tarjeta"
+                error={form.formState.errors.creditCardId?.message}
+                {...form.register('creditCardId')}
+              >
+                {selectableCards.length === 0 && <option value="">Sin tarjetas activas</option>}
+                {selectableCards.map((card) => (
+                  <option key={card.id} value={card.id}>
+                    {card.alias} •••• {card.last4}
+                  </option>
+                ))}
+              </SelectField>
+            ) : (
+              <SelectField
+                label="Cuenta"
+                error={form.formState.errors.cashAccountId?.message}
+                {...form.register('cashAccountId')}
+              >
                 {accounts.map((account) => (
                   <option key={account.id} value={account.id}>
                     {account.name}
                   </option>
                 ))}
               </SelectField>
-            </div>
+            )}
             <SelectField label="Categoría (opcional)" {...form.register('categoryId')}>
               <option value="">Sin categoría</option>
               {categories.map((category) => (

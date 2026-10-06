@@ -836,70 +836,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/dashboard/summary": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["DashboardController_summary"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/card-payments": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["CardPaymentsController_list"];
-        put?: never;
-        post: operations["CardPaymentsController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/card-payments/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["CardPaymentsController_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/card-payments/{id}/reverse": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["CardPaymentsController_reverse"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/purchases": {
         parameters: {
             query?: never;
@@ -974,6 +910,70 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["InstallmentPlansController_prepay"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["DashboardController_summary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/card-payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CardPaymentsController_list"];
+        put?: never;
+        post: operations["CardPaymentsController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/card-payments/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CardPaymentsController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/card-payments/{id}/reverse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CardPaymentsController_reverse"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1419,8 +1419,12 @@ export interface components {
             amountType?: "FIXED" | "VARIABLE";
             /** Format: uuid */
             categoryId?: string;
+            /** @enum {string} */
+            paymentMethod?: "CASH_ACCOUNT" | "CREDIT_CARD";
             /** Format: uuid */
-            cashAccountId: string;
+            cashAccountId?: string;
+            /** Format: uuid */
+            creditCardId?: string;
             schedule: components["schemas"]["RecurringScheduleDto"];
         };
         UpdateRecurringExpenseDto: {
@@ -1432,6 +1436,10 @@ export interface components {
             categoryId?: string;
             /** Format: uuid */
             cashAccountId?: string;
+            /** @enum {string} */
+            paymentMethod?: "CASH_ACCOUNT" | "CREDIT_CARD";
+            /** Format: uuid */
+            creditCardId?: string;
             config?: {
                 [key: string]: unknown;
             };
@@ -1447,18 +1455,6 @@ export interface components {
             actualAmount?: number;
             actualDate?: string;
             notes?: string;
-        };
-        CreateCardPaymentDto: {
-            /** Format: uuid */
-            creditCardId: string;
-            /** Format: uuid */
-            cashAccountId: string;
-            amount: number;
-            paymentDate: string;
-            notes?: string;
-        };
-        ReverseCardPaymentDto: {
-            reason: string;
         };
         CreatePurchaseDto: {
             /** Format: uuid */
@@ -1490,6 +1486,18 @@ export interface components {
             /** @enum {string} */
             mode?: "REDUCE_TERM" | "REDUCE_PAYMENT";
             notes?: string;
+        };
+        CreateCardPaymentDto: {
+            /** Format: uuid */
+            creditCardId: string;
+            /** Format: uuid */
+            cashAccountId: string;
+            amount: number;
+            paymentDate: string;
+            notes?: string;
+        };
+        ReverseCardPaymentDto: {
+            reason: string;
         };
         CreateRecommendationDto: {
             amount: number;
@@ -3033,114 +3041,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
-            };
-        };
-    };
-    DashboardController_summary: {
-        parameters: {
-            query?: {
-                month?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    CardPaymentsController_list: {
-        parameters: {
-            query?: {
-                creditCardId?: string;
-                limit?: number;
-                cursor?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
                 content: {
                     "application/json": Record<string, never>;
                 };
-            };
-        };
-    };
-    CardPaymentsController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateCardPaymentDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    CardPaymentsController_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    CardPaymentsController_reverse: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ReverseCardPaymentDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };
@@ -3273,6 +3176,113 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["PrepayPlanDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DashboardController_summary: {
+        parameters: {
+            query?: {
+                month?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CardPaymentsController_list: {
+        parameters: {
+            query?: {
+                creditCardId?: string;
+                limit?: number;
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    CardPaymentsController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCardPaymentDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CardPaymentsController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    CardPaymentsController_reverse: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReverseCardPaymentDto"];
             };
         };
         responses: {

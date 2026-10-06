@@ -4,7 +4,8 @@ import { problemFrom } from '../../lib/problem.ts'
 export interface RecurringExpense {
   id: string
   userId: string
-  cashAccountId: string
+  cashAccountId: string | null
+  creditCardId: string | null
   categoryId: string | null
   name: string
   amount: number
@@ -20,6 +21,8 @@ export interface RecurringExpense {
   createdAt: string
   updatedAt: string
   category?: { id: string; name: string } | null
+  cashAccount?: { id: string; name: string } | null
+  creditCard?: { id: string; alias: string; last4: string } | null
 }
 
 export interface RecurringOccurrence {
@@ -36,7 +39,9 @@ export interface CreateRecurringInput {
   amount: number
   amountType?: 'FIXED' | 'VARIABLE'
   categoryId?: string
-  cashAccountId: string
+  paymentMethod?: 'CASH_ACCOUNT' | 'CREDIT_CARD'
+  cashAccountId?: string
+  creditCardId?: string
   schedule: {
     frequency: string
     config?: Record<string, unknown>
@@ -52,7 +57,9 @@ export interface UpdateRecurringInput {
   amount?: number
   amountType?: 'FIXED' | 'VARIABLE'
   categoryId?: string
+  paymentMethod?: 'CASH_ACCOUNT' | 'CREDIT_CARD'
   cashAccountId?: string
+  creditCardId?: string
   config?: Record<string, unknown>
   nonBusinessDayRule?: string
   useHolidays?: boolean
@@ -78,7 +85,9 @@ export async function createRecurring(input: CreateRecurringInput): Promise<Recu
       amount: input.amount,
       amountType: input.amountType,
       categoryId: input.categoryId,
+      paymentMethod: input.paymentMethod,
       cashAccountId: input.cashAccountId,
+      creditCardId: input.creditCardId,
       schedule: {
         frequency: input.schedule.frequency as 'WEEKLY',
         config: input.schedule.config,
@@ -142,5 +151,5 @@ export async function confirmRecurring(
   if (error || !data) {
     throw problemFrom(error, response)
   }
-  return data as { expenseId: string; movementId: string }
+  return data as { expenseId?: string; movementId?: string; purchaseId?: string }
 }

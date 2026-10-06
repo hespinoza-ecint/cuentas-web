@@ -11,7 +11,7 @@ repositorio hermano [`cuentas-api`](../cuentas-api).
 | 2 | Autenticación (login, registro, verificación, recuperación, sesión con refresh) | ✅ Implementada |
 | 3 | Layout principal, componentes compartidos y dashboard | ✅ Implementada |
 | 4A | Finanzas base: cuentas, movimientos y categorías | ✅ Implementada |
-| 4B | Gastos y gastos recurrentes | ✅ Implementada |
+| 4B | Gastos y gastos recurrentes (recurrentes pagables con tarjeta) | ✅ Implementada |
 | 4C | Ingresos (fuentes, calendarios, confirmaciones e historial) | ✅ Implementada |
 | 4D | Tarjetas, cortes, pagos y compras | ✅ Implementada |
 | 4E | Recomendador, historial y reglas | ✅ Implementada |

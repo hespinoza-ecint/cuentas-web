@@ -60,3 +60,14 @@ Cobertura nueva:
   para cuando se agregue el diálogo de confirmación con edición.
 - Sigue **ingresos**: fuentes con calendarios, próximos ingresos con
   confirmación/omisión e historial.
+
+## 6. Actualización — pago con tarjeta de crédito (backend Fase 9)
+
+El formulario de recurrentes ahora tiene **Método de pago** (`Cuenta de efectivo`
+o `Tarjeta de crédito`); al elegir tarjeta se muestra el selector de tarjetas
+activas. La tarjeta se puede cambiar después con `Editar` (mismo desplegable).
+
+- Listado: bajo las fechas se muestra el origen (`Cuenta …` o `Tarjeta … •••• 1234`).
+- Confirmar una ocurrencia de tarjeta registra una **compra** en la tarjeta (el
+  aviso lo indica) y actualiza tarjetas, compras y dashboard.
+- Cobertura nueva: alta de recurrente con tarjeta y confirmación con aviso de compra.
