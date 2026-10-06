@@ -58,3 +58,13 @@ Cobertura nueva:
   offline de lectura, accesibilidad, Lighthouse y despliegue con nginx.
 - El dashboard analítico puede crecer en la Fase 6 con comparación de
   recomendaciones y rangos de fechas si hace falta.
+
+## 6. Actualización — exportación completa y reset de datos (backend Fase 11)
+
+- **Exportar datos** ahora descarga **todo**: perfil, preferencias, sesiones y las
+  18 colecciones financieras (`schemaVersion: 2`).
+- **Restablecer datos**: nueva tarjeta en *Cuenta y datos* → diálogo con
+  contraseña y confirmación; borra los datos financieros (conservando cuenta,
+  sesión y preferencias), invalida toda la caché de consultas y muestra el aviso
+  del backend. Se recomienda descargar la exportación antes.
+- Cobertura nueva: reset con contraseña y confirmación.

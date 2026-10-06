@@ -90,3 +90,16 @@ export async function cancelDeletion(): Promise<string> {
   const message = (data as { message?: string } | undefined)?.message
   return message ?? 'La eliminación fue cancelada.'
 }
+
+export interface ResetDataResult {
+  message: string
+  deleted: Record<string, number>
+}
+
+export async function resetAccountData(password: string): Promise<ResetDataResult> {
+  const { data, error, response } = await api.POST('/api/v1/users/me/reset', { body: { password } })
+  if (error || !data) {
+    throw problemFrom(error, response)
+  }
+  return data as ResetDataResult
+}

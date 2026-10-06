@@ -50,6 +50,35 @@ describe('cuenta y datos', () => {
     expect(await screen.findByText('Exportación descargada.')).toBeInTheDocument()
   })
 
+  it('restablece los datos financieros con contraseña y confirmación', async () => {
+    let reset: Record<string, unknown> | null = null
+
+    server.use(
+      refreshOk,
+      settingsHandler,
+      http.post(`${API_BASE}/api/v1/users/me/reset`, async ({ request }) => {
+        reset = (await request.json()) as Record<string, unknown>
+        return HttpResponse.json({
+          message: 'Datos restablecidos. Tu cuenta, sesion y preferencias siguen intactas.',
+          deleted: { cashAccounts: 1, cashMovements: 1 },
+        })
+      }),
+    )
+
+    renderApp(['/cuenta'])
+    const user = userEvent.setup()
+
+    await user.click(await screen.findByRole('button', { name: 'Restablecer datos' }))
+    const dialog = await screen.findByRole('dialog')
+    await user.type(within(dialog).getByLabelText('Contraseña'), 'Password1234')
+    await user.click(within(dialog).getByRole('checkbox'))
+    await user.click(within(dialog).getByRole('button', { name: 'Restablecer datos' }))
+
+    await waitFor(() => expect(reset).not.toBeNull())
+    expect(reset?.password).toBe('Password1234')
+    expect(await screen.findByText(/Datos restablecidos/)).toBeInTheDocument()
+  })
+
   it('programa la eliminación con contraseña y confirmación', async () => {
     let deleted: Record<string, unknown> | null = null
 

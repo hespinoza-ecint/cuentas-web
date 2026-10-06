@@ -1,5 +1,5 @@
-import { useMutation } from '@tanstack/react-query'
-import { Download, LogIn, ShieldAlert } from 'lucide-react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Download, LogIn, RotateCcw, ShieldAlert } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
@@ -12,13 +12,16 @@ import { clearSession, setSessionUser } from '../../lib/auth/session.ts'
 import { useSessionUser } from '../auth/use-session.ts'
 import { cancelDeletion, exportAccountData } from '../users/users-api.ts'
 import { DeleteAccountDialog } from './DeleteAccountDialog.tsx'
+import { ResetDataDialog } from './ResetDataDialog.tsx'
 
 export function AccountPage() {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const user = useSessionUser()
   const [notice, setNotice] = useState<string | null>(null)
   const [deletedMessage, setDeletedMessage] = useState<string | null>(null)
   const [deleteOpen, setDeleteOpen] = useState(false)
+  const [resetOpen, setResetOpen] = useState(false)
 
   const exportMutation = useMutation({
     mutationFn: exportAccountData,
@@ -70,7 +73,7 @@ export function AccountPage() {
     <div data-testid="account-page">
       <PageHeader
         title="Cuenta y datos"
-        description="Exporta tu información o elimina tu cuenta cuando ya no la uses"
+        description="Exporta tu información, restablece tus datos o elimina tu cuenta cuando ya no la uses"
       />
 
       <div className="mb-4 space-y-3">
@@ -128,6 +131,25 @@ export function AccountPage() {
         {!pendingDeletion && (
           <Card>
             <CardTitle className="flex items-center gap-2">
+              <RotateCcw className="size-4 text-amber-600" aria-hidden="true" />
+              Restablecer datos
+            </CardTitle>
+            <CardDescription>
+              Borra cuentas, movimientos, ingresos, gastos, recurrentes, tarjetas, cortes, pagos,
+              compras, mensualidades, recomendaciones y categorías propias. Tu cuenta, sesión y
+              preferencias se conservan. Descarga tu exportación antes si quieres un respaldo.
+            </CardDescription>
+            <div className="mt-4">
+              <Button variant="danger" onClick={() => setResetOpen(true)}>
+                Restablecer datos
+              </Button>
+            </div>
+          </Card>
+        )}
+
+        {!pendingDeletion && (
+          <Card>
+            <CardTitle className="flex items-center gap-2">
               <ShieldAlert className="size-4 text-red-600" aria-hidden="true" />
               Eliminar cuenta
             </CardTitle>
@@ -143,6 +165,17 @@ export function AccountPage() {
           </Card>
         )}
       </div>
+
+      {resetOpen && (
+        <ResetDataDialog
+          open
+          onOpenChange={setResetOpen}
+          onReset={(message) => {
+            setNotice(message)
+            void queryClient.invalidateQueries()
+          }}
+        />
+      )}
 
       {deleteOpen && (
         <DeleteAccountDialog
