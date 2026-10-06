@@ -60,6 +60,7 @@ describe('cuenta y datos', () => {
         reset = (await request.json()) as Record<string, unknown>
         return HttpResponse.json({
           message: 'Datos restablecidos. Tu cuenta, sesion y preferencias siguen intactas.',
+          scope: 'ALL',
           deleted: { cashAccounts: 1, cashMovements: 1 },
         })
       }),
@@ -76,7 +77,40 @@ describe('cuenta y datos', () => {
 
     await waitFor(() => expect(reset).not.toBeNull())
     expect(reset?.password).toBe('Password1234')
+    expect(reset?.scope).toBe('ALL')
     expect(await screen.findByText(/Datos restablecidos/)).toBeInTheDocument()
+  })
+
+  it('restablece solo las tarjetas con contraseña y confirmación', async () => {
+    let reset: Record<string, unknown> | null = null
+
+    server.use(
+      refreshOk,
+      settingsHandler,
+      http.post(`${API_BASE}/api/v1/users/me/reset`, async ({ request }) => {
+        reset = (await request.json()) as Record<string, unknown>
+        return HttpResponse.json({
+          message:
+            'Tarjetas restablecidas. Tu efectivo, ingresos, gastos y preferencias siguen intactos.',
+          scope: 'CARDS',
+          deleted: { creditCards: 1, purchases: 1 },
+        })
+      }),
+    )
+
+    renderApp(['/cuenta'])
+    const user = userEvent.setup()
+
+    await user.click(await screen.findByRole('button', { name: 'Restablecer tarjetas' }))
+    const dialog = await screen.findByRole('dialog')
+    await user.type(within(dialog).getByLabelText('Contraseña'), 'Password1234')
+    await user.click(within(dialog).getByRole('checkbox'))
+    await user.click(within(dialog).getByRole('button', { name: 'Restablecer tarjetas' }))
+
+    await waitFor(() => expect(reset).not.toBeNull())
+    expect(reset?.password).toBe('Password1234')
+    expect(reset?.scope).toBe('CARDS')
+    expect(await screen.findByText(/Tarjetas restablecidas/)).toBeInTheDocument()
   })
 
   it('programa la eliminación con contraseña y confirmación', async () => {

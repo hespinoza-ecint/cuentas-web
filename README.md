@@ -15,7 +15,7 @@ repositorio hermano [`cuentas-api`](../cuentas-api).
 | 4C | Ingresos (fuentes, calendarios, confirmaciones e historial) | ✅ Implementada |
 | 4D | Tarjetas, cortes, pagos y compras (MSI/diferidas ya iniciadas al corriente) | ✅ Implementada |
 | 4E | Recomendador, historial y reglas | ✅ Implementada |
-| 5 | Dashboard analítico, administración y cuenta/datos (exportación completa y reset de datos) | ✅ Implementada |
+| 5 | Dashboard analítico, administración y cuenta/datos (exportación completa y reset total o solo de tarjetas) | ✅ Implementada |
 | 6 | Optimización (code splitting, offline de lectura, accesibilidad, despliegue) | ✅ Implementada |
 | E2E | Playwright contra el backend real (ver `docs/e2e-playwright.md`) | ✅ Implementada |
 | 5 | Dashboard analítico, reglas y administración | ⏳ Pendiente |

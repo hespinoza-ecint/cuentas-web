@@ -63,8 +63,10 @@ Cobertura nueva:
 
 - **Exportar datos** ahora descarga **todo**: perfil, preferencias, sesiones y las
   18 colecciones financieras (`schemaVersion: 2`).
-- **Restablecer datos**: nueva tarjeta en *Cuenta y datos* → diálogo con
-  contraseña y confirmación; borra los datos financieros (conservando cuenta,
-  sesión y preferencias), invalida toda la caché de consultas y muestra el aviso
-  del backend. Se recomienda descargar la exportación antes.
-- Cobertura nueva: reset con contraseña y confirmación.
+- **Restablecer datos**: tarjetas en *Cuenta y datos* → diálogo con contraseña y
+  confirmación. **Restablecer tarjetas** borra solo el dominio de tarjetas
+  (tarjetas, libro, cortes, pagos, compras, planes y mensualidades) y conserva el
+  efectivo, ingresos, gastos y recurrentes; **Restablecer datos** borra todo el
+  historial financiero. Ambos invalidan toda la caché de consultas y muestran el
+  aviso del backend. Se recomienda descargar la exportación antes.
+- Cobertura nueva: reset en ambos alcances (ALL y CARDS) con contraseña y confirmación.

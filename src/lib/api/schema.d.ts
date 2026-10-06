@@ -1236,6 +1236,8 @@ export interface components {
         };
         ResetDataDto: {
             password: string;
+            /** @enum {string} */
+            scope?: "ALL" | "CARDS";
         };
         CreateCategoryDto: {
             name: string;

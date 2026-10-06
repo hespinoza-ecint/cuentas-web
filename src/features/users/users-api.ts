@@ -93,11 +93,19 @@ export async function cancelDeletion(): Promise<string> {
 
 export interface ResetDataResult {
   message: string
+  scope: 'ALL' | 'CARDS'
   deleted: Record<string, number>
 }
 
-export async function resetAccountData(password: string): Promise<ResetDataResult> {
-  const { data, error, response } = await api.POST('/api/v1/users/me/reset', { body: { password } })
+export type ResetScope = 'ALL' | 'CARDS'
+
+export async function resetAccountData(
+  password: string,
+  scope: ResetScope = 'ALL',
+): Promise<ResetDataResult> {
+  const { data, error, response } = await api.POST('/api/v1/users/me/reset', {
+    body: { password, scope },
+  })
   if (error || !data) {
     throw problemFrom(error, response)
   }

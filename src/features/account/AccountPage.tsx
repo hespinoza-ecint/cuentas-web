@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Download, LogIn, RotateCcw, ShieldAlert } from 'lucide-react'
+import { CreditCard, Download, LogIn, RotateCcw, ShieldAlert } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
@@ -22,6 +22,12 @@ export function AccountPage() {
   const [deletedMessage, setDeletedMessage] = useState<string | null>(null)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [resetOpen, setResetOpen] = useState(false)
+  const [resetCardsOpen, setResetCardsOpen] = useState(false)
+
+  const handleResetDone = (message: string) => {
+    setNotice(message)
+    void queryClient.invalidateQueries()
+  }
 
   const exportMutation = useMutation({
     mutationFn: exportAccountData,
@@ -131,13 +137,32 @@ export function AccountPage() {
         {!pendingDeletion && (
           <Card>
             <CardTitle className="flex items-center gap-2">
+              <CreditCard className="size-4 text-amber-600" aria-hidden="true" />
+              Restablecer tarjetas
+            </CardTitle>
+            <CardDescription>
+              Borra tarjetas, libro, estados de cuenta, pagos, compras, planes y mensualidades. Tu
+              efectivo, ingresos, gastos y recurrentes se conservan.
+            </CardDescription>
+            <div className="mt-4">
+              <Button variant="danger" onClick={() => setResetCardsOpen(true)}>
+                Restablecer tarjetas
+              </Button>
+            </div>
+          </Card>
+        )}
+
+        {!pendingDeletion && (
+          <Card>
+            <CardTitle className="flex items-center gap-2">
               <RotateCcw className="size-4 text-amber-600" aria-hidden="true" />
               Restablecer datos
             </CardTitle>
             <CardDescription>
-              Borra cuentas, movimientos, ingresos, gastos, recurrentes, tarjetas, cortes, pagos,
-              compras, mensualidades, recomendaciones y categorías propias. Tu cuenta, sesión y
-              preferencias se conservan. Descarga tu exportación antes si quieres un respaldo.
+              Borra todo el historial financiero: cuentas y movimientos, ingresos, gastos,
+              recurrentes, tarjetas, cortes, pagos, compras, mensualidades, recomendaciones y
+              categorías propias. Tu cuenta, sesión y preferencias se conservan. Para borrar solo
+              tarjetas usa la opción anterior. Descarga tu exportación antes si quieres un respaldo.
             </CardDescription>
             <div className="mt-4">
               <Button variant="danger" onClick={() => setResetOpen(true)}>
@@ -166,14 +191,20 @@ export function AccountPage() {
         )}
       </div>
 
+      {resetCardsOpen && (
+        <ResetDataDialog
+          open
+          scope="CARDS"
+          onOpenChange={setResetCardsOpen}
+          onReset={handleResetDone}
+        />
+      )}
+
       {resetOpen && (
         <ResetDataDialog
           open
           onOpenChange={setResetOpen}
-          onReset={(message) => {
-            setNotice(message)
-            void queryClient.invalidateQueries()
-          }}
+          onReset={handleResetDone}
         />
       )}
 

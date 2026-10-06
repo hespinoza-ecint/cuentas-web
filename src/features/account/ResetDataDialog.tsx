@@ -12,7 +12,7 @@ import {
   DialogFooter,
   DialogTitle,
 } from '../../components/ui/dialog.tsx'
-import { resetAccountData } from '../users/users-api.ts'
+import { resetAccountData, type ResetScope } from '../users/users-api.ts'
 
 const resetSchema = z.object({
   password: z.string().min(1, 'La contraseña es obligatoria'),
@@ -21,22 +21,45 @@ const resetSchema = z.object({
 
 type ResetForm = z.infer<typeof resetSchema>
 
+const TEXTS: Record<
+  ResetScope,
+  { title: string; description: string; checkbox: string; submit: string }
+> = {
+  ALL: {
+    title: 'Restablecer datos',
+    description:
+      'Se eliminarán cuentas, movimientos, ingresos, gastos, recurrentes, tarjetas, cortes, pagos, compras, mensualidades, recomendaciones y categorías propias. Tu cuenta, sesión y preferencias se conservan. Esta acción no se puede deshacer.',
+    checkbox: 'Entiendo que se borrarán mis datos financieros y que no se puede deshacer.',
+    submit: 'Restablecer datos',
+  },
+  CARDS: {
+    title: 'Restablecer tarjetas',
+    description:
+      'Se eliminarán tarjetas, libro, estados de cuenta, pagos, compras, planes y mensualidades. Tu efectivo, ingresos, gastos, recurrentes y preferencias se conservan (también los movimientos de efectivo de los pagos de tarjeta). Esta acción no se puede deshacer.',
+    checkbox: 'Entiendo que se borrarán mis tarjetas y su historial, y que no se puede deshacer.',
+    submit: 'Restablecer tarjetas',
+  },
+}
+
 export function ResetDataDialog({
   open,
   onOpenChange,
   onReset,
+  scope = 'ALL',
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   onReset: (message: string) => void
+  scope?: ResetScope
 }) {
+  const texts = TEXTS[scope]
   const form = useForm<ResetForm>({
     resolver: zodResolver(resetSchema),
     defaultValues: { password: '', confirm: false as unknown as true },
   })
 
   const mutation = useMutation({
-    mutationFn: (values: ResetForm) => resetAccountData(values.password),
+    mutationFn: (values: ResetForm) => resetAccountData(values.password, scope),
     onSuccess: (result) => {
       onReset(result.message)
       onOpenChange(false)
@@ -47,12 +70,8 @@ export function ResetDataDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} noValidate>
-          <DialogTitle>Restablecer datos</DialogTitle>
-          <DialogDescription>
-            Se eliminarán cuentas, movimientos, ingresos, gastos, recurrentes, tarjetas, cortes,
-            pagos, compras, mensualidades, recomendaciones y categorías propias. Tu cuenta, sesión y
-            preferencias se conservan. Esta acción no se puede deshacer.
-          </DialogDescription>
+          <DialogTitle>{texts.title}</DialogTitle>
+          <DialogDescription>{texts.description}</DialogDescription>
 
           <div className="mt-4 space-y-4">
             <Field
@@ -68,7 +87,7 @@ export function ResetDataDialog({
                 className="mt-0.5 size-4 rounded border-slate-300"
                 {...form.register('confirm')}
               />
-              Entiendo que se borrarán mis datos financieros y que no se puede deshacer.
+              {texts.checkbox}
             </label>
             {form.formState.errors.confirm && (
               <p role="alert" className="text-xs text-red-600">
@@ -84,7 +103,7 @@ export function ResetDataDialog({
               Cancelar
             </Button>
             <Button type="submit" variant="danger" disabled={mutation.isPending}>
-              {mutation.isPending ? 'Borrando…' : 'Restablecer datos'}
+              {mutation.isPending ? 'Borrando…' : texts.submit}
             </Button>
           </DialogFooter>
         </form>
