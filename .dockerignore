@@ -7,7 +7,7 @@ dist-ssr
 .env.*
 .git
 .gitignore
-e2e
+# e2e/ NO se excluye: `tsc -b` typechequea playwright.config.ts y e2e/**/*.ts
 test-results
 playwright-report
 blob-report
