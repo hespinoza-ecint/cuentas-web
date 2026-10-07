@@ -126,7 +126,7 @@ export function CashflowChart({ projection }: { projection: CashflowProjection }
             x={Math.min(Math.max(tick.x, PADDING.left + 16), width - PADDING.right - 16)}
             y={height - 6}
             textAnchor="middle"
-            className="fill-slate-400"
+            className="fill-slate-500"
             fontSize={narrow ? 11 : 10}
           >
             {formatLocalDate(tick.date)}

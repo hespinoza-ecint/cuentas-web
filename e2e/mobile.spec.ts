@@ -33,6 +33,15 @@ test('flujo móvil: navegación, acciones rápidas y diálogos utilizables', asy
   await page.getByRole('button', { name: 'Iniciar sesión' }).click()
   await expect(page.getByText('Hola, Móvil')).toBeVisible()
 
+  // Modo oscuro: se activa, se recuerda tras recargar y se puede volver a claro.
+  await page.getByRole('button', { name: 'Cambiar a modo oscuro' }).click()
+  await expect(page.locator('html')).toHaveClass(/dark/)
+  await page.reload()
+  await expect(page.locator('html')).toHaveClass(/dark/)
+  await expect(page.getByText('Hola, Móvil')).toBeVisible()
+  await page.getByRole('button', { name: 'Cambiar a modo claro' }).click()
+  await expect(page.locator('html')).not.toHaveClass(/dark/)
+
   // Barra inferior con las pestañas fijas y el botón "Más".
   const tabBar = page.getByRole('navigation', { name: 'Navegación inferior' })
   await expect(tabBar).toBeVisible()

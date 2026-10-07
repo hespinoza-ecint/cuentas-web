@@ -1,19 +1,28 @@
-import { ChevronDown, LogOut, Menu, WifiOff, Wallet } from 'lucide-react'
+import { ChevronDown, LogOut, Menu, Monitor, Moon, Sun, WifiOff, Wallet } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { Button } from '../components/ui/button.tsx'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '../components/ui/dialog.tsx'
+import { ThemeToggle } from '../components/ui/theme-toggle.tsx'
 import { useSessionUser } from '../features/auth/use-session.ts'
 import { useLogout } from '../features/auth/use-logout.ts'
 import { useOnlineStatus } from '../lib/online.ts'
+import { useTheme, type ThemePreference } from '../lib/theme.ts'
 import { cn } from '../lib/utils.ts'
 import { MOBILE_MENU_GROUPS, MOBILE_TAB_PATHS, NAV_ITEMS, findNavItem } from './nav.ts'
 import { QuickActions } from './QuickActions.tsx'
+
+const THEME_OPTIONS: Array<{ value: ThemePreference; label: string; icon: typeof Sun }> = [
+  { value: 'light', label: 'Claro', icon: Sun },
+  { value: 'dark', label: 'Oscuro', icon: Moon },
+  { value: 'system', label: 'Sistema', icon: Monitor },
+]
 
 /** Layout de la aplicación autenticada: sidebar, header y navegación móvil. */
 export function AppShell() {
   const user = useSessionUser()
   const { logout, pending } = useLogout()
+  const theme = useTheme()
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
@@ -45,7 +54,7 @@ export function AppShell() {
   }, [menuOpen])
 
   return (
-    <div className="min-h-dvh bg-slate-100">
+    <div className="min-h-dvh bg-slate-100 dark:bg-slate-950">
       <header className="safe-t sticky top-0 z-40 border-b border-slate-200 bg-white">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4">
           <Link to="/" className="flex items-center gap-2 font-semibold text-slate-900">
@@ -53,58 +62,62 @@ export function AppShell() {
             Cuentas
           </Link>
 
-          {/* El menú desplegable es de escritorio; en móvil está la hoja "Más". */}
-          <div className="relative hidden md:block">
-            <Button
-              variant="ghost"
-              size="sm"
-              aria-haspopup="menu"
-              aria-expanded={menuOpen}
-              onClick={() => setMenuOpen((open) => !open)}
-            >
-              <span className="max-w-28 truncate">{user?.firstName}</span>
-              <ChevronDown className="size-4" aria-hidden="true" />
-            </Button>
+          <div className="flex items-center gap-1">
+            <ThemeToggle />
 
-            {menuOpen && (
-              <>
-                <div
-                  className="fixed inset-0 z-40"
-                  aria-hidden="true"
-                  onClick={() => setMenuOpen(false)}
-                />
-                <div
-                  role="menu"
-                  className="absolute right-0 z-50 mt-2 max-h-[70vh] w-56 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1 shadow-lg"
-                >
-                  <p className="truncate px-3 py-2 text-xs text-slate-500">{user?.email}</p>
-                  {items.map((item) => (
-                    <NavLink
-                      key={item.to}
-                      to={item.to}
-                      end={item.end}
-                      role="menuitem"
-                      onClick={() => setMenuOpen(false)}
-                      className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100"
-                    >
-                      <item.icon className="size-4" aria-hidden="true" />
-                      {item.label}
-                    </NavLink>
-                  ))}
-                  <div className="my-1 h-px bg-slate-100" />
-                  <button
-                    type="button"
-                    role="menuitem"
-                    disabled={pending}
-                    onClick={() => void logout()}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-600 hover:bg-red-50 disabled:opacity-60"
+            {/* El menú desplegable es de escritorio; en móvil está la hoja "Más". */}
+            <div className="relative hidden md:block">
+              <Button
+                variant="ghost"
+                size="sm"
+                aria-haspopup="menu"
+                aria-expanded={menuOpen}
+                onClick={() => setMenuOpen((open) => !open)}
+              >
+                <span className="max-w-28 truncate">{user?.firstName}</span>
+                <ChevronDown className="size-4" aria-hidden="true" />
+              </Button>
+
+              {menuOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    aria-hidden="true"
+                    onClick={() => setMenuOpen(false)}
+                  />
+                  <div
+                    role="menu"
+                    className="absolute right-0 z-50 mt-2 max-h-[70vh] w-56 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1 shadow-lg"
                   >
-                    <LogOut className="size-4" aria-hidden="true" />
-                    {pending ? 'Cerrando…' : 'Cerrar sesión'}
-                  </button>
-                </div>
-              </>
-            )}
+                    <p className="truncate px-3 py-2 text-xs text-slate-500">{user?.email}</p>
+                    {items.map((item) => (
+                      <NavLink
+                        key={item.to}
+                        to={item.to}
+                        end={item.end}
+                        role="menuitem"
+                        onClick={() => setMenuOpen(false)}
+                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100"
+                      >
+                        <item.icon className="size-4" aria-hidden="true" />
+                        {item.label}
+                      </NavLink>
+                    ))}
+                    <div className="my-1 h-px bg-slate-100" />
+                    <button
+                      type="button"
+                      role="menuitem"
+                      disabled={pending}
+                      onClick={() => void logout()}
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-600 hover:bg-red-50 disabled:opacity-60"
+                    >
+                      <LogOut className="size-4" aria-hidden="true" />
+                      {pending ? 'Cerrando…' : 'Cerrar sesión'}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -234,6 +247,31 @@ export function AppShell() {
           ))}
 
           <div className="mt-5 border-t border-slate-100 pt-3">
+            <p className="px-1 text-xs font-semibold tracking-wide text-slate-400 uppercase">
+              Tema
+            </p>
+            <div className="mt-1 grid grid-cols-3 gap-1" role="group" aria-label="Tema">
+              {THEME_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  aria-pressed={theme.preference === option.value}
+                  onClick={() => theme.setPreference(option.value)}
+                  className={cn(
+                    'flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-medium transition',
+                    theme.preference === option.value
+                      ? 'bg-slate-900 text-white'
+                      : 'text-slate-600 hover:bg-slate-100',
+                  )}
+                >
+                  <option.icon className="size-3.5" aria-hidden="true" />
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-3 border-t border-slate-100 pt-2">
             <button
               type="button"
               disabled={pending}

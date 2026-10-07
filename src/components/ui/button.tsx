@@ -10,7 +10,7 @@ const buttonVariants = cva(
         primary: 'bg-slate-900 text-white hover:bg-slate-700',
         secondary: 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50',
         ghost: 'text-slate-600 hover:bg-slate-100',
-        danger: 'bg-red-600 text-white hover:bg-red-700',
+        danger: 'bg-red-600 text-on-accent hover:bg-red-700',
       },
       size: {
         // En móvil los objetivos táctiles son más altos (~40px); desde sm

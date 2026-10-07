@@ -2,6 +2,7 @@ import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { HttpResponse, http } from 'msw'
 import { describe, expect, it } from 'vitest'
+import { setThemePreference } from '../lib/theme.ts'
 import { API_BASE, emptyDashboardHandlers, refreshOk, settingsHandler } from '../test/fixtures.ts'
 import { server } from '../test/msw/server.ts'
 import { renderApp } from '../test/render-app.tsx'
@@ -46,7 +47,28 @@ describe('navegación móvil', () => {
     expect(within(sheet).getByText('Más secciones')).toBeInTheDocument()
     expect(within(sheet).getByRole('link', { name: 'Movimientos' })).toBeInTheDocument()
     expect(within(sheet).getByRole('link', { name: 'Configuración' })).toBeInTheDocument()
+    expect(within(sheet).getByRole('button', { name: 'Claro' })).toBeInTheDocument()
+    expect(within(sheet).getByRole('button', { name: 'Oscuro' })).toBeInTheDocument()
+    expect(within(sheet).getByRole('button', { name: 'Sistema' })).toBeInTheDocument()
     expect(within(sheet).getByRole('button', { name: 'Cerrar sesión' })).toBeInTheDocument()
+  })
+
+  it('el botón de tema alterna el modo oscuro y lo recuerda', async () => {
+    server.use(refreshOk, settingsHandler, ...emptyDashboardHandlers)
+    renderApp(['/'])
+
+    const user = userEvent.setup()
+    await screen.findByText('Hola, Ana')
+
+    await user.click(screen.getByRole('button', { name: 'Cambiar a modo oscuro' }))
+    expect(document.documentElement).toHaveClass('dark')
+    expect(localStorage.getItem('cuentas.theme')).toBe('dark')
+
+    await user.click(screen.getByRole('button', { name: 'Cambiar a modo claro' }))
+    expect(document.documentElement).not.toHaveClass('dark')
+
+    setThemePreference('system')
+    localStorage.removeItem('cuentas.theme')
   })
 
   it('la barra inferior muestra las 4 pestañas fijas y "Más"', async () => {

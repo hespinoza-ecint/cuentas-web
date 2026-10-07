@@ -7,6 +7,24 @@
     <meta name="theme-color" content="#0f172a" />
     <meta name="description" content="Cuentas — asistente financiero personal" />
     <title>Cuentas</title>
+    <script>
+      // Aplica el tema antes del primer render para evitar el destello claro.
+      // Debe coincidir con la lógica de src/lib/theme.ts.
+      ;(function () {
+        try {
+          var pref = localStorage.getItem('cuentas.theme')
+          var dark =
+            pref === 'dark' ||
+            ((!pref || pref === 'system') &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches)
+          if (dark) {
+            document.documentElement.classList.add('dark')
+          }
+        } catch (error) {
+          // Sin localStorage: se mantiene el tema del sistema.
+        }
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

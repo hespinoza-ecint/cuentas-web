@@ -82,7 +82,7 @@ function ErrorBox({ error, onRetry }: { error: unknown; onRetry: () => void }) {
       <button
         type="button"
         onClick={onRetry}
-        className="mt-3 rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700"
+        className="mt-3 rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-on-accent hover:bg-red-700"
       >
         Reintentar
       </button>

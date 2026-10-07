@@ -142,4 +142,5 @@ actualizaciones) está en
 - [Fase 5 — Dashboard analítico, administración y cuenta/datos](docs/fase-05-analitica-admin-cuenta.md)
 - [Fase 6 — Optimización y despliegue](docs/fase-06-optimizacion.md)
 - [Fase 12 — Experiencia móvil y responsividad](docs/fase-12-responsivo-movil.md)
+- [Fase 13 — Modo oscuro](docs/fase-13-modo-oscuro.md)
 - [Pruebas E2E con Playwright](docs/e2e-playwright.md)

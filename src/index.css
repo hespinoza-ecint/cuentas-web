@@ -1,5 +1,13 @@
 @import 'tailwindcss';
 
+/* Variante `dark:` basada en la clase .dark del <html> (la controla la app). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Texto sobre fondos de acento (p. ej. botones de peligro): no se invierte. */
+@theme {
+  --color-on-accent: #ffffff;
+}
+
 html,
 body,
 #root {
@@ -19,4 +27,59 @@ body {
 
 @utility safe-b {
   padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/*
+ * Modo oscuro: Tailwind 4 emite los colores del tema como variables CSS y las
+ * utilidades las referencian (`bg-slate-100` → `var(--color-slate-100)`), así
+ * que basta redefinir la paleta bajo `.dark` para oscurecer toda la app.
+ *
+ * - `white` pasa a ser la superficie (tarjetas, cabecera, diálogos).
+ * - La escala `slate` se invierte: fondos oscuros, textos y bordes claros.
+ * - `slate-950` se conserva oscuro (overlay de diálogos y pantallas de acceso).
+ * - Los acentos claros (avisos y badges) se vuelven profundos y su texto claro.
+ */
+.dark {
+  color-scheme: dark;
+
+  --color-white: #0f172a;
+
+  --color-slate-50: #1e293b;
+  --color-slate-100: #1e293b;
+  --color-slate-200: #334155;
+  --color-slate-300: #475569;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #94a3b8;
+  --color-slate-600: #cbd5e1;
+  --color-slate-700: #e2e8f0;
+  --color-slate-900: #f8fafc;
+
+  --color-red-50: #450a0a;
+  --color-red-100: #7f1d1d;
+  --color-red-200: #7f1d1d;
+  --color-red-800: #fca5a5;
+
+  --color-emerald-50: #022c22;
+  --color-emerald-100: #064e3b;
+  --color-emerald-200: #065f46;
+  --color-emerald-800: #6ee7b7;
+
+  --color-amber-50: #451a03;
+  --color-amber-100: #78350f;
+  --color-amber-200: #92400e;
+  --color-amber-600: #fbbf24;
+  --color-amber-700: #fbbf24;
+  --color-amber-800: #fcd34d;
+
+  --color-sky-100: #0c4a6e;
+  --color-sky-800: #7dd3fc;
+}
+
+/* Las tonalidades 600 de montos y errores son muy oscuras sobre fondo oscuro. */
+.dark .text-red-600 {
+  color: var(--color-red-400);
+}
+
+.dark .text-emerald-600 {
+  color: var(--color-emerald-400);
 }
