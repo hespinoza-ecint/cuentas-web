@@ -1,0 +1,18 @@
+# Contexto de build del frontend: se compila todo dentro de la imagen.
+node_modules
+dist
+dist-ssr
+*.local
+.env
+.env.*
+.git
+.gitignore
+e2e
+test-results
+playwright-report
+blob-report
+docs
+.vscode
+.idea
+logs
+*.log

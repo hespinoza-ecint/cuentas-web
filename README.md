@@ -98,10 +98,27 @@ public/                  Íconos de la PWA
 
 ## Despliegue en producción
 
-El escenario objetivo son **tres máquinas Ubuntu**: frontend (nginx), backend
-(Nest) y MySQL dedicado. Como el navegador solo habla con el dominio del front,
-nginx reenvía `/api` y `/health` a la máquina de la API, y así la cookie del
-refresh (`SameSite=Strict`) sigue funcionando sin CORS.
+### Docker (recomendado)
+
+El frontend se compila y se sirve desde un contenedor **nginx** que hace de proxy
+`/api` y `/health` hacia el contenedor del **backend** (mismo host, MySQL
+externo). El navegador solo habla con este contenedor, así la cookie del refresh
+(`SameSite=Strict`) sigue funcionando sin CORS.
+
+```bash
+# desde cuentas-api (con cuentas-web clonado como hermano)
+docker compose build
+docker compose up -d
+```
+
+El puerto público del front se ajusta con `WEB_BIND` (default `8080:80`) y el
+destino del proxy con `API_BACKEND` (default `http://api:3000`). La guía completa
+está en
+[`cuentas-api/docs/despliegue-docker.md`](../cuentas-api/docs/despliegue-docker.md).
+
+### Sin Docker (tres máquinas Ubuntu)
+
+Frontend (nginx), backend (Nest) y MySQL dedicado.
 
 1. `npm.cmd run build` en esta carpeta.
 2. Copia `dist/` a `/var/www/cuentas-web/dist` en la máquina del front.
