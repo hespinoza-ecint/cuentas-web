@@ -135,7 +135,7 @@ export function CardFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent>
         <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} noValidate>
           <DialogTitle>{editing ? 'Editar tarjeta' : 'Nueva tarjeta'}</DialogTitle>
           <DialogDescription>

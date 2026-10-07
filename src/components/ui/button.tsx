@@ -13,9 +13,11 @@ const buttonVariants = cva(
         danger: 'bg-red-600 text-white hover:bg-red-700',
       },
       size: {
-        sm: 'h-8 px-3 text-xs',
-        md: 'h-9 px-4',
-        lg: 'h-10 px-5',
+        // En móvil los objetivos táctiles son más altos (~40px); desde sm
+        // vuelven a la densidad original de escritorio.
+        sm: 'h-9 px-3 text-xs sm:h-8',
+        md: 'h-10 px-4 sm:h-9',
+        lg: 'h-11 px-5 sm:h-10',
       },
     },
     defaultVariants: {

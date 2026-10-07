@@ -117,7 +117,7 @@ export function IncomeSourceDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent>
         <form onSubmit={onSubmit} noValidate>
           <DialogTitle>{editing ? 'Editar fuente de ingreso' : 'Nueva fuente de ingreso'}</DialogTitle>
           <DialogDescription>

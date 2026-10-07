@@ -86,7 +86,7 @@ export function IncomeScheduleDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent>
         <DialogTitle>{editing ? 'Editar calendario' : 'Agregar calendario'}</DialogTitle>
         <DialogDescription>{source.name}</DialogDescription>
 

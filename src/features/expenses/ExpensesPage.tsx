@@ -10,6 +10,7 @@ import { Badge } from '../../components/ui/badge.tsx'
 import { Button } from '../../components/ui/button.tsx'
 import { Card } from '../../components/ui/card.tsx'
 import { EmptyState } from '../../components/ui/empty-state.tsx'
+import { FiltersCard } from '../../components/ui/filters-card.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
 import { formatLocalDate } from '../../lib/dates.ts'
@@ -73,7 +74,7 @@ export function ExpensesPage() {
         }
       />
 
-      <Card className="mb-4 p-4">
+      <FiltersCard activeCount={[accountId, categoryId, from, to].filter(Boolean).length}>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <SelectField label="Cuenta" value={accountId} onChange={(event) => setAccountId(event.target.value)}>
             <option value="">Todas</option>
@@ -113,7 +114,7 @@ export function ExpensesPage() {
             Limpiar filtros
           </Button>
         )}
-      </Card>
+      </FiltersCard>
 
       <ErrorAlert error={reverse.error} className="mb-4" />
 
@@ -136,29 +137,35 @@ export function ExpensesPage() {
         <ul className="space-y-2" data-testid="expenses-list">
           {items.map((expense) => (
             <li key={expense.id}>
-              <Card className="flex flex-wrap items-center justify-between gap-3 p-3">
-                <div className="min-w-0">
-                  <p className="flex flex-wrap items-center gap-2 text-sm text-slate-900">
-                    <span className="font-medium">{expense.description}</span>
-                    {expense.category && <Badge tone="neutral">{expense.category.name}</Badge>}
-                    {expense.status === 'REVERSED' && <Badge tone="warning">Revertido</Badge>}
-                    {expense.recurringExpenseId && <Badge tone="info">Recurrente</Badge>}
-                  </p>
-                  <p className="mt-1 text-xs text-slate-500">
-                    {formatLocalDate(expense.expenseDate)}
-                    {accountName.get(expense.cashAccountId)
-                      ? ` · ${accountName.get(expense.cashAccountId)}`
-                      : ''}
-                  </p>
+              <Card className="p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="flex flex-wrap items-center gap-2 text-sm text-slate-900">
+                      <span className="font-medium">{expense.description}</span>
+                      {expense.category && <Badge tone="neutral">{expense.category.name}</Badge>}
+                      {expense.status === 'REVERSED' && <Badge tone="warning">Revertido</Badge>}
+                      {expense.recurringExpenseId && <Badge tone="info">Recurrente</Badge>}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      {formatLocalDate(expense.expenseDate)}
+                      {accountName.get(expense.cashAccountId)
+                        ? ` · ${accountName.get(expense.cashAccountId)}`
+                        : ''}
+                    </p>
+                  </div>
+                  <MoneyDisplay
+                    cents={-expense.amount}
+                    colored
+                    className="shrink-0 font-semibold"
+                  />
                 </div>
-                <div className="flex items-center gap-3">
-                  <MoneyDisplay cents={-expense.amount} colored className="font-semibold" />
-                  {expense.status !== 'REVERSED' && (
+                {expense.status !== 'REVERSED' && (
+                  <div className="mt-2 flex flex-wrap gap-2">
                     <Button variant="secondary" size="sm" onClick={() => setReversing(expense)}>
                       Revertir
                     </Button>
-                  )}
-                </div>
+                  </div>
+                )}
               </Card>
             </li>
           ))}

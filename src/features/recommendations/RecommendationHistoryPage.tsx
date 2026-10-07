@@ -122,7 +122,7 @@ export function RecommendationHistoryPage() {
       )}
 
       <Dialog open={detailId !== null} onOpenChange={(open) => !open && setDetailId(null)}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto lg:max-w-2xl">
+        <DialogContent className="lg:max-w-2xl">
           <DialogTitle>Recomendación reproducible</DialogTitle>
           <DialogDescription>
             {detail.data

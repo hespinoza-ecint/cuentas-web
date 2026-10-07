@@ -86,7 +86,7 @@ export function MoneyInput({
           placeholder={placeholder}
           aria-invalid={message ? true : undefined}
           aria-describedby={errorId}
-          className={`w-full rounded-lg border py-2 pr-3 pl-7 text-sm text-slate-900 shadow-sm outline-none transition focus:ring-2 ${
+          className={`w-full rounded-lg border py-2 pr-3 pl-7 text-base text-slate-900 shadow-sm outline-none transition focus:ring-2 sm:text-sm ${
             message
               ? 'border-red-400 focus:border-red-500 focus:ring-red-200'
               : 'border-slate-300 focus:border-slate-500 focus:ring-slate-200'

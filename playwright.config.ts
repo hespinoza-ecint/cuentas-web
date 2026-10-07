@@ -1,4 +1,4 @@
-import { defineConfig } from '@playwright/test'
+import { defineConfig, devices } from '@playwright/test'
 import { API_DIR, E2E_DATABASE_URL, E2E_JWT_SECRET } from './e2e/config.ts'
 
 /**
@@ -7,6 +7,10 @@ import { API_DIR, E2E_DATABASE_URL, E2E_JWT_SECRET } from './e2e/config.ts'
  * Antes de correr: `npx playwright install chromium` (una sola vez).
  * Los servidores se levantan solos; si ya tienes uno en los puertos 3000 o
  * 5173, deténlo antes.
+ *
+ * Proyectos:
+ *  - desktop: flujo completo (full-flow.spec.ts)
+ *  - mobile:  viewport Pixel 7 (mobile.spec.ts)
  */
 export default defineConfig({
   testDir: './e2e',
@@ -21,6 +25,18 @@ export default defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },
+  projects: [
+    {
+      name: 'desktop',
+      use: { ...devices['Desktop Chrome'] },
+      testIgnore: /mobile\.spec\.ts/,
+    },
+    {
+      name: 'mobile',
+      use: { ...devices['Pixel 7'] },
+      testMatch: /mobile\.spec\.ts/,
+    },
+  ],
   webServer: [
     {
       // Backend en modo producción (dist) con base E2E y throttle relajado.

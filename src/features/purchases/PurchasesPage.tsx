@@ -11,6 +11,7 @@ import { Badge } from '../../components/ui/badge.tsx'
 import { Button } from '../../components/ui/button.tsx'
 import { Card } from '../../components/ui/card.tsx'
 import { EmptyState } from '../../components/ui/empty-state.tsx'
+import { FiltersCard } from '../../components/ui/filters-card.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
 import { formatLocalDate } from '../../lib/dates.ts'
@@ -87,7 +88,7 @@ export function PurchasesPage() {
         }
       />
 
-      <Card className="mb-4 p-4">
+      <FiltersCard activeCount={[cardFilter, typeFilter, statusFilter].filter(Boolean).length}>
         <div className="grid gap-3 sm:grid-cols-3">
           <SelectField label="Tarjeta" value={cardFilter} onChange={(event) => setCardFilter(event.target.value)}>
             <option value="">Todas</option>
@@ -111,7 +112,7 @@ export function PurchasesPage() {
             <option value="REFUNDED">Devuelta</option>
           </SelectField>
         </div>
-      </Card>
+      </FiltersCard>
 
       <div className="mb-4 space-y-3">
         <ErrorAlert error={cancel.error} />
@@ -143,23 +144,25 @@ export function PurchasesPage() {
             )
             return (
               <li key={purchase.id}>
-                <Card className="flex flex-wrap items-center justify-between gap-3 p-3">
-                  <div className="min-w-0">
-                    <p className="flex flex-wrap items-center gap-2 text-sm text-slate-900">
-                      <span className="font-medium">{purchase.description}</span>
-                      <Badge tone="neutral">{TYPE_LABELS[purchase.type] ?? purchase.type}</Badge>
-                      <StatusBadge status={purchase.status} />
-                    </p>
-                    <p className="mt-1 text-xs text-slate-500">
-                      {purchase.creditCard ? `${purchase.creditCard.alias} ····${purchase.creditCard.last4} · ` : ''}
-                      {formatLocalDate(purchase.purchaseDate)}
-                      {nextInstallment
-                        ? ` · próxima #${nextInstallment.number} por ${(nextInstallment.totalAmount / 100).toFixed(2)} el ${formatLocalDate(nextInstallment.dueDate)}`
-                        : ''}
-                    </p>
+                <Card className="p-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="flex flex-wrap items-center gap-2 text-sm text-slate-900">
+                        <span className="font-medium">{purchase.description}</span>
+                        <Badge tone="neutral">{TYPE_LABELS[purchase.type] ?? purchase.type}</Badge>
+                        <StatusBadge status={purchase.status} />
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {purchase.creditCard ? `${purchase.creditCard.alias} ····${purchase.creditCard.last4} · ` : ''}
+                        {formatLocalDate(purchase.purchaseDate)}
+                        {nextInstallment
+                          ? ` · próxima #${nextInstallment.number} por ${(nextInstallment.totalAmount / 100).toFixed(2)} el ${formatLocalDate(nextInstallment.dueDate)}`
+                          : ''}
+                      </p>
+                    </div>
+                    <MoneyDisplay cents={purchase.amount} className="shrink-0 font-semibold" />
                   </div>
-                  <div className="flex items-center gap-2">
-                    <MoneyDisplay cents={purchase.amount} className="font-semibold" />
+                  <div className="mt-2 flex flex-wrap gap-2">
                     <Button variant="ghost" size="sm" onClick={() => setDetailId(purchase.id)}>
                       Detalle
                     </Button>

@@ -26,7 +26,7 @@ export function HealthPage() {
   })
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-950 p-6">
+    <main className="flex min-h-dvh items-center justify-center bg-slate-950 p-6">
       <section className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
         <h1 className="text-2xl font-semibold text-slate-900">Cuentas</h1>
         <p className="mt-1 text-sm text-slate-500">Estado del backend</p>

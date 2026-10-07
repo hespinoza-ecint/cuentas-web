@@ -65,7 +65,7 @@ export function StatementDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent>
         <DialogTitle>
           Corte {formatLocalDate(statement.cutDate)}
         </DialogTitle>

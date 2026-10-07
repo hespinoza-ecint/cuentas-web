@@ -1,20 +1,35 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { MoneyDisplay } from '../../components/shared/MoneyDisplay.tsx'
 import { Card, CardDescription, CardTitle } from '../../components/ui/card.tsx'
 import { formatLocalDate } from '../../lib/dates.ts'
 import type { CashflowProjection } from './dashboard-api.ts'
 
-const WIDTH = 640
-const HEIGHT = 200
-const PADDING = { top: 16, right: 16, bottom: 24, left: 16 }
+/** Detecta pantallas angostas para dibujar la gráfica a escala legible. */
+function useNarrowChart(): boolean {
+  const [narrow, setNarrow] = useState(() => window.innerWidth < 640)
+
+  useEffect(() => {
+    const onResize = () => setNarrow(window.innerWidth < 640)
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+
+  return narrow
+}
 
 interface ChartPoint {
   date: string
   balance: number
 }
 
+const PADDING = { top: 16, right: 16, bottom: 26, left: 16 }
+
 /** Gráfica ligera de flujo (SVG propio; sin dependencias de gráficas). */
 export function CashflowChart({ projection }: { projection: CashflowProjection }) {
+  const narrow = useNarrowChart()
+  const width = narrow ? 360 : 640
+  const height = narrow ? 190 : 200
+
   const { path, areaPath, points, minPoint, zeroY, dateTicks } = useMemo(() => {
     const series: ChartPoint[] = [
       { date: projection.today, balance: projection.startingBalance },
@@ -33,8 +48,8 @@ export function CashflowChart({ projection }: { projection: CashflowProjection }
     const lastDate = toDay(series[series.length - 1].date)
     const span = Math.max(lastDate - firstDate, 1)
 
-    const innerWidth = WIDTH - PADDING.left - PADDING.right
-    const innerHeight = HEIGHT - PADDING.top - PADDING.bottom
+    const innerWidth = width - PADDING.left - PADDING.right
+    const innerHeight = height - PADDING.top - PADDING.bottom
 
     const x = (date: string) => PADDING.left + ((toDay(date) - firstDate) / span) * innerWidth
     const y = (balance: number) =>
@@ -46,7 +61,10 @@ export function CashflowChart({ projection }: { projection: CashflowProjection }
     const area = `${linePath} L${coords[coords.length - 1].x},${baseline} L${coords[0].x},${baseline} Z`
     const minimum = coords.reduce((best, point) => (point.balance < best.balance ? point : best), coords[0])
 
-    const ticks = [coords[0], coords[Math.floor(coords.length / 2)], coords[coords.length - 1]]
+    // En pantallas angostas solo las fechas de los extremos (menos ruido).
+    const ticks = narrow
+      ? [coords[0], coords[coords.length - 1]]
+      : [coords[0], coords[Math.floor(coords.length / 2)], coords[coords.length - 1]]
 
     return {
       path: linePath,
@@ -56,12 +74,12 @@ export function CashflowChart({ projection }: { projection: CashflowProjection }
       zeroY: y(0),
       dateTicks: ticks,
     }
-  }, [projection])
+  }, [projection, narrow, width, height])
 
   return (
     <Card>
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
+        <div className="min-w-0">
           <CardTitle>Flujo de efectivo proyectado</CardTitle>
           <CardDescription>
             Próximos {projection.horizonDays} días · saldo inicial{' '}
@@ -76,13 +94,13 @@ export function CashflowChart({ projection }: { projection: CashflowProjection }
         role="img"
         aria-label="Flujo de efectivo proyectado"
         data-testid="cashflow-chart"
-        viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
+        viewBox={`0 0 ${width} ${height}`}
         className="mt-3 w-full"
       >
         {/* Línea de cero */}
         <line
           x1={PADDING.left}
-          x2={WIDTH - PADDING.right}
+          x2={width - PADDING.right}
           y1={zeroY}
           y2={zeroY}
           stroke="#cbd5e1"
@@ -105,11 +123,11 @@ export function CashflowChart({ projection }: { projection: CashflowProjection }
         {dateTicks.map((tick, index) => (
           <text
             key={`${tick.date}-${index}`}
-            x={Math.min(Math.max(tick.x, PADDING.left + 16), WIDTH - PADDING.right - 16)}
-            y={HEIGHT - 6}
+            x={Math.min(Math.max(tick.x, PADDING.left + 16), width - PADDING.right - 16)}
+            y={height - 6}
             textAnchor="middle"
             className="fill-slate-400"
-            fontSize="10"
+            fontSize={narrow ? 11 : 10}
           >
             {formatLocalDate(tick.date)}
           </text>

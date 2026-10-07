@@ -11,6 +11,7 @@ import { Button } from '../../components/ui/button.tsx'
 import { Card } from '../../components/ui/card.tsx'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from '../../components/ui/dialog.tsx'
 import { EmptyState } from '../../components/ui/empty-state.tsx'
+import { FiltersCard } from '../../components/ui/filters-card.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
 import { formatDateTime, formatLocalDate } from '../../lib/dates.ts'
@@ -97,7 +98,7 @@ export function MovementsPage() {
         }
       />
 
-      <Card className="mb-4 p-4">
+      <FiltersCard activeCount={[accountId, type, from, to].filter(Boolean).length}>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <SelectField label="Cuenta" value={accountId} onChange={(e) => setAccountId(e.target.value)}>
             <option value="">Todas</option>
@@ -133,7 +134,7 @@ export function MovementsPage() {
             Limpiar filtros
           </Button>
         )}
-      </Card>
+      </FiltersCard>
 
       <ErrorAlert error={reverse.error} className="mb-4" />
 
@@ -159,24 +160,30 @@ export function MovementsPage() {
         <ul className="space-y-2" data-testid="movements-list">
           {items.map((movement) => (
             <li key={movement.id}>
-              <Card className="flex flex-wrap items-center justify-between gap-3 p-3">
-                <div className="min-w-0">
-                  <p className="flex flex-wrap items-center gap-2 text-sm text-slate-900">
-                    <Badge tone={movement.amount >= 0 ? 'success' : 'neutral'}>
-                      {TYPE_LABELS[movement.type] ?? movement.type}
-                    </Badge>
-                    <span className="font-medium">{movement.description}</span>
-                  </p>
-                  <p className="mt-1 text-xs text-slate-500">
-                    {formatLocalDate(movement.occurredOn)}
-                    {accountName.get(movement.cashAccountId)
-                      ? ` · ${accountName.get(movement.cashAccountId)}`
-                      : ''}
-                    {movement.reason ? ` · ${movement.reason}` : ''}
-                  </p>
+              <Card className="p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="flex flex-wrap items-center gap-2 text-sm text-slate-900">
+                      <Badge tone={movement.amount >= 0 ? 'success' : 'neutral'}>
+                        {TYPE_LABELS[movement.type] ?? movement.type}
+                      </Badge>
+                      <span className="font-medium">{movement.description}</span>
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      {formatLocalDate(movement.occurredOn)}
+                      {accountName.get(movement.cashAccountId)
+                        ? ` · ${accountName.get(movement.cashAccountId)}`
+                        : ''}
+                      {movement.reason ? ` · ${movement.reason}` : ''}
+                    </p>
+                  </div>
+                  <MoneyDisplay
+                    cents={movement.amount}
+                    colored
+                    className="shrink-0 font-semibold"
+                  />
                 </div>
-                <div className="flex items-center gap-3">
-                  <MoneyDisplay cents={movement.amount} colored className="font-semibold" />
+                <div className="mt-2 flex flex-wrap gap-2">
                   <Button variant="ghost" size="sm" onClick={() => setDetail(movement)}>
                     Detalle
                   </Button>

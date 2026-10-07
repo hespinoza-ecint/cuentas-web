@@ -16,7 +16,10 @@ export function DialogContent({
       <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-slate-950/50" />
       <DialogPrimitive.Content
         className={cn(
-          'fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-slate-200 bg-white p-5 shadow-xl focus:outline-none',
+          // Móvil: hoja anclada abajo, ancho completo, con scroll interno.
+          'fixed inset-x-0 bottom-0 z-50 max-h-[90dvh] overflow-y-auto rounded-t-2xl border border-slate-200 bg-white p-5 shadow-xl focus:outline-none',
+          // Escritorio: diálogo centrado como siempre.
+          'sm:top-1/2 sm:right-auto sm:bottom-auto sm:left-1/2 sm:max-h-[85dvh] sm:w-[calc(100vw-2rem)] sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl',
           className,
         )}
         {...props}
@@ -46,5 +49,18 @@ export function DialogDescription({
 }
 
 export function DialogFooter({ children }: { children: ReactNode }) {
-  return <div className="mt-5 flex justify-end gap-2">{children}</div>
+  return (
+    <div
+      className={cn(
+        // Móvil: pie fijo dentro de la hoja; botones apilados y a lo ancho
+        // (el principal queda arriba, al alcance del pulgar).
+        'sticky bottom-0 z-10 mt-5 -mx-5 -mb-5 flex flex-col-reverse gap-2 border-t border-slate-100 bg-white px-5 pt-3',
+        '[padding-bottom:calc(0.75rem+env(safe-area-inset-bottom,0px))]',
+        // Escritorio: fila alineada a la derecha, como antes.
+        'sm:static sm:mx-0 sm:mb-0 sm:flex-row sm:justify-end sm:border-0 sm:bg-transparent sm:px-0 sm:pt-0 sm:pb-0',
+      )}
+    >
+      {children}
+    </div>
+  )
 }

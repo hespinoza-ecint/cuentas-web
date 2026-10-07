@@ -203,26 +203,28 @@ export function RecurringPage() {
         <ul className="space-y-2" data-testid="recurring-list">
           {list.map((item) => (
             <li key={item.id}>
-              <Card className="flex flex-wrap items-center justify-between gap-3 p-3">
-                <div className="min-w-0">
-                  <p className="flex flex-wrap items-center gap-2 text-sm text-slate-900">
-                    <span className="font-medium">{item.name}</span>
-                    <Badge tone={item.isActive ? 'success' : 'neutral'}>
-                      {item.isActive ? 'Activo' : 'Inactivo'}
-                    </Badge>
-                    <Badge tone="neutral">
-                      {FREQUENCY_LABELS[item.frequency] ?? item.frequency}
-                    </Badge>
-                    {item.category && <span className="text-xs text-slate-500">{item.category.name}</span>}
-                  </p>
-                  <p className="mt-1 text-xs text-slate-500">
-                    Desde {formatLocalDate(item.startDate)}
-                    {item.endDate ? ` hasta ${formatLocalDate(item.endDate)}` : ''} ·{' '}
-                    {paymentSource(item)}
-                  </p>
+              <Card className="p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="flex flex-wrap items-center gap-2 text-sm text-slate-900">
+                      <span className="font-medium">{item.name}</span>
+                      <Badge tone={item.isActive ? 'success' : 'neutral'}>
+                        {item.isActive ? 'Activo' : 'Inactivo'}
+                      </Badge>
+                      <Badge tone="neutral">
+                        {FREQUENCY_LABELS[item.frequency] ?? item.frequency}
+                      </Badge>
+                      {item.category && <span className="text-xs text-slate-500">{item.category.name}</span>}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      Desde {formatLocalDate(item.startDate)}
+                      {item.endDate ? ` hasta ${formatLocalDate(item.endDate)}` : ''} ·{' '}
+                      {paymentSource(item)}
+                    </p>
+                  </div>
+                  <MoneyDisplay cents={-item.amount} colored className="shrink-0 font-semibold" />
                 </div>
-                <div className="flex items-center gap-2">
-                  <MoneyDisplay cents={-item.amount} colored className="font-semibold" />
+                <div className="mt-2 flex flex-wrap gap-2">
                   <Button variant="secondary" size="sm" onClick={() => setEditing(item)}>
                     Editar
                   </Button>

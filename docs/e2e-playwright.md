@@ -26,17 +26,18 @@ npm.cmd run test:e2e
 
 | Pieza | Rol |
 |---|---|
-| `playwright.config.ts` | Dos `webServer`: el backend (`node scripts/e2e-server.mjs` con base E2E aislada y `AUTH_THROTTLE_LIMIT=1000` para no chocar con el límite de 5/min) y Vite con proxy a la API |
+| `playwright.config.ts` | Dos `webServer`: el backend (`node scripts/e2e-server.mjs` con base E2E aislada y `AUTH_THROTTLE_LIMIT=1000` para no chocar con el límite de 5/min) y Vite con proxy a la API. Proyectos: `desktop` (Chrome) y `mobile` (Pixel 7) |
 | `cuentas-api/scripts/e2e-server.mjs` | Aplica migraciones y seed sobre la base E2E, espera un segundo (para que el seed suelte el archivo SQLite) y levanta `dist/main.js` |
 | `cuentas-api/scripts/verify-email.mjs` | Marca un correo como verificado en la base E2E (el enlace real llega al log del backend) |
 | `e2e/config.ts` | Base E2E en `%LOCALAPPDATA%/Cuentas/data/cuentas-e2e.db`, secreto JWT de prueba y ruta del backend |
 | `e2e/helpers.ts` | Correos únicos por corrida y `verifyUserEmail()` |
-| `e2e/full-flow.spec.ts` | Escenarios (modo serial) |
+| `e2e/full-flow.spec.ts` | Escenarios de escritorio (modo serial) |
+| `e2e/mobile.spec.ts` | Escenario móvil: navegación de la barra inferior, hoja "Más", acciones rápidas y diálogos sin recortes (modo serial) |
 
 ## 4. Escenarios
 
-1. **Credenciales inválidas**: el mensaje del backend se muestra en el login.
-2. **Flujo completo**:
+1. **Credenciales inválidas** (escritorio): el mensaje del backend se muestra en el login.
+2. **Flujo completo** (escritorio):
    - registro y pantalla de verificación,
    - verificación del correo (directo en la BD de E2E),
    - login → dashboard ("Hola, QA"),
@@ -45,6 +46,10 @@ npm.cmd run test:e2e
    - compra a 3 MSI (aparece con su próxima mensualidad),
    - recomendación (resultado visible con disclaimer),
    - cierre de sesión.
+3. **Flujo móvil** (Pixel 7): las 5 pestañas de la barra inferior, la hoja
+   "Más" para llegar a Cuentas, alta de cuenta, un gasto con el botón "＋",
+   la compra rápida sin tarjetas (invita a crearlas) y comprobaciones de
+   `scrollWidth` y botones dentro del viewport.
 
 ## 5. Bugs reales que encontraron las E2E
 
@@ -62,3 +67,6 @@ npm.cmd run test:e2e
   desarrollo; el seed es idempotente y cada corrida crea un usuario nuevo.
 - Para CI: instalar Chromium y ejecutar `npm.cmd run test:e2e`; no requiere
   Docker ni MySQL.
+- Si alguna vez generaste el cliente de Prisma para MySQL (`npm.cmd run
+  mysql:generate`), el E2E falla porque el cliente espera `mysql://`: restaura
+  el de SQLite con `npm.cmd run prisma:generate` antes de correr las pruebas.

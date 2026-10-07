@@ -8,4 +8,15 @@ body,
 
 body {
   margin: 0;
+  /* Evita que iOS agrande el texto al girar el teléfono. */
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Respeta notch y barra de gestos en PWA (iOS/Android). */
+@utility safe-t {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+@utility safe-b {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }

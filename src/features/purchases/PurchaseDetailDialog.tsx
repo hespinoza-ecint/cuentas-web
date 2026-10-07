@@ -77,7 +77,7 @@ export function PurchaseDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent>
         <DialogTitle>Detalle de la compra</DialogTitle>
         <DialogDescription>
           {purchase.data

@@ -134,23 +134,25 @@ export function CardPaymentsPage() {
         <ul className="space-y-2" data-testid="payments-list">
           {items.map((payment) => (
             <li key={payment.id}>
-              <Card className="flex flex-wrap items-center justify-between gap-3 p-3">
-                <div>
-                  <p className="flex flex-wrap items-center gap-2 text-sm text-slate-900">
-                    <span className="font-medium">{cardName.get(payment.creditCardId) ?? 'Tarjeta'}</span>
-                    <Badge tone="neutral">{TYPE_LABELS[payment.type] ?? payment.type}</Badge>
-                    {payment.status === 'REVERSED' ? (
-                      <Badge tone="warning">Revertido</Badge>
-                    ) : (
-                      <StatusBadge status="PAID" />
-                    )}
-                  </p>
-                  <p className="mt-1 text-xs text-slate-500">
-                    {formatLocalDate(payment.paymentDate)} · desde {accountName.get(payment.cashAccountId) ?? 'cuenta'}
-                  </p>
+              <Card className="p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="flex flex-wrap items-center gap-2 text-sm text-slate-900">
+                      <span className="font-medium">{cardName.get(payment.creditCardId) ?? 'Tarjeta'}</span>
+                      <Badge tone="neutral">{TYPE_LABELS[payment.type] ?? payment.type}</Badge>
+                      {payment.status === 'REVERSED' ? (
+                        <Badge tone="warning">Revertido</Badge>
+                      ) : (
+                        <StatusBadge status="PAID" />
+                      )}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      {formatLocalDate(payment.paymentDate)} · desde {accountName.get(payment.cashAccountId) ?? 'cuenta'}
+                    </p>
+                  </div>
+                  <MoneyDisplay cents={payment.amount} className="shrink-0 font-semibold" />
                 </div>
-                <div className="flex items-center gap-2">
-                  <MoneyDisplay cents={payment.amount} className="font-semibold" />
+                <div className="mt-2 flex flex-wrap gap-2">
                   <Button variant="ghost" size="sm" onClick={() => setDetailId(payment.id)}>
                     Detalle
                   </Button>

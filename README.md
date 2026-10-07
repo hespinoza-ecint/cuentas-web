@@ -141,4 +141,5 @@ actualizaciones) está en
 - [Fase 4E — Recomendador, historial y reglas](docs/fase-04e-recomendador.md)
 - [Fase 5 — Dashboard analítico, administración y cuenta/datos](docs/fase-05-analitica-admin-cuenta.md)
 - [Fase 6 — Optimización y despliegue](docs/fase-06-optimizacion.md)
+- [Fase 12 — Experiencia móvil y responsividad](docs/fase-12-responsivo-movil.md)
 - [Pruebas E2E con Playwright](docs/e2e-playwright.md)
