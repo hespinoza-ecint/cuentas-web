@@ -265,12 +265,54 @@ describe('compras', () => {
     expect(await screen.findByText(/se descontaron \$600\.00/)).toBeInTheDocument()
   })
 
-  it('no ofrece eliminar una compra sin pagos (solo cancelar)', async () => {
+  it('elimina una compra regular con el cargo pendiente', async () => {
+    let deleted: { id: string; body: Record<string, unknown> } | null = null
+
+    const regularPurchase = {
+      ...purchase,
+      id: 'pur-3',
+      description: 'Supermercado',
+      type: 'REGULAR',
+      installmentPlan: null,
+    }
+
+    server.use(...baseHandlers())
+    server.use(
+      http.get(`${API_BASE}/api/v1/purchases`, () =>
+        HttpResponse.json({
+          data: [regularPurchase],
+          meta: { limit: 20, nextCursor: null, hasMore: false },
+        }),
+      ),
+      http.delete(`${API_BASE}/api/v1/purchases/:id`, async ({ request, params }) => {
+        deleted = { id: params.id as string, body: (await request.json()) as Record<string, unknown> }
+        return HttpResponse.json({ deleted: true, refundedPrincipal: 100000, paidAmount: 0 })
+      }),
+    )
+
+    renderApp(['/compras'])
+    const user = userEvent.setup()
+
+    const list = await screen.findByTestId('purchases-list')
+    await user.click(within(list).getByRole('button', { name: 'Eliminar' }))
+
+    const dialog = await screen.findByRole('dialog')
+    expect(within(dialog).getByText(/hasta donde alcance la deuda actual/)).toBeInTheDocument()
+    await user.type(within(dialog).getByLabelText('Motivo'), 'Registrada dos veces')
+    await user.click(within(dialog).getByRole('button', { name: 'Eliminar compra' }))
+
+    await waitFor(() => expect(deleted).not.toBeNull())
+    expect(deleted?.id).toBe('pur-3')
+    expect(deleted?.body.reason).toBe('Registrada dos veces')
+    expect(await screen.findByText(/se descontaron \$1,000\.00/)).toBeInTheDocument()
+  })
+
+  it('una compra sin pagos muestra Cancelar y ademas Eliminar', async () => {
     server.use(...baseHandlers())
     renderApp(['/compras'])
 
     const list = await screen.findByTestId('purchases-list')
     expect(within(list).getByRole('button', { name: 'Cancelar' })).toBeInTheDocument()
-    expect(within(list).queryByRole('button', { name: 'Eliminar' })).not.toBeInTheDocument()
+    expect(within(list).getByRole('button', { name: 'Eliminar' })).toBeInTheDocument()
   })
 })

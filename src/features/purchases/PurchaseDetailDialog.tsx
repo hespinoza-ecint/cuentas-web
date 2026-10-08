@@ -54,7 +54,7 @@ export function PurchaseDetailDialog({
   const hasPayments =
     plan?.installments.some((installment) => installment.paidAmount > 0) ?? false
   const canCancel = purchase.data?.status === 'ACTIVE' && !hasPayments
-  const canDelete = Boolean(plan) && !canCancel
+  const canDelete = Boolean(onDeleteRequest)
 
   const form = useForm<PrepayForm>({
     defaultValues: {

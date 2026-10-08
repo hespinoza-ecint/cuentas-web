@@ -165,7 +165,6 @@ export function PurchasesPage() {
                 (installment) => installment.paidAmount > 0,
               ) ?? false
             const canCancel = purchase.status === 'ACTIVE' && !hasPayments
-            const canDelete = Boolean(purchase.installmentPlan) && !canCancel
             return (
               <li key={purchase.id}>
                 <Card className="p-3">
@@ -195,11 +194,14 @@ export function PurchasesPage() {
                         Cancelar
                       </Button>
                     )}
-                    {canDelete && (
-                      <Button variant="secondary" size="sm" onClick={() => setDeleting(purchase)}>
-                        Eliminar
-                      </Button>
-                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-red-600 hover:bg-red-50"
+                      onClick={() => setDeleting(purchase)}
+                    >
+                      Eliminar
+                    </Button>
                   </div>
                 </Card>
               </li>
@@ -288,9 +290,15 @@ export function PurchasesPage() {
 
 /** Mensaje del diálogo de eliminación, con el ajuste que se hará en la tarjeta. */
 function deleteDescription(purchase: Purchase): string {
-  const pending = purchase.installmentPlan?.outstandingPrincipal ?? 0
-  const base = `Se eliminará "${purchase.description}" del historial; sus mensualidades pendientes quedan canceladas y lo ya pagado no se modifica.`
-  return purchase.type === 'MSI' && pending > 0
-    ? `${base} Se descontarán ${formatCents(pending)} del saldo de la tarjeta.`
-    : base
+  if (purchase.status === 'CANCELLED' || purchase.status === 'REFUNDED') {
+    return `Se borrará "${purchase.description}" del historial; su cancelación anterior ya había revertido el cargo en la tarjeta.`
+  }
+  if (purchase.installmentPlan) {
+    const pending = purchase.installmentPlan.outstandingPrincipal
+    const base = `Se eliminará "${purchase.description}" del historial; sus mensualidades pendientes quedan canceladas y lo ya pagado no se modifica.`
+    return purchase.type === 'MSI' && pending > 0
+      ? `${base} Se descontarán ${formatCents(pending)} del saldo de la tarjeta.`
+      : base
+  }
+  return `Se eliminará "${purchase.description}" del historial y se revertirá su cargo en la tarjeta hasta donde alcance la deuda actual. Lo ya pagado no se devuelve.`
 }
