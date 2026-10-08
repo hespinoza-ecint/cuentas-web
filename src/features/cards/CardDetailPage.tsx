@@ -5,13 +5,13 @@ import { Link, useNavigate, useParams } from 'react-router'
 import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
 import { ErrorState } from '../../components/shared/ErrorState.tsx'
 import { MoneyDisplay } from '../../components/shared/MoneyDisplay.tsx'
+import { ReasonDialog } from '../../components/shared/ReasonDialog.tsx'
 import { SelectField } from '../../components/shared/SelectField.tsx'
 import { StatusBadge } from '../../components/shared/StatusBadge.tsx'
 import { SuccessAlert } from '../../components/shared/SuccessAlert.tsx'
 import { Badge } from '../../components/ui/badge.tsx'
 import { Button } from '../../components/ui/button.tsx'
 import { Card, CardDescription, CardTitle } from '../../components/ui/card.tsx'
-import { ConfirmDialog } from '../../components/ui/confirm-dialog.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
 import { formatLocalDate } from '../../lib/dates.ts'
@@ -20,11 +20,12 @@ import { CardFormDialog } from './CardFormDialog.tsx'
 import { ReconcileDialog } from './ReconcileDialog.tsx'
 import { StatementDetailDialog } from './StatementDetailDialog.tsx'
 import {
+  deleteCard,
   getCard,
   getCurrentCycle,
   listLedger,
   listStatements,
-  removeCard,
+  resetCard,
   type CardStatement,
 } from './cards-api.ts'
 
@@ -53,6 +54,7 @@ export function CardDetailPage() {
   const [ledgerType, setLedgerType] = useState('')
   const [editOpen, setEditOpen] = useState(false)
   const [reconcileOpen, setReconcileOpen] = useState(false)
+  const [resetOpen, setResetOpen] = useState(false)
   const [selectedStatement, setSelectedStatement] = useState<CardStatement | null>(null)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [notice, setNotice] = useState<string | null>(null)
@@ -65,8 +67,22 @@ export function CardDetailPage() {
     getNextPageParam: (lastPage) => lastPage.meta.nextCursor ?? undefined,
   })
 
+  const reset = useMutation({
+    mutationFn: (reason: string) => resetCard(id, reason),
+    onSuccess: (result) => {
+      setNotice(result.message)
+      setResetOpen(false)
+      void queryClient.invalidateQueries({ queryKey: ['card', id] })
+      void queryClient.invalidateQueries({ queryKey: ['cards'] })
+      void queryClient.invalidateQueries({ queryKey: ['statements', id] })
+      void queryClient.invalidateQueries({ queryKey: ['ledger', id] })
+      void queryClient.invalidateQueries({ queryKey: ['cycle', id] })
+      void queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+    },
+  })
+
   const remove = useMutation({
-    mutationFn: () => removeCard(id),
+    mutationFn: (reason: string) => deleteCard(id, reason),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['cards'] })
       void navigate('/tarjetas', { replace: true })
@@ -113,7 +129,10 @@ export function CardDetailPage() {
             <Button variant="secondary" size="sm" onClick={() => setEditOpen(true)}>
               Editar
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => setDeleteOpen(true)}>
+            <Button variant="secondary" size="sm" onClick={() => setResetOpen(true)}>
+              Reiniciar
+            </Button>
+            <Button variant="ghost" size="sm" className="text-red-600 hover:bg-red-50" onClick={() => setDeleteOpen(true)}>
               Eliminar
             </Button>
           </>
@@ -321,14 +340,27 @@ export function CardDetailPage() {
         />
       )}
 
-      <ConfirmDialog
+      <ReasonDialog
+        open={resetOpen}
+        onOpenChange={setResetOpen}
+        title="Reiniciar tarjeta"
+        description={`Se borrará todo el historial de "${data.alias}": cortes, pagos, compras y movimientos. Quedará como nueva, con saldo $0 y crédito completo. Lo ya pagado en efectivo no se devuelve y los gastos recurrentes se conservan.`}
+        confirmLabel="Reiniciar tarjeta"
+        pending={reset.isPending}
+        onSubmit={async (reason) => {
+          await reset.mutateAsync(reason)
+        }}
+      />
+
+      <ReasonDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
         title="Eliminar tarjeta"
-        description={`Se ocultará "${data.alias}". Solo es posible si no tiene deuda.`}
-        confirmLabel="Eliminar"
-        onConfirm={async () => {
-          await remove.mutateAsync()
+        description={`Se eliminará "${data.alias}" y TODO su historial: cortes, pagos, compras, movimientos y los gastos recurrentes configurados con ella. Lo ya pagado en efectivo no se devuelve.`}
+        confirmLabel="Eliminar tarjeta"
+        pending={remove.isPending}
+        onSubmit={async (reason) => {
+          await remove.mutateAsync(reason)
         }}
       />
     </div>

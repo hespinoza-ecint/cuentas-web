@@ -145,13 +145,44 @@ export async function updateCard(id: string, input: UpdateCardInput): Promise<Cr
   return data as CreditCard
 }
 
-export async function removeCard(id: string): Promise<void> {
-  const { error, response } = await api.DELETE('/api/v1/cards/{id}', {
+export interface CardPurgeCounts {
+  purchases: number
+  installmentPlans: number
+  installments: number
+  cardPayments: number
+  paymentAllocations: number
+  cardLedgerEntries: number
+  cardStatements: number
+  recurringExpenses: number
+}
+
+export interface CardPurgeResult {
+  message: string
+  deleted: CardPurgeCounts
+}
+
+/** Reinicia la tarjeta: borra su historial y la deja con saldo $0 (RN-28). */
+export async function resetCard(id: string, reason: string): Promise<CardPurgeResult> {
+  const { data, error, response } = await api.POST('/api/v1/cards/{id}/reset', {
     params: { path: { id } },
+    body: { reason },
   })
-  if (error) {
+  if (error || !data) {
     throw problemFrom(error, response)
   }
+  return data as CardPurgeResult
+}
+
+/** Elimina la tarjeta y todo su historial (RN-28). */
+export async function deleteCard(id: string, reason: string): Promise<CardPurgeResult> {
+  const { data, error, response } = await api.DELETE('/api/v1/cards/{id}', {
+    params: { path: { id } },
+    body: { reason },
+  })
+  if (error || !data) {
+    throw problemFrom(error, response)
+  }
+  return data as CardPurgeResult
 }
 
 export async function reconcileCard(

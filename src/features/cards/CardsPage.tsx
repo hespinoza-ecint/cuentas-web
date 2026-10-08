@@ -8,13 +8,13 @@ import { StatusBadge } from '../../components/shared/StatusBadge.tsx'
 import { SuccessAlert } from '../../components/shared/SuccessAlert.tsx'
 import { Button } from '../../components/ui/button.tsx'
 import { Card } from '../../components/ui/card.tsx'
-import { ConfirmDialog } from '../../components/ui/confirm-dialog.tsx'
 import { EmptyState } from '../../components/ui/empty-state.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
+import { ReasonDialog } from '../../components/shared/ReasonDialog.tsx'
 import { cn } from '../../lib/utils.ts'
 import { CardFormDialog } from './CardFormDialog.tsx'
-import { listCards, removeCard, type CreditCard } from './cards-api.ts'
+import { deleteCard, listCards, resetCard, type CreditCard } from './cards-api.ts'
 
 export function CardsPage() {
   const queryClient = useQueryClient()
@@ -22,13 +22,26 @@ export function CardsPage() {
 
   const [createOpen, setCreateOpen] = useState(false)
   const [editing, setEditing] = useState<CreditCard | null>(null)
+  const [resetting, setResetting] = useState<CreditCard | null>(null)
   const [deleting, setDeleting] = useState<CreditCard | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
 
+  const reset = useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason: string }) => resetCard(id, reason),
+    onSuccess: (result) => {
+      setNotice(result.message)
+      setResetting(null)
+      void queryClient.invalidateQueries({ queryKey: ['cards'] })
+      void queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+    },
+    onError: () => setNotice(null),
+  })
+
   const remove = useMutation({
-    mutationFn: removeCard,
-    onSuccess: () => {
-      setNotice('Tarjeta eliminada.')
+    mutationFn: ({ id, reason }: { id: string; reason: string }) => deleteCard(id, reason),
+    onSuccess: (result) => {
+      setNotice(result.message)
+      setDeleting(null)
       void queryClient.invalidateQueries({ queryKey: ['cards'] })
       void queryClient.invalidateQueries({ queryKey: ['dashboard'] })
     },
@@ -123,7 +136,10 @@ export function CardsPage() {
                     <Button variant="secondary" size="sm" onClick={() => setEditing(card)}>
                       Editar
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={() => setDeleting(card)}>
+                    <Button variant="secondary" size="sm" onClick={() => setResetting(card)}>
+                      Reiniciar
+                    </Button>
+                    <Button variant="ghost" size="sm" className="text-red-600 hover:bg-red-50" onClick={() => setDeleting(card)}>
                       Eliminar
                     </Button>
                   </div>
@@ -147,23 +163,38 @@ export function CardsPage() {
         />
       )}
 
-      <ConfirmDialog
-        open={deleting !== null}
-        onOpenChange={(open) => {
-          if (!open) {
-            setDeleting(null)
+      <ReasonDialog
+        open={resetting !== null}
+        onOpenChange={(open) => !open && setResetting(null)}
+        title="Reiniciar tarjeta"
+        description={
+          resetting
+            ? `Se borrará todo el historial de "${resetting.alias}" (cortes, pagos, compras y movimientos) y quedará como nueva: saldo $0 y crédito completo. Lo ya pagado en efectivo no se devuelve. Los gastos recurrentes se conservan.`
+            : ''
+        }
+        confirmLabel="Reiniciar tarjeta"
+        pending={reset.isPending}
+        onSubmit={async (reason) => {
+          if (resetting) {
+            await reset.mutateAsync({ id: resetting.id, reason })
           }
         }}
+      />
+
+      <ReasonDialog
+        open={deleting !== null}
+        onOpenChange={(open) => !open && setDeleting(null)}
         title="Eliminar tarjeta"
         description={
           deleting
-            ? `Se ocultará "${deleting.alias}". Solo es posible si no tiene deuda.`
+            ? `Se eliminará "${deleting.alias}" y TODO su historial: cortes, pagos, compras, movimientos y los gastos recurrentes configurados con ella. Lo ya pagado en efectivo no se devuelve.`
             : ''
         }
-        confirmLabel="Eliminar"
-        onConfirm={async () => {
+        confirmLabel="Eliminar tarjeta"
+        pending={remove.isPending}
+        onSubmit={async (reason) => {
           if (deleting) {
-            await remove.mutateAsync(deleting.id)
+            await remove.mutateAsync({ id: deleting.id, reason })
           }
         }}
       />

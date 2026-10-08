@@ -79,4 +79,88 @@ describe('tarjetas', () => {
     expect(created?.dueDaysAfterCut).toBe(20)
     expect(created?.cutDay).toBe(15)
   })
+
+  it('reinicia una tarjeta con motivo y avisa el resultado', async () => {
+    let reset: { id: string; body: Record<string, unknown> } | null = null
+
+    server.use(
+      refreshOk,
+      settingsHandler,
+      http.get(`${API_BASE}/api/v1/cards`, () => HttpResponse.json([card])),
+      http.post(`${API_BASE}/api/v1/cards/:id/reset`, async ({ request, params }) => {
+        reset = { id: params.id as string, body: (await request.json()) as Record<string, unknown> }
+        return HttpResponse.json({
+          message: 'La tarjeta "Oro" quedo como nueva: saldo $0 y credito completo.',
+          deleted: {
+            purchases: 1,
+            installmentPlans: 1,
+            installments: 3,
+            cardPayments: 0,
+            paymentAllocations: 0,
+            cardLedgerEntries: 2,
+            cardStatements: 1,
+            recurringExpenses: 0,
+          },
+        })
+      }),
+    )
+
+    renderApp(['/tarjetas'])
+    const user = userEvent.setup()
+
+    const list = await screen.findByTestId('cards-list')
+    await user.click(within(list).getByRole('button', { name: 'Reiniciar' }))
+
+    const dialog = await screen.findByRole('dialog')
+    expect(within(dialog).getByText(/saldo \$0 y crédito completo/)).toBeInTheDocument()
+    await user.type(within(dialog).getByLabelText('Motivo'), 'Tarjeta de pruebas')
+    await user.click(within(dialog).getByRole('button', { name: 'Reiniciar tarjeta' }))
+
+    await waitFor(() => expect(reset).not.toBeNull())
+    expect(reset?.id).toBe('card-1')
+    expect(reset?.body.reason).toBe('Tarjeta de pruebas')
+    expect(await screen.findByText(/quedo como nueva/)).toBeInTheDocument()
+  })
+
+  it('elimina la tarjeta con todo su historial y motivo', async () => {
+    let deleted: { id: string; body: Record<string, unknown> } | null = null
+
+    server.use(
+      refreshOk,
+      settingsHandler,
+      http.get(`${API_BASE}/api/v1/cards`, () => HttpResponse.json([card])),
+      http.delete(`${API_BASE}/api/v1/cards/:id`, async ({ request, params }) => {
+        deleted = { id: params.id as string, body: (await request.json()) as Record<string, unknown> }
+        return HttpResponse.json({
+          message: 'La tarjeta "Oro" y todo su historial fueron eliminados.',
+          deleted: {
+            purchases: 1,
+            installmentPlans: 1,
+            installments: 3,
+            cardPayments: 0,
+            paymentAllocations: 0,
+            cardLedgerEntries: 2,
+            cardStatements: 1,
+            recurringExpenses: 1,
+          },
+        })
+      }),
+    )
+
+    renderApp(['/tarjetas'])
+    const user = userEvent.setup()
+
+    const list = await screen.findByTestId('cards-list')
+    await user.click(within(list).getByRole('button', { name: 'Eliminar' }))
+
+    const dialog = await screen.findByRole('dialog')
+    expect(within(dialog).getByText(/TODO su historial/)).toBeInTheDocument()
+    await user.type(within(dialog).getByLabelText('Motivo'), 'Ya no la uso')
+    await user.click(within(dialog).getByRole('button', { name: 'Eliminar tarjeta' }))
+
+    await waitFor(() => expect(deleted).not.toBeNull())
+    expect(deleted?.id).toBe('card-1')
+    expect(deleted?.body.reason).toBe('Ya no la uso')
+    expect(await screen.findByText(/fueron eliminados/)).toBeInTheDocument()
+  })
 })

@@ -516,6 +516,22 @@ export interface paths {
         patch: operations["CardsController_update"];
         trace?: never;
     };
+    "/api/v1/cards/{id}/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CardsController_reset"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/cards/{id}/reconcile": {
         parameters: {
             query?: never;
@@ -1331,6 +1347,9 @@ export interface components {
             sameDayCutIncluded?: boolean;
             /** @enum {string} */
             status?: "ACTIVE" | "INACTIVE";
+        };
+        CardPurgeDto: {
+            reason: string;
         };
         ReconcileCardDto: {
             reportedBalance: number;
@@ -2406,13 +2425,19 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CardPurgeDto"];
+            };
+        };
         responses: {
-            204: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": Record<string, never>;
+                };
             };
         };
     };
@@ -2436,6 +2461,31 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    CardsController_reset: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CardPurgeDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
             };
         };
     };
