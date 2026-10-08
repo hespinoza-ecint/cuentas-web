@@ -28,8 +28,8 @@ export function DashboardPage() {
     queryFn: () => fetchDashboardSummary(),
   })
   const projection = useQuery({
-    queryKey: ['cashflow', 'projection', 60],
-    queryFn: () => fetchCashflowProjection(60),
+    queryKey: ['cashflow', 'projection'],
+    queryFn: () => fetchCashflowProjection(),
   })
 
   return (
