@@ -15,7 +15,6 @@ import { formatLocalDate } from '../../lib/dates.ts'
 import { listAccounts } from '../accounts/accounts-api.ts'
 import { listCards } from '../cards/cards-api.ts'
 import { listCategories } from '../categories/categories-api.ts'
-import { useToday } from '../users/use-settings.ts'
 import {
   confirmRecurring,
   listRecurring,
@@ -44,7 +43,6 @@ function paymentSource(item: RecurringExpense): string {
 
 export function RecurringPage() {
   const queryClient = useQueryClient()
-  const today = useToday()
 
   const [includeInactive, setIncludeInactive] = useState(false)
   const [createOpen, setCreateOpen] = useState(false)
@@ -70,7 +68,9 @@ export function RecurringPage() {
 
   const confirm = useMutation({
     mutationFn: ({ id, occurrenceDate }: { id: string; occurrenceDate: string }) =>
-      confirmRecurring(id, { occurrenceDate, actualDate: today }),
+      // Sin fecha real: el backend fecha las vencidas en su dia (caen en su
+      // corte) y las futuras confirmadas antes de tiempo, en hoy.
+      confirmRecurring(id, { occurrenceDate }),
     onSuccess: (result) => {
       setNotice(
         result.purchaseId
@@ -120,8 +120,11 @@ export function RecurringPage() {
       </div>
 
       <Card className="mb-5">
-        <CardTitle>Próximas ocurrencias ({upcoming.data?.horizonDays ?? 60} días)</CardTitle>
-        <CardDescription>Confírmalas cuando ya hayas pagado; puedes ajustar el monto después.</CardDescription>
+        <CardTitle>Ocurrencias por confirmar</CardTitle>
+        <CardDescription>
+          Incluye las vencidas recientes y las próximas ({upcoming.data?.horizonDays ?? 60} días).
+          Confírmalas cuando ya hayas pagado; puedes ajustar el monto después.
+        </CardDescription>
 
         {upcoming.isPending && <Skeleton className="mt-3 h-16" />}
         {upcoming.isError && (

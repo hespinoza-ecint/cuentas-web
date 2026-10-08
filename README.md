@@ -145,4 +145,5 @@ actualizaciones) está en
 - [Fase 13 — Modo oscuro](docs/fase-13-modo-oscuro.md)
 - [Fase 14 — Eliminar compras con mensualidades](docs/fase-14-eliminar-compras.md)
 - [Fase 15 — Reiniciar y eliminar tarjetas](docs/fase-15-reiniciar-eliminar-tarjeta.md)
+- [Fase 16 — Ocurrencias vencidas de recurrentes](docs/fase-16-recurrentes-vencidos.md)
 - [Pruebas E2E con Playwright](docs/e2e-playwright.md)

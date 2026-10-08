@@ -121,8 +121,29 @@ describe('gastos recurrentes', () => {
     await waitFor(() => expect(confirmed).not.toBeNull())
     expect(confirmed?.id).toBe('rec-1')
     expect(confirmed?.body.occurrenceDate).toBe('2026-11-01')
-    expect(confirmed?.body.actualDate).toBe(todayInTimeZone(userSettingsFixture.timezone))
+    // No se manda fecha real: el backend fecha las vencidas en su dia.
+    expect(confirmed?.body.actualDate).toBeUndefined()
     expect(await screen.findByText(/Ocurrencia confirmada/)).toBeInTheDocument()
+  })
+
+  it('muestra las ocurrencias vencidas para poder confirmarlas', async () => {
+    server.use(...baseHandlers())
+    server.use(
+      http.get(`${API_BASE}/api/v1/recurring-expenses/upcoming`, () =>
+        HttpResponse.json({
+          today: '2026-10-05',
+          timezone: 'America/Mexico_City',
+          horizonDays: 60,
+          occurrences: [{ ...occurrence, expectedDate: '2026-10-02', daysUntil: -3 }],
+        }),
+      ),
+    )
+
+    renderApp(['/recurrentes'])
+
+    const upcoming = await screen.findByTestId('upcoming-occurrences')
+    expect(within(upcoming).getByText(/· vencida/)).toBeInTheDocument()
+    expect(within(upcoming).getByRole('button', { name: 'Confirmar' })).toBeInTheDocument()
   })
 
   it('crea un recurrente con calendario mensual', async () => {
