@@ -21,6 +21,10 @@ backend está en `cuentas-api/docs/fase-14-eliminar-compras-con-plan.md` (RN-27)
 y el tipo `DeletePurchaseResult` (`refundedPrincipal`, `paidAmount`).
 Tipos regenerados con `npm.cmd run api:types` desde el OpenAPI del backend.
 
+**El corte afectado se recalcula en el servidor**: si la compra ya estaba
+incluida en un corte cerrado, ese corte deja de pedir su pago al consultarse
+(la PWA solo refresca). El aviso de éxito reporta el monto revertido.
+
 ## 3. Pruebas
 
 ```powershell
