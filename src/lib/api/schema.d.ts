@@ -878,7 +878,7 @@ export interface paths {
         get: operations["PurchasesController_get"];
         put?: never;
         post?: never;
-        delete?: never;
+        delete: operations["PurchasesController_remove"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1498,6 +1498,9 @@ export interface components {
             recommendationId?: string;
         };
         CancelPurchaseDto: {
+            reason: string;
+        };
+        DeletePurchaseDto: {
             reason: string;
         };
         PrepayPlanDto: {
@@ -3152,6 +3155,31 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    PurchasesController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeletePurchaseDto"];
+            };
+        };
         responses: {
             200: {
                 headers: {

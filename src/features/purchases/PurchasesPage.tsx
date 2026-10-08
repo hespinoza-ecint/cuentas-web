@@ -15,12 +15,13 @@ import { FiltersCard } from '../../components/ui/filters-card.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
 import { formatLocalDate } from '../../lib/dates.ts'
+import { formatCents } from '../../lib/money.ts'
 import { listAccounts } from '../accounts/accounts-api.ts'
 import { listCards } from '../cards/cards-api.ts'
 import { listCategories } from '../categories/categories-api.ts'
 import { PurchaseDetailDialog } from './PurchaseDetailDialog.tsx'
 import { PurchaseFormDialog } from './PurchaseFormDialog.tsx'
-import { cancelPurchase, listPurchases, type Purchase } from './purchases-api.ts'
+import { cancelPurchase, deletePurchase, listPurchases, type Purchase } from './purchases-api.ts'
 
 const TYPE_LABELS: Record<string, string> = {
   REGULAR: 'Regular',
@@ -43,6 +44,7 @@ export function PurchasesPage() {
   const [createOpen, setCreateOpen] = useState(false)
   const [detailId, setDetailId] = useState<string | null>(null)
   const [cancelling, setCancelling] = useState<Purchase | null>(null)
+  const [deleting, setDeleting] = useState<Purchase | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
 
   const purchases = useInfiniteQuery({
@@ -66,6 +68,22 @@ export function PurchasesPage() {
       setCancelling(null)
       void queryClient.invalidateQueries({ queryKey: ['purchases'] })
       void queryClient.invalidateQueries({ queryKey: ['cards'] })
+      void queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+    },
+  })
+
+  const remove = useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason: string }) => deletePurchase(id, reason),
+    onSuccess: (result) => {
+      setNotice(
+        result.refundedPrincipal > 0
+          ? `Compra eliminada: se descontaron ${formatCents(result.refundedPrincipal)} del saldo de la tarjeta.`
+          : 'Compra eliminada: no quedaba saldo pendiente en la tarjeta.',
+      )
+      setDeleting(null)
+      void queryClient.invalidateQueries({ queryKey: ['purchases'] })
+      void queryClient.invalidateQueries({ queryKey: ['cards'] })
+      void queryClient.invalidateQueries({ queryKey: ['statements'] })
       void queryClient.invalidateQueries({ queryKey: ['dashboard'] })
     },
   })
@@ -115,7 +133,7 @@ export function PurchasesPage() {
       </FiltersCard>
 
       <div className="mb-4 space-y-3">
-        <ErrorAlert error={cancel.error} />
+        <ErrorAlert error={cancel.error ?? remove.error} />
         {notice && <SuccessAlert message={notice} />}
       </div>
 
@@ -142,6 +160,12 @@ export function PurchasesPage() {
             const nextInstallment = purchase.installmentPlan?.installments.find(
               (installment) => installment.status !== 'PAID',
             )
+            const hasPayments =
+              purchase.installmentPlan?.installments.some(
+                (installment) => installment.paidAmount > 0,
+              ) ?? false
+            const canCancel = purchase.status === 'ACTIVE' && !hasPayments
+            const canDelete = Boolean(purchase.installmentPlan) && !canCancel
             return (
               <li key={purchase.id}>
                 <Card className="p-3">
@@ -166,9 +190,14 @@ export function PurchasesPage() {
                     <Button variant="ghost" size="sm" onClick={() => setDetailId(purchase.id)}>
                       Detalle
                     </Button>
-                    {purchase.status === 'ACTIVE' && (
+                    {canCancel && (
                       <Button variant="secondary" size="sm" onClick={() => setCancelling(purchase)}>
                         Cancelar
+                      </Button>
+                    )}
+                    {canDelete && (
+                      <Button variant="secondary" size="sm" onClick={() => setDeleting(purchase)}>
+                        Eliminar
                       </Button>
                     )}
                   </div>
@@ -215,6 +244,10 @@ export function PurchasesPage() {
             setDetailId(null)
             setCancelling(purchase)
           }}
+          onDeleteRequest={(purchase) => {
+            setDetailId(null)
+            setDeleting(purchase)
+          }}
         />
       )}
 
@@ -235,6 +268,29 @@ export function PurchasesPage() {
           }
         }}
       />
+
+      <ReasonDialog
+        open={deleting !== null}
+        onOpenChange={(open) => !open && setDeleting(null)}
+        title="Eliminar compra"
+        description={deleting ? deleteDescription(deleting) : ''}
+        confirmLabel="Eliminar compra"
+        pending={remove.isPending}
+        onSubmit={async (reason) => {
+          if (deleting) {
+            await remove.mutateAsync({ id: deleting.id, reason })
+          }
+        }}
+      />
     </div>
   )
+}
+
+/** Mensaje del diálogo de eliminación, con el ajuste que se hará en la tarjeta. */
+function deleteDescription(purchase: Purchase): string {
+  const pending = purchase.installmentPlan?.outstandingPrincipal ?? 0
+  const base = `Se eliminará "${purchase.description}" del historial; sus mensualidades pendientes quedan canceladas y lo ya pagado no se modifica.`
+  return purchase.type === 'MSI' && pending > 0
+    ? `${base} Se descontarán ${formatCents(pending)} del saldo de la tarjeta.`
+    : base
 }

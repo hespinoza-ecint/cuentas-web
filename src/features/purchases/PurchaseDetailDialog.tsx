@@ -32,12 +32,14 @@ export function PurchaseDetailDialog({
   open,
   onOpenChange,
   onCancelRequest,
+  onDeleteRequest,
 }: {
   purchaseId: string
   accounts: CashAccount[]
   open: boolean
   onOpenChange: (open: boolean) => void
   onCancelRequest?: (purchase: Purchase) => void
+  onDeleteRequest?: (purchase: Purchase) => void
 }) {
   const queryClient = useQueryClient()
   const today = useToday()
@@ -49,6 +51,10 @@ export function PurchaseDetailDialog({
 
   const plan = purchase.data?.installmentPlan ?? null
   const nextInstallment = plan?.installments.find((installment) => installment.status !== 'PAID')
+  const hasPayments =
+    plan?.installments.some((installment) => installment.paidAmount > 0) ?? false
+  const canCancel = purchase.data?.status === 'ACTIVE' && !hasPayments
+  const canDelete = Boolean(plan) && !canCancel
 
   const form = useForm<PrepayForm>({
     defaultValues: {
@@ -210,7 +216,7 @@ export function PurchaseDetailDialog({
         )}
 
         <DialogFooter>
-          {purchase.data?.status === 'ACTIVE' && onCancelRequest && (
+          {canCancel && onCancelRequest && (
             <Button
               variant="danger"
               onClick={() => {
@@ -218,6 +224,16 @@ export function PurchaseDetailDialog({
               }}
             >
               Cancelar compra
+            </Button>
+          )}
+          {canDelete && onDeleteRequest && (
+            <Button
+              variant="danger"
+              onClick={() => {
+                onDeleteRequest(purchase.data as Purchase)
+              }}
+            >
+              Eliminar compra
             </Button>
           )}
           <Button variant="secondary" onClick={() => onOpenChange(false)}>

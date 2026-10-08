@@ -141,6 +141,26 @@ export async function cancelPurchase(id: string, reason: string): Promise<Purcha
   return data as Purchase
 }
 
+export interface DeletePurchaseResult {
+  deleted: boolean
+  /** Cargo pendiente revertido en el saldo de la tarjeta (centavos). */
+  refundedPrincipal: number
+  /** Pagos y anticipos ya aplicados a las mensualidades desde la app. */
+  paidAmount: number
+}
+
+/** Elimina una compra con plan (MSI o diferida) aunque ya tenga pagos. */
+export async function deletePurchase(id: string, reason: string): Promise<DeletePurchaseResult> {
+  const { data, error, response } = await api.DELETE('/api/v1/purchases/{id}', {
+    params: { path: { id } },
+    body: { reason },
+  })
+  if (error || !data) {
+    throw problemFrom(error, response)
+  }
+  return data as DeletePurchaseResult
+}
+
 export async function prepayPlan(
   planId: string,
   input: { cashAccountId: string; amount: number; paymentDate: string; notes?: string },

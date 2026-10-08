@@ -143,4 +143,5 @@ actualizaciones) está en
 - [Fase 6 — Optimización y despliegue](docs/fase-06-optimizacion.md)
 - [Fase 12 — Experiencia móvil y responsividad](docs/fase-12-responsivo-movil.md)
 - [Fase 13 — Modo oscuro](docs/fase-13-modo-oscuro.md)
+- [Fase 14 — Eliminar compras con mensualidades](docs/fase-14-eliminar-compras.md)
 - [Pruebas E2E con Playwright](docs/e2e-playwright.md)
