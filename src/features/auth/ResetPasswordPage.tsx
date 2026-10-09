@@ -3,7 +3,8 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useSearchParams } from 'react-router'
 import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
-import { Field } from '../../components/shared/Field.tsx'
+import { PasswordField } from '../../components/shared/PasswordField.tsx'
+import { SuccessAlert } from '../../components/shared/SuccessAlert.tsx'
 import { AuthLayout, SubmitButton } from './AuthLayout.tsx'
 import { resetPassword } from './auth-api.ts'
 import { resetPasswordSchema, type ResetPasswordForm } from './schemas.ts'
@@ -58,9 +59,7 @@ export function ResetPasswordPage() {
           </Link>
         }
       >
-        <div className="rounded-lg border border-success-line bg-success-soft px-3 py-2 text-sm text-success-ink">
-          {successMessage}
-        </div>
+        <SuccessAlert message={successMessage} />
       </AuthLayout>
     )
   }
@@ -77,17 +76,15 @@ export function ResetPasswordPage() {
     >
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
         <ErrorAlert error={serverError} />
-        <Field
+        <PasswordField
           label="Nueva contraseña"
-          type="password"
           autoComplete="new-password"
           hint="Mínimo 10 caracteres"
           error={formState.errors.newPassword?.message}
           {...register('newPassword')}
         />
-        <Field
+        <PasswordField
           label="Confirmar contraseña"
-          type="password"
           autoComplete="new-password"
           error={formState.errors.confirmPassword?.message}
           {...register('confirmPassword')}

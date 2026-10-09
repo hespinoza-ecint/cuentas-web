@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { Link } from 'react-router'
 import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
 import { Field } from '../../components/shared/Field.tsx'
+import { SuccessAlert } from '../../components/shared/SuccessAlert.tsx'
 import { AuthLayout, SubmitButton } from './AuthLayout.tsx'
 import { forgotPassword } from './auth-api.ts'
 import { forgotPasswordSchema, type ForgotPasswordForm } from './schemas.ts'
@@ -36,9 +37,7 @@ export function ForgotPasswordPage() {
       }
     >
       {sentMessage ? (
-        <div className="rounded-lg border border-success-line bg-success-soft px-3 py-2 text-sm text-success-ink">
-          {sentMessage}
-        </div>
+        <SuccessAlert message={sentMessage} />
       ) : (
         <form onSubmit={onSubmit} className="space-y-4" noValidate>
           <ErrorAlert error={serverError} />

@@ -6,13 +6,10 @@ import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
 import { Field } from '../../components/shared/Field.tsx'
 import { MoneyInput } from '../../components/shared/MoneyInput.tsx'
 import { Button } from '../../components/ui/button.tsx'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogTitle,
-} from '../../components/ui/dialog.tsx'
+import { DialogDescription, DialogFooter, DialogTitle } from '../../components/ui/dialog.tsx'
+import { FormDialog } from '../../components/ui/form-dialog.tsx'
+import { SubmitButton } from '../../components/ui/submit-button.tsx'
+import { toast } from '../../lib/toast.ts'
 import { useToday } from '../users/use-settings.ts'
 import { setOpeningBalance, type CashAccount } from './accounts-api.ts'
 
@@ -46,14 +43,14 @@ export function OpeningBalanceDialog({
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['accounts'] })
       void queryClient.invalidateQueries({ queryKey: ['movements'] })
+      toast('Saldo inicial registrado.')
       onOpenChange(false)
     },
   })
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} noValidate>
+    <FormDialog open={open} onOpenChange={onOpenChange} dirty={form.formState.isDirty}>
+      <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} noValidate>
           <DialogTitle>Registrar saldo inicial</DialogTitle>
           <DialogDescription>
             {account.name}. Solo puede registrarse una vez por cuenta.
@@ -88,12 +85,11 @@ export function OpeningBalanceDialog({
             <Button variant="secondary" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? 'Registrando…' : 'Registrar saldo'}
-            </Button>
+            <SubmitButton pending={mutation.isPending} pendingLabel="Registrando…">
+              Registrar saldo
+            </SubmitButton>
           </DialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+    </FormDialog>
   )
 }

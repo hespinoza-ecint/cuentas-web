@@ -6,6 +6,7 @@ import type {
 } from '../../lib/schedule-form.ts'
 import { Field } from './Field.tsx'
 import { SelectField } from './SelectField.tsx'
+import { Checkbox } from '../ui/checkbox.tsx'
 
 const WEEK_DAYS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
 
@@ -143,15 +144,13 @@ export function ScheduleEditor({ value, onChange, error, lockFrequency = false }
           <option value="NEXT">Mover al día hábil siguiente</option>
           <option value="NONE">No ajustar</option>
         </SelectField>
-        <label className="flex items-end gap-2 pb-2 text-sm text-ink-secondary">
-          <input
-            type="checkbox"
-            className="size-4 rounded border-line-strong"
+        <div className="flex items-end">
+          <Checkbox
+            label="Usar calendario de festivos"
             checked={value.useHolidays}
             onChange={(event) => update({ useHolidays: event.target.checked })}
           />
-          Usar calendario de festivos
-        </label>
+        </div>
       </div>
 
       {error && (

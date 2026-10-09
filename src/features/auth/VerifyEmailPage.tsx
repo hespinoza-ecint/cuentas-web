@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { Link, useLocation, useSearchParams } from 'react-router'
 import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
 import { Field } from '../../components/shared/Field.tsx'
+import { SuccessAlert } from '../../components/shared/SuccessAlert.tsx'
 import { AuthLayout, SubmitButton } from './AuthLayout.tsx'
 import { resendVerification, verifyEmail } from './auth-api.ts'
 import { resendVerificationSchema, type ResendVerificationForm } from './schemas.ts'
@@ -72,11 +73,7 @@ export function VerifyEmailPage() {
           <p className="text-sm text-ink-secondary">Verificando tu enlace…</p>
         )}
 
-        {state === 'success' && (
-          <div className="rounded-lg border border-success-line bg-success-soft px-3 py-2 text-sm text-success-ink">
-            {message}
-          </div>
-        )}
+        {state === 'success' && <SuccessAlert message={message} />}
 
         {state === 'error' && (
           <>
@@ -92,11 +89,7 @@ export function VerifyEmailPage() {
         <form onSubmit={onResend} className="space-y-4 border-t border-line pt-4" noValidate>
           <p className="text-sm font-medium text-ink-secondary">Reenviar verificación</p>
           <ErrorAlert error={resendError} />
-          {resendMessage && (
-            <div className="rounded-lg border border-success-line bg-success-soft px-3 py-2 text-sm text-success-ink">
-              {resendMessage}
-            </div>
-          )}
+          {resendMessage && <SuccessAlert message={resendMessage} />}
           <Field
             label="Correo"
             type="email"

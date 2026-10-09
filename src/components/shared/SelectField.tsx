@@ -1,4 +1,4 @@
-import type { ComponentProps, ReactNode } from 'react'
+import { useId, type ComponentProps, type ReactNode } from 'react'
 import { controlClass } from '../ui/control.ts'
 
 interface SelectFieldProps extends ComponentProps<'select'> {
@@ -16,7 +16,8 @@ export function SelectField({
   className,
   ...rest
 }: SelectFieldProps) {
-  const selectId = id ?? name
+  const generatedId = useId()
+  const selectId = id ?? name ?? generatedId
   const errorId = error ? `${selectId}-error` : undefined
 
   return (

@@ -189,7 +189,8 @@ describe('gastos recurrentes', () => {
     renderApp(['/recurrentes'])
     const user = userEvent.setup()
 
-    await user.click(await screen.findByRole('button', { name: 'Eliminar' }))
+    await user.click(await screen.findByRole('button', { name: 'Más acciones de Renta' }))
+    await user.click(await screen.findByRole('menuitem', { name: 'Eliminar' }))
     const dialog = await screen.findByRole('dialog')
     await user.click(within(dialog).getByRole('button', { name: 'Eliminar' }))
 

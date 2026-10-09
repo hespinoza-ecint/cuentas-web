@@ -1,4 +1,4 @@
-import type { ComponentProps, ReactNode } from 'react'
+import { useId, type ComponentProps, type ReactNode } from 'react'
 import { controlClass } from '../ui/control.ts'
 
 interface FieldProps extends ComponentProps<'input'> {
@@ -9,7 +9,8 @@ interface FieldProps extends ComponentProps<'input'> {
 
 /** Campo de texto con etiqueta visible, ayuda y error junto al campo. */
 export function Field({ label, error, hint, id, name, ref, className, ...rest }: FieldProps) {
-  const inputId = id ?? name
+  const generatedId = useId()
+  const inputId = id ?? name ?? generatedId
   const errorId = error ? `${inputId}-error` : undefined
 
   return (

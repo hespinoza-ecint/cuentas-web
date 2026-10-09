@@ -11,6 +11,7 @@ import { ConfirmDialog } from '../../components/ui/confirm-dialog.tsx'
 import { EmptyState } from '../../components/ui/empty-state.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
+import { toast } from '../../lib/toast.ts'
 import { clearSession } from '../../lib/auth/session.ts'
 import { formatDateTime } from '../../lib/dates.ts'
 import { listSessions, logoutAll, revokeSession, type UserSession } from './sessions-api.ts'
@@ -25,7 +26,10 @@ export function SessionsPage() {
 
   const revoke = useMutation({
     mutationFn: revokeSession,
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['sessions'] }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['sessions'] })
+      toast('Sesión revocada: ese dispositivo ya no tiene acceso.')
+    },
   })
 
   const revokeAll = useMutation({

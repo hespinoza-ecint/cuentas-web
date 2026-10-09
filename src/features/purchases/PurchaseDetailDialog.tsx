@@ -2,10 +2,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Controller, useForm } from 'react-hook-form'
 import { MoneyDisplay } from '../../components/shared/MoneyDisplay.tsx'
 import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
+import { Field } from '../../components/shared/Field.tsx'
 import { MoneyInput } from '../../components/shared/MoneyInput.tsx'
 import { SelectField } from '../../components/shared/SelectField.tsx'
 import { StatusBadge } from '../../components/shared/StatusBadge.tsx'
-import { SuccessAlert } from '../../components/shared/SuccessAlert.tsx'
 import { Button } from '../../components/ui/button.tsx'
 import {
   Dialog,
@@ -15,6 +15,8 @@ import {
   DialogTitle,
 } from '../../components/ui/dialog.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
+import { SubmitButton } from '../../components/ui/submit-button.tsx'
+import { toast } from '../../lib/toast.ts'
 import { formatLocalDate } from '../../lib/dates.ts'
 import type { CashAccount } from '../accounts/accounts-api.ts'
 import { useToday } from '../users/use-settings.ts'
@@ -71,12 +73,17 @@ export function PurchaseDetailDialog({
         amount: values.amount as number,
         paymentDate: values.paymentDate,
       }),
-    onSuccess: () => {
+    onSuccess: (result) => {
       void queryClient.invalidateQueries({ queryKey: ['purchase', purchaseId] })
       void queryClient.invalidateQueries({ queryKey: ['purchases'] })
       void queryClient.invalidateQueries({ queryKey: ['cards'] })
       void queryClient.invalidateQueries({ queryKey: ['statements'] })
       void queryClient.invalidateQueries({ queryKey: ['accounts'] })
+      toast(
+        result?.settled
+          ? 'Plan liquidado: la compra quedó pagada.'
+          : 'Anticipo aplicado: se redujo el plazo del plan.',
+      )
       form.reset({ cashAccountId: form.getValues('cashAccountId'), amount: undefined, paymentDate: today })
     },
   })
@@ -182,32 +189,18 @@ export function PurchaseDetailDialog({
                           />
                         )}
                       />
-                      <div>
-                        <label htmlFor="prepayDate" className="mb-1 block text-sm font-medium text-ink-secondary">
-                          Fecha
-                        </label>
-                        <input
-                          id="prepayDate"
-                          type="date"
-                          max={today}
-                          className="w-full rounded-lg border border-line-strong px-3 py-2 text-sm shadow-sm outline-none focus:border-focus focus:ring-2 focus:ring-focus/25"
-                          {...form.register('paymentDate')}
-                        />
-                      </div>
+                      <Field
+                        label="Fecha"
+                        type="date"
+                        max={today}
+                        error={form.formState.errors.paymentDate?.message}
+                        {...form.register('paymentDate')}
+                      />
                     </div>
                     <ErrorAlert error={prepay.error} />
-                    {prepay.isSuccess && (
-                      <SuccessAlert
-                        message={
-                          prepay.data?.settled
-                            ? 'Plan liquidado: la compra quedó pagada.'
-                            : 'Anticipo aplicado: se redujo el plazo del plan.'
-                        }
-                      />
-                    )}
-                    <Button type="submit" size="sm" disabled={prepay.isPending}>
-                      {prepay.isPending ? 'Aplicando…' : 'Aplicar anticipo'}
-                    </Button>
+                    <SubmitButton pending={prepay.isPending} size="sm" pendingLabel="Aplicando…">
+                      Aplicar anticipo
+                    </SubmitButton>
                   </form>
                 )}
               </>

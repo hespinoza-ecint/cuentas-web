@@ -45,7 +45,7 @@ describe('navegación móvil', () => {
     const sheet = await screen.findByRole('dialog')
 
     expect(within(sheet).getByText('Más secciones')).toBeInTheDocument()
-    expect(within(sheet).getByRole('link', { name: 'Movimientos' })).toBeInTheDocument()
+    expect(within(sheet).getByRole('link', { name: 'Historial' })).toBeInTheDocument()
     expect(within(sheet).getByRole('link', { name: 'Configuración' })).toBeInTheDocument()
     expect(within(sheet).getByRole('button', { name: 'Claro' })).toBeInTheDocument()
     expect(within(sheet).getByRole('button', { name: 'Oscuro' })).toBeInTheDocument()
@@ -71,16 +71,17 @@ describe('navegación móvil', () => {
     localStorage.removeItem('cuentas.theme')
   })
 
-  it('la barra inferior muestra las 4 pestañas fijas y "Más"', async () => {
+  it('la barra inferior muestra las pestañas fijas, el botón "+" y "Más"', async () => {
     server.use(refreshOk, settingsHandler, ...emptyDashboardHandlers)
     renderApp(['/'])
 
     await screen.findByText('Hola, Ana')
     const tabBar = screen.getByRole('navigation', { name: 'Navegación inferior' })
 
-    for (const label of ['Inicio', 'Compras', 'Tarjetas', 'Recomendador', 'Más']) {
+    for (const label of ['Inicio', 'Movimientos', 'Tarjetas', 'Más']) {
       expect(within(tabBar).getByText(label)).toBeInTheDocument()
     }
+    expect(within(tabBar).getByRole('button', { name: 'Acciones rápidas' })).toBeInTheDocument()
   })
 
   it('las acciones rápidas registran un gasto sin salir del inicio', async () => {

@@ -7,13 +7,11 @@ import { Field } from '../../components/shared/Field.tsx'
 import { MoneyInput } from '../../components/shared/MoneyInput.tsx'
 import { SelectField } from '../../components/shared/SelectField.tsx'
 import { Button } from '../../components/ui/button.tsx'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogTitle,
-} from '../../components/ui/dialog.tsx'
+import { Checkbox } from '../../components/ui/checkbox.tsx'
+import { DialogDescription, DialogFooter, DialogTitle } from '../../components/ui/dialog.tsx'
+import { FormDialog } from '../../components/ui/form-dialog.tsx'
+import { SubmitButton } from '../../components/ui/submit-button.tsx'
+import { toast } from '../../lib/toast.ts'
 import { useToday } from '../users/use-settings.ts'
 import { createCard, updateCard, type CreditCard } from './cards-api.ts'
 
@@ -129,18 +127,18 @@ export function CardFormDialog({
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['cards'] })
       void queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      toast(editing ? 'Cambios de la tarjeta guardados.' : 'Tarjeta creada.')
       onOpenChange(false)
     },
   })
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} noValidate>
-          <DialogTitle>{editing ? 'Editar tarjeta' : 'Nueva tarjeta'}</DialogTitle>
-          <DialogDescription>
-            El corte y la fecha límite siguen las reglas RN-12/13/14 del backend.
-          </DialogDescription>
+    <FormDialog open={open} onOpenChange={onOpenChange} dirty={form.formState.isDirty}>
+      <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} noValidate>
+        <DialogTitle>{editing ? 'Editar tarjeta' : 'Nueva tarjeta'}</DialogTitle>
+        <DialogDescription>
+          El corte y la fecha límite se calculan solos, con ajuste por días inhábiles.
+        </DialogDescription>
 
           <div className="mt-4 space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
@@ -237,14 +235,10 @@ export function CardFormDialog({
               <option value="NEXT">Mover al día hábil siguiente</option>
               <option value="NONE">No ajustar</option>
             </SelectField>
-            <label className="flex items-center gap-2 text-sm text-ink-secondary">
-              <input
-                type="checkbox"
-                className="size-4 rounded border-line-strong"
-                {...form.register('sameDayCutIncluded')}
-              />
-              La compra el día del corte entra en ese corte (RN-14)
-            </label>
+            <Checkbox
+              label="Una compra el día del corte entra en ese corte"
+              {...form.register('sameDayCutIncluded')}
+            />
 
             {editing ? (
               <SelectField label="Estado" {...form.register('status')}>
@@ -282,12 +276,11 @@ export function CardFormDialog({
             <Button variant="secondary" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? 'Guardando…' : editing ? 'Guardar cambios' : 'Crear tarjeta'}
-            </Button>
+            <SubmitButton pending={mutation.isPending}>
+              {editing ? 'Guardar cambios' : 'Crear tarjeta'}
+            </SubmitButton>
           </DialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+    </FormDialog>
   )
 }

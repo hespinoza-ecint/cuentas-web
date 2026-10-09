@@ -9,13 +9,11 @@ import { MoneyInput } from '../../components/shared/MoneyInput.tsx'
 import { ScheduleEditor } from '../../components/shared/ScheduleEditor.tsx'
 import { SelectField } from '../../components/shared/SelectField.tsx'
 import { Button } from '../../components/ui/button.tsx'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogTitle,
-} from '../../components/ui/dialog.tsx'
+import { Checkbox } from '../../components/ui/checkbox.tsx'
+import { DialogDescription, DialogFooter, DialogTitle } from '../../components/ui/dialog.tsx'
+import { FormDialog } from '../../components/ui/form-dialog.tsx'
+import { SubmitButton } from '../../components/ui/submit-button.tsx'
+import { toast } from '../../lib/toast.ts'
 import {
   emptyScheduleValue,
   scheduleValueFrom,
@@ -100,6 +98,7 @@ export function IncomeSourceDialog({
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['income-sources'] })
       void queryClient.invalidateQueries({ queryKey: ['income-upcoming'] })
+      toast(editing ? 'Cambios de la fuente guardados.' : 'Fuente de ingreso creada.')
       onOpenChange(false)
     },
   })
@@ -116,12 +115,15 @@ export function IncomeSourceDialog({
   })
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <form onSubmit={onSubmit} noValidate>
+    <FormDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      dirty={form.formState.isDirty || scheduleError !== null}
+    >
+      <form onSubmit={onSubmit} noValidate>
           <DialogTitle>{editing ? 'Editar fuente de ingreso' : 'Nueva fuente de ingreso'}</DialogTitle>
           <DialogDescription>
-            Los ingresos variables se proyectan con el factor conservador (RN-10).
+            Los ingresos variables se proyectan con un factor conservador.
           </DialogDescription>
 
           <div className="mt-4 space-y-4">
@@ -182,14 +184,7 @@ export function IncomeSourceDialog({
             )}
 
             {editing && (
-              <label className="flex items-center gap-2 text-sm text-ink-secondary">
-                <input
-                  type="checkbox"
-                  className="size-4 rounded border-line-strong"
-                  {...form.register('isActive')}
-                />
-                Fuente activa
-              </label>
+              <Checkbox label="Fuente activa" {...form.register('isActive')} />
             )}
           </div>
 
@@ -199,12 +194,11 @@ export function IncomeSourceDialog({
             <Button variant="secondary" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? 'Guardando…' : editing ? 'Guardar cambios' : 'Crear fuente'}
-            </Button>
+            <SubmitButton pending={mutation.isPending}>
+              {editing ? 'Guardar cambios' : 'Crear fuente'}
+            </SubmitButton>
           </DialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+    </FormDialog>
   )
 }

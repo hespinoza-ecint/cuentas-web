@@ -125,7 +125,9 @@ describe('gastos', () => {
     renderApp(['/gastos'])
     const user = userEvent.setup()
 
-    await user.click(await screen.findByRole('button', { name: 'Revertir' }))
+    const list = await screen.findByTestId('expenses-list')
+    await user.click(within(list).getByRole('button', { name: 'Más acciones de Supermercado' }))
+    await user.click(await screen.findByRole('menuitem', { name: 'Revertir' }))
     const dialog = await screen.findByRole('dialog')
     await user.type(within(dialog).getByLabelText('Motivo'), 'Compra duplicada')
     await user.click(within(dialog).getByRole('button', { name: 'Revertir' }))

@@ -7,13 +7,10 @@ import { Field } from '../../components/shared/Field.tsx'
 import { MoneyInput } from '../../components/shared/MoneyInput.tsx'
 import { SelectField } from '../../components/shared/SelectField.tsx'
 import { Button } from '../../components/ui/button.tsx'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogTitle,
-} from '../../components/ui/dialog.tsx'
+import { DialogDescription, DialogFooter, DialogTitle } from '../../components/ui/dialog.tsx'
+import { FormDialog } from '../../components/ui/form-dialog.tsx'
+import { SubmitButton } from '../../components/ui/submit-button.tsx'
+import { toast } from '../../lib/toast.ts'
 import type { Category } from '../categories/categories-api.ts'
 import type { CreditCard } from '../cards/cards-api.ts'
 import { useToday } from '../users/use-settings.ts'
@@ -125,17 +122,17 @@ export function PurchaseFormDialog({
       void queryClient.invalidateQueries({ queryKey: ['cards'] })
       void queryClient.invalidateQueries({ queryKey: ['ledger'] })
       void queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      toast('Compra registrada.')
       onOpenChange(false)
     },
   })
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} noValidate>
+    <FormDialog open={open} onOpenChange={onOpenChange} dirty={form.formState.isDirty}>
+      <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} noValidate>
           <DialogTitle>Registrar compra</DialogTitle>
           <DialogDescription>
-            MSI sin intereses; diferida con amortización francesa más IVA (RN-19/20).
+            MSI sin intereses; diferida con pago fijo mensual más IVA.
           </DialogDescription>
 
           <div className="mt-4 space-y-4">
@@ -251,12 +248,9 @@ export function PurchaseFormDialog({
             <Button variant="secondary" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? 'Registrando…' : 'Registrar compra'}
-            </Button>
+            <SubmitButton pending={mutation.isPending}>Registrar compra</SubmitButton>
           </DialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+    </FormDialog>
   )
 }

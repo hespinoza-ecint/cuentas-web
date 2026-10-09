@@ -7,13 +7,10 @@ import { Field } from '../../components/shared/Field.tsx'
 import { MoneyInput } from '../../components/shared/MoneyInput.tsx'
 import { SelectField } from '../../components/shared/SelectField.tsx'
 import { Button } from '../../components/ui/button.tsx'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogTitle,
-} from '../../components/ui/dialog.tsx'
+import { DialogDescription, DialogFooter, DialogTitle } from '../../components/ui/dialog.tsx'
+import { FormDialog } from '../../components/ui/form-dialog.tsx'
+import { SubmitButton } from '../../components/ui/submit-button.tsx'
+import { toast } from '../../lib/toast.ts'
 import { useToday } from '../users/use-settings.ts'
 import type { CashAccount } from '../accounts/accounts-api.ts'
 import { createAdjustment } from './movements-api.ts'
@@ -59,17 +56,17 @@ export function AdjustmentDialog({
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['movements'] })
       void queryClient.invalidateQueries({ queryKey: ['accounts'] })
+      toast('Ajuste registrado.')
       onOpenChange(false)
     },
   })
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} noValidate>
+    <FormDialog open={open} onOpenChange={onOpenChange} dirty={form.formState.isDirty}>
+      <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} noValidate>
           <DialogTitle>Ajuste manual</DialogTitle>
           <DialogDescription>
-            Usa montos negativos para reducir el saldo. Todo ajuste exige motivo (RN-05).
+            Usa montos negativos para reducir el saldo. Todo ajuste exige motivo.
           </DialogDescription>
 
           <div className="mt-4 space-y-4">
@@ -122,12 +119,9 @@ export function AdjustmentDialog({
             <Button variant="secondary" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? 'Guardando…' : 'Registrar ajuste'}
-            </Button>
+            <SubmitButton pending={mutation.isPending}>Registrar ajuste</SubmitButton>
           </DialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+    </FormDialog>
   )
 }

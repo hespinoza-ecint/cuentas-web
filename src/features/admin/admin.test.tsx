@@ -54,7 +54,7 @@ describe('administración', () => {
 
     const list = await screen.findByTestId('admin-rules-list')
     const rule = within(list).getByText('Flujo de efectivo no negativo').closest('li') as HTMLElement
-    await user.click(within(rule).getByRole('checkbox'))
+    await user.click(within(rule).getByRole('switch'))
 
     await waitFor(() => expect(patched).not.toBeNull())
     expect(patched?.code).toBe('CASHFLOW_NON_NEGATIVE')

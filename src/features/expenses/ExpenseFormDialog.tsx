@@ -7,13 +7,10 @@ import { Field } from '../../components/shared/Field.tsx'
 import { MoneyInput } from '../../components/shared/MoneyInput.tsx'
 import { SelectField } from '../../components/shared/SelectField.tsx'
 import { Button } from '../../components/ui/button.tsx'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogTitle,
-} from '../../components/ui/dialog.tsx'
+import { DialogDescription, DialogFooter, DialogTitle } from '../../components/ui/dialog.tsx'
+import { FormDialog } from '../../components/ui/form-dialog.tsx'
+import { SubmitButton } from '../../components/ui/submit-button.tsx'
+import { toast } from '../../lib/toast.ts'
 import type { CashAccount } from '../accounts/accounts-api.ts'
 import type { Category } from '../categories/categories-api.ts'
 import { useToday } from '../users/use-settings.ts'
@@ -69,14 +66,18 @@ export function ExpenseFormDialog({
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['expenses'] })
       void queryClient.invalidateQueries({ queryKey: ['accounts'] })
+      toast('Gasto registrado.')
       onOpenChange(false)
     },
   })
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} noValidate>
+    <FormDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      dirty={form.formState.isDirty}
+    >
+      <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} noValidate>
           <DialogTitle>Registrar gasto</DialogTitle>
           <DialogDescription>El gasto se descuenta del saldo de la cuenta elegida.</DialogDescription>
 
@@ -138,12 +139,9 @@ export function ExpenseFormDialog({
             <Button variant="secondary" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? 'Guardando…' : 'Registrar gasto'}
-            </Button>
+            <SubmitButton pending={mutation.isPending}>Registrar gasto</SubmitButton>
           </DialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+    </FormDialog>
   )
 }

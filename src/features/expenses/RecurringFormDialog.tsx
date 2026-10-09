@@ -16,13 +16,11 @@ import {
 } from '../../lib/schedule-form.ts'
 import { SelectField } from '../../components/shared/SelectField.tsx'
 import { Button } from '../../components/ui/button.tsx'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogTitle,
-} from '../../components/ui/dialog.tsx'
+import { Checkbox } from '../../components/ui/checkbox.tsx'
+import { DialogDescription, DialogFooter, DialogTitle } from '../../components/ui/dialog.tsx'
+import { FormDialog } from '../../components/ui/form-dialog.tsx'
+import { SubmitButton } from '../../components/ui/submit-button.tsx'
+import { toast } from '../../lib/toast.ts'
 import type { CashAccount } from '../accounts/accounts-api.ts'
 import type { CreditCard } from '../cards/cards-api.ts'
 import type { Category } from '../categories/categories-api.ts'
@@ -148,6 +146,7 @@ export function RecurringFormDialog({
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['recurring-expenses'] })
       void queryClient.invalidateQueries({ queryKey: ['recurring-upcoming'] })
+      toast(editing ? 'Cambios del recurrente guardados.' : 'Gasto recurrente creado.')
       onOpenChange(false)
     },
   })
@@ -162,14 +161,13 @@ export function RecurringFormDialog({
   })
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <form onSubmit={onSubmit} noValidate>
-          <DialogTitle>{editing ? 'Editar gasto recurrente' : 'Nuevo gasto recurrente'}</DialogTitle>
-          <DialogDescription>
-            El gasto se registra al confirmar cada ocurrencia, en efectivo o con tarjeta de crédito;
-            los días inhábiles ajustan la fecha (RN-09).
-          </DialogDescription>
+    <FormDialog open={open} onOpenChange={onOpenChange} dirty={form.formState.isDirty}>
+      <form onSubmit={onSubmit} noValidate>
+        <DialogTitle>{editing ? 'Editar gasto recurrente' : 'Nuevo gasto recurrente'}</DialogTitle>
+        <DialogDescription>
+          El gasto se registra al confirmar cada ocurrencia, en efectivo o con tarjeta de
+          crédito; los días inhábiles ajustan la fecha del cobro.
+        </DialogDescription>
 
           <div className="mt-4 space-y-4">
             <Field
@@ -244,14 +242,7 @@ export function RecurringFormDialog({
             />
 
             {editing && (
-              <label className="flex items-center gap-2 text-sm text-ink-secondary">
-                <input
-                  type="checkbox"
-                  className="size-4 rounded border-line-strong"
-                  {...form.register('isActive')}
-                />
-                Recurrente activo
-              </label>
+              <Checkbox label="Recurrente activo" {...form.register('isActive')} />
             )}
           </div>
 
@@ -261,12 +252,11 @@ export function RecurringFormDialog({
             <Button variant="secondary" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? 'Guardando…' : editing ? 'Guardar cambios' : 'Crear recurrente'}
-            </Button>
+            <SubmitButton pending={mutation.isPending}>
+              {editing ? 'Guardar cambios' : 'Crear recurrente'}
+            </SubmitButton>
           </DialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+    </FormDialog>
   )
 }

@@ -5,10 +5,11 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
 import { Field } from '../../components/shared/Field.tsx'
+import { PasswordField } from '../../components/shared/PasswordField.tsx'
 import { SuccessAlert } from '../../components/shared/SuccessAlert.tsx'
-import { Button } from '../../components/ui/button.tsx'
 import { Card, CardDescription, CardTitle } from '../../components/ui/card.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
+import { SubmitButton } from '../../components/ui/submit-button.tsx'
 import { setSessionUser } from '../../lib/auth/session.ts'
 import { useSessionUser } from '../auth/use-session.ts'
 import { changePassword, updateProfile } from '../users/users-api.ts'
@@ -102,9 +103,7 @@ export function ProfilePage() {
               error={profileForm.formState.errors.lastName?.message}
               {...profileForm.register('lastName')}
             />
-            <Button type="submit" disabled={profileMutation.isPending}>
-              {profileMutation.isPending ? 'Guardando…' : 'Guardar cambios'}
-            </Button>
+            <SubmitButton pending={profileMutation.isPending}>Guardar cambios</SubmitButton>
           </form>
         </Card>
 
@@ -124,31 +123,28 @@ export function ProfilePage() {
           >
             <ErrorAlert error={passwordMutation.error} />
             {passwordMessage && <SuccessAlert message={passwordMessage} />}
-            <Field
+            <PasswordField
               label="Contraseña actual"
-              type="password"
               autoComplete="current-password"
               error={passwordForm.formState.errors.currentPassword?.message}
               {...passwordForm.register('currentPassword')}
             />
-            <Field
+            <PasswordField
               label="Nueva contraseña"
-              type="password"
               autoComplete="new-password"
               hint="Mínimo 10 caracteres"
               error={passwordForm.formState.errors.newPassword?.message}
               {...passwordForm.register('newPassword')}
             />
-            <Field
+            <PasswordField
               label="Confirmar contraseña"
-              type="password"
               autoComplete="new-password"
               error={passwordForm.formState.errors.confirmPassword?.message}
               {...passwordForm.register('confirmPassword')}
             />
-            <Button type="submit" disabled={passwordMutation.isPending}>
-              {passwordMutation.isPending ? 'Actualizando…' : 'Cambiar contraseña'}
-            </Button>
+            <SubmitButton pending={passwordMutation.isPending} pendingLabel="Actualizando…">
+              Cambiar contraseña
+            </SubmitButton>
           </form>
         </Card>
       </div>

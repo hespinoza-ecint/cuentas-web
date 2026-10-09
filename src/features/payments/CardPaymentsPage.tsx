@@ -1,19 +1,22 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { RotateCcw } from 'lucide-react'
 import { useState } from 'react'
+import { useSearchParams } from 'react-router'
 import { MoneyDisplay } from '../../components/shared/MoneyDisplay.tsx'
 import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
 import { ErrorState } from '../../components/shared/ErrorState.tsx'
 import { ReasonDialog } from '../../components/shared/ReasonDialog.tsx'
 import { SelectField } from '../../components/shared/SelectField.tsx'
 import { StatusBadge } from '../../components/shared/StatusBadge.tsx'
-import { SuccessAlert } from '../../components/shared/SuccessAlert.tsx'
 import { Badge } from '../../components/ui/badge.tsx'
 import { Button } from '../../components/ui/button.tsx'
 import { Card } from '../../components/ui/card.tsx'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from '../../components/ui/dialog.tsx'
 import { EmptyState } from '../../components/ui/empty-state.tsx'
+import { ListRow } from '../../components/ui/list-row.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
+import { toast } from '../../lib/toast.ts'
 import { formatLocalDate } from '../../lib/dates.ts'
 import { listAccounts } from '../accounts/accounts-api.ts'
 import { listCards } from '../cards/cards-api.ts'
@@ -35,14 +38,23 @@ const TARGET_LABELS: Record<string, string> = {
 
 export function CardPaymentsPage() {
   const queryClient = useQueryClient()
+  const [searchParams, setSearchParams] = useSearchParams()
   const cards = useQuery({ queryKey: ['cards'], queryFn: listCards })
   const accounts = useQuery({ queryKey: ['accounts'], queryFn: listAccounts })
 
   const [cardFilter, setCardFilter] = useState('')
-  const [createOpen, setCreateOpen] = useState(false)
+  // El botón "＋" del shell llega aquí con ?nuevo=1 para abrir el formulario.
+  const [createOpen, setCreateOpen] = useState(() => searchParams.get('nuevo') === '1')
   const [detailId, setDetailId] = useState<string | null>(null)
   const [reversing, setReversing] = useState<CardPayment | null>(null)
-  const [notice, setNotice] = useState<string | null>(null)
+
+  function changeCreateOpen(open: boolean) {
+    setCreateOpen(open)
+    // El parámetro ya cumplió su función: se limpia de la URL.
+    if (!open && searchParams.get('nuevo')) {
+      setSearchParams({}, { replace: true })
+    }
+  }
 
   const payments = useInfiniteQuery({
     queryKey: ['payments', cardFilter],
@@ -65,7 +77,7 @@ export function CardPaymentsPage() {
   const reverse = useMutation({
     mutationFn: ({ id, reason }: { id: string; reason: string }) => reversePayment(id, reason),
     onSuccess: () => {
-      setNotice('Pago revertido: se restauraron saldos y mensualidades.')
+      toast('Pago revertido: se restauraron saldos y mensualidades.')
       setReversing(null)
       void queryClient.invalidateQueries({ queryKey: ['payments'] })
       void queryClient.invalidateQueries({ queryKey: ['cards'] })
@@ -80,6 +92,7 @@ export function CardPaymentsPage() {
     (cards.data ?? []).map((card) => [card.id, `${card.alias} ····${card.last4}`]),
   )
   const accountName = new Map((accounts.data ?? []).map((account) => [account.id, account.name]))
+  const canCreate = (cards.data ?? []).length > 0 && (accounts.data ?? []).length > 0
 
   return (
     <div data-testid="payments-page">
@@ -87,11 +100,7 @@ export function CardPaymentsPage() {
         title="Pagos de tarjeta"
         description="Pagos aplicados a mensualidades, cortes y saldo revolvente"
         actions={
-          <Button
-            size="sm"
-            onClick={() => setCreateOpen(true)}
-            disabled={(cards.data ?? []).length === 0 || (accounts.data ?? []).length === 0}
-          >
+          <Button size="sm" onClick={() => changeCreateOpen(true)} disabled={!canCreate}>
             Registrar pago
           </Button>
         }
@@ -113,10 +122,7 @@ export function CardPaymentsPage() {
         </SelectField>
       </Card>
 
-      <div className="mb-4 space-y-3">
-        <ErrorAlert error={reverse.error} />
-        {notice && <SuccessAlert message={notice} />}
-      </div>
+      <ErrorAlert error={reverse.error} className="mb-4" />
 
       {payments.isPending && (
         <div className="space-y-2">
@@ -127,43 +133,53 @@ export function CardPaymentsPage() {
       {payments.isError && <ErrorState error={payments.error} onRetry={() => void payments.refetch()} />}
 
       {payments.data && items.length === 0 && (
-        <EmptyState title="Sin pagos" description="Registra un pago para aplicarlo a tus cortes." />
+        <EmptyState
+          title="Sin pagos"
+          description="Registra un pago para aplicarlo a tus cortes."
+          action={
+            canCreate ? (
+              <Button variant="secondary" onClick={() => changeCreateOpen(true)}>
+                Registrar pago
+              </Button>
+            ) : undefined
+          }
+        />
       )}
 
       {items.length > 0 && (
         <ul className="space-y-2" data-testid="payments-list">
           {items.map((payment) => (
-            <li key={payment.id}>
-              <Card className="p-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="flex flex-wrap items-center gap-2 text-sm text-ink">
-                      <span className="font-medium">{cardName.get(payment.creditCardId) ?? 'Tarjeta'}</span>
-                      <Badge tone="neutral">{TYPE_LABELS[payment.type] ?? payment.type}</Badge>
-                      {payment.status === 'REVERSED' ? (
-                        <Badge tone="warning">Revertido</Badge>
-                      ) : (
-                        <StatusBadge status="PAID" />
-                      )}
-                    </p>
-                    <p className="mt-1 text-xs text-ink-muted">
-                      {formatLocalDate(payment.paymentDate)} · desde {accountName.get(payment.cashAccountId) ?? 'cuenta'}
-                    </p>
-                  </div>
-                  <MoneyDisplay cents={payment.amount} className="shrink-0 font-semibold" />
-                </div>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  <Button variant="ghost" size="sm" onClick={() => setDetailId(payment.id)}>
-                    Detalle
-                  </Button>
-                  {payment.status !== 'REVERSED' && (
-                    <Button variant="secondary" size="sm" onClick={() => setReversing(payment)}>
-                      Revertir
-                    </Button>
+            <ListRow
+              key={payment.id}
+              onOpen={() => setDetailId(payment.id)}
+              title={
+                <span className="flex flex-wrap items-center gap-2">
+                  {cardName.get(payment.creditCardId) ?? 'Tarjeta'}
+                  <Badge tone="neutral">{TYPE_LABELS[payment.type] ?? payment.type}</Badge>
+                  {payment.status === 'REVERSED' ? (
+                    <Badge tone="warning">Revertido</Badge>
+                  ) : (
+                    <StatusBadge status="PAID" />
                   )}
-                </div>
-              </Card>
-            </li>
+                </span>
+              }
+              subtitle={`${formatLocalDate(payment.paymentDate)} · desde ${
+                accountName.get(payment.cashAccountId) ?? 'cuenta'
+              }`}
+              trailing={<MoneyDisplay cents={payment.amount} className="font-semibold" />}
+              menu={
+                payment.status !== 'REVERSED'
+                  ? [
+                      {
+                        label: 'Revertir',
+                        icon: RotateCcw,
+                        onSelect: () => setReversing(payment),
+                      },
+                    ]
+                  : undefined
+              }
+              menuLabel={`Más acciones del pago del ${formatLocalDate(payment.paymentDate)}`}
+            />
           ))}
         </ul>
       )}
@@ -173,7 +189,7 @@ export function CardPaymentsPage() {
           <Button
             variant="secondary"
             size="sm"
-            disabled={payments.isFetchingNextPage}
+            loading={payments.isFetchingNextPage}
             onClick={() => void payments.fetchNextPage()}
           >
             {payments.isFetchingNextPage ? 'Cargando…' : 'Cargar más'}
@@ -187,15 +203,13 @@ export function CardPaymentsPage() {
           accounts={accounts.data ?? []}
           defaultCardId={cardFilter || undefined}
           open
-          onOpenChange={setCreateOpen}
+          onOpenChange={changeCreateOpen}
           onCreated={(allocations) => {
             const summary = allocations
               .map((allocation) => `${TARGET_LABELS[allocation.targetType] ?? allocation.targetType}`)
               .join(', ')
-            setNotice(
-              allocations.length > 0
-                ? `Pago aplicado a: ${summary}.`
-                : 'Pago registrado.',
+            toast(
+              allocations.length > 0 ? `Pago aplicado a: ${summary}.` : 'Pago registrado.',
             )
           }}
         />

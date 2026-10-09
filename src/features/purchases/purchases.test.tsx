@@ -219,7 +219,8 @@ describe('compras', () => {
     const user = userEvent.setup()
 
     const list = await screen.findByTestId('purchases-list')
-    await user.click(within(list).getByRole('button', { name: 'Cancelar' }))
+    await user.click(within(list).getByRole('button', { name: 'Más acciones de Telefono' }))
+    await user.click(await screen.findByRole('menuitem', { name: 'Cancelar' }))
 
     const dialog = await screen.findByRole('dialog')
     await user.type(within(dialog).getByLabelText('Motivo'), 'Devolucion completa')
@@ -252,7 +253,8 @@ describe('compras', () => {
     const user = userEvent.setup()
 
     const list = await screen.findByTestId('purchases-list')
-    await user.click(within(list).getByRole('button', { name: 'Eliminar' }))
+    await user.click(within(list).getByRole('button', { name: 'Más acciones de Laptop a meses' }))
+    await user.click(await screen.findByRole('menuitem', { name: 'Eliminar' }))
 
     const dialog = await screen.findByRole('dialog')
     expect(within(dialog).getByText(/Se descontarán \$600\.00/)).toBeInTheDocument()
@@ -294,7 +296,8 @@ describe('compras', () => {
     const user = userEvent.setup()
 
     const list = await screen.findByTestId('purchases-list')
-    await user.click(within(list).getByRole('button', { name: 'Eliminar' }))
+    await user.click(within(list).getByRole('button', { name: 'Más acciones de Supermercado' }))
+    await user.click(await screen.findByRole('menuitem', { name: 'Eliminar' }))
 
     const dialog = await screen.findByRole('dialog')
     expect(within(dialog).getByText(/hasta donde alcance la deuda actual/)).toBeInTheDocument()
@@ -307,12 +310,15 @@ describe('compras', () => {
     expect(await screen.findByText(/se descontaron \$1,000\.00/)).toBeInTheDocument()
   })
 
-  it('una compra sin pagos muestra Cancelar y ademas Eliminar', async () => {
+  it('una compra sin pagos ofrece Cancelar y Eliminar en el menú de la fila', async () => {
     server.use(...baseHandlers())
     renderApp(['/compras'])
+    const user = userEvent.setup()
 
     const list = await screen.findByTestId('purchases-list')
-    expect(within(list).getByRole('button', { name: 'Cancelar' })).toBeInTheDocument()
-    expect(within(list).getByRole('button', { name: 'Eliminar' })).toBeInTheDocument()
+    await user.click(within(list).getByRole('button', { name: 'Más acciones de Telefono' }))
+
+    expect(await screen.findByRole('menuitem', { name: 'Cancelar' })).toBeInTheDocument()
+    expect(screen.getByRole('menuitem', { name: 'Eliminar' })).toBeInTheDocument()
   })
 })

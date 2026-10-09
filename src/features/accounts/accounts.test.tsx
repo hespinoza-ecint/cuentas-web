@@ -134,7 +134,8 @@ describe('cuentas de efectivo', () => {
 
     const row = await screen.findByText('Débito BBVA')
     const card = row.closest('li') as HTMLElement
-    await user.click(within(card).getByRole('button', { name: 'Eliminar' }))
+    await user.click(within(card).getByRole('button', { name: 'Más acciones de Débito BBVA' }))
+    await user.click(await screen.findByRole('menuitem', { name: 'Eliminar' }))
 
     const dialog = await screen.findByRole('dialog')
     await user.click(within(dialog).getByRole('button', { name: 'Eliminar' }))

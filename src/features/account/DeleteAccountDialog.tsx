@@ -3,15 +3,12 @@ import { useMutation } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
-import { Field } from '../../components/shared/Field.tsx'
+import { PasswordField } from '../../components/shared/PasswordField.tsx'
 import { Button } from '../../components/ui/button.tsx'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogTitle,
-} from '../../components/ui/dialog.tsx'
+import { Checkbox } from '../../components/ui/checkbox.tsx'
+import { DialogDescription, DialogFooter, DialogTitle } from '../../components/ui/dialog.tsx'
+import { FormDialog } from '../../components/ui/form-dialog.tsx'
+import { SubmitButton } from '../../components/ui/submit-button.tsx'
 import { deleteAccount } from '../users/users-api.ts'
 
 const deleteSchema = z.object({
@@ -44,9 +41,8 @@ export function DeleteAccountDialog({
   })
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} noValidate>
+    <FormDialog open={open} onOpenChange={onOpenChange} dirty={form.formState.isDirty}>
+      <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} noValidate>
           <DialogTitle>Eliminar cuenta</DialogTitle>
           <DialogDescription>
             La cuenta queda inactiva y se elimina definitivamente en 30 días. Puedes cancelar la
@@ -54,27 +50,24 @@ export function DeleteAccountDialog({
           </DialogDescription>
 
           <div className="mt-4 space-y-4">
-            <Field
+            <PasswordField
               label="Contraseña"
-              type="password"
               autoComplete="current-password"
               error={form.formState.errors.password?.message}
               {...form.register('password')}
             />
-            <label className="flex items-start gap-2 text-sm text-ink-secondary">
-              <input
-                type="checkbox"
-                className="mt-0.5 size-4 rounded border-line-strong"
+            <div>
+              <Checkbox
+                alignTop
+                label="Entiendo que mi cuenta se eliminará en 30 días y que la cancelación reinicia la sesión."
                 {...form.register('confirm')}
               />
-              Entiendo que mi cuenta se eliminará en 30 días y que la cancelación reinicia la
-              sesión.
-            </label>
-            {form.formState.errors.confirm && (
-              <p role="alert" className="text-xs text-danger">
-                {form.formState.errors.confirm.message}
-              </p>
-            )}
+              {form.formState.errors.confirm && (
+                <p role="alert" className="text-xs text-danger">
+                  {form.formState.errors.confirm.message}
+                </p>
+              )}
+            </div>
           </div>
 
           <ErrorAlert error={mutation.error} className="mt-4" />
@@ -83,12 +76,11 @@ export function DeleteAccountDialog({
             <Button variant="secondary" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit" variant="danger" disabled={mutation.isPending}>
-              {mutation.isPending ? 'Procesando…' : 'Eliminar cuenta'}
-            </Button>
+            <SubmitButton pending={mutation.isPending} variant="danger" pendingLabel="Procesando…">
+              Eliminar cuenta
+            </SubmitButton>
           </DialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+    </FormDialog>
   )
 }

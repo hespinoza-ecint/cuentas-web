@@ -6,13 +6,10 @@ import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
 import { Field } from '../../components/shared/Field.tsx'
 import { SelectField } from '../../components/shared/SelectField.tsx'
 import { Button } from '../../components/ui/button.tsx'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogTitle,
-} from '../../components/ui/dialog.tsx'
+import { DialogDescription, DialogFooter, DialogTitle } from '../../components/ui/dialog.tsx'
+import { FormDialog } from '../../components/ui/form-dialog.tsx'
+import { SubmitButton } from '../../components/ui/submit-button.tsx'
+import { toast } from '../../lib/toast.ts'
 import { createCategory, updateCategory, type Category } from './categories-api.ts'
 
 const categorySchema = z.object({
@@ -59,6 +56,7 @@ export function CategoryFormDialog({
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['categories'] })
+      toast(editing ? 'Cambios de la categoría guardados.' : 'Categoría creada.')
       onOpenChange(false)
     },
   })
@@ -68,9 +66,8 @@ export function CategoryFormDialog({
   )
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} noValidate>
+    <FormDialog open={open} onOpenChange={onOpenChange} dirty={form.formState.isDirty}>
+      <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} noValidate>
           <DialogTitle>{editing ? 'Editar categoría' : 'Nueva categoría'}</DialogTitle>
           <DialogDescription>
             Las categorías propias se suman a las del sistema. Solo admite un nivel de anidación.
@@ -110,12 +107,11 @@ export function CategoryFormDialog({
             <Button variant="secondary" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? 'Guardando…' : editing ? 'Guardar cambios' : 'Crear categoría'}
-            </Button>
+            <SubmitButton pending={mutation.isPending}>
+              {editing ? 'Guardar cambios' : 'Crear categoría'}
+            </SubmitButton>
           </DialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+    </FormDialog>
   )
 }

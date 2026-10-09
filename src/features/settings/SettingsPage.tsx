@@ -7,11 +7,12 @@ import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
 import { ErrorState } from '../../components/shared/ErrorState.tsx'
 import { Field } from '../../components/shared/Field.tsx'
 import { MoneyInput } from '../../components/shared/MoneyInput.tsx'
+import { SelectField } from '../../components/shared/SelectField.tsx'
 import { SuccessAlert } from '../../components/shared/SuccessAlert.tsx'
-import { Button } from '../../components/ui/button.tsx'
 import { Card, CardDescription, CardTitle } from '../../components/ui/card.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
+import { SubmitButton } from '../../components/ui/submit-button.tsx'
 import { fetchSettings, updateSettings, type UserSettings } from '../users/users-api.ts'
 
 function decimalText(min: number, max: number) {
@@ -132,8 +133,8 @@ export function SettingsPage() {
           <Card>
             <CardTitle>Región y calendario</CardTitle>
             <CardDescription>
-              La zona horaria define cuál es “hoy” y los festivos ajustan fechas de pago (RN-02,
-              RN-09).
+              La zona horaria define cuál es “hoy” y los días inhábiles ajustan las fechas de
+              pago.
             </CardDescription>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <Field
@@ -142,22 +143,10 @@ export function SettingsPage() {
                 error={form.formState.errors.timezone?.message}
                 {...form.register('timezone')}
               />
-              <div>
-                <label
-                  htmlFor="holidayCalendarCode"
-                  className="mb-1 block text-sm font-medium text-ink-secondary"
-                >
-                  Calendario de festivos
-                </label>
-                <select
-                  id="holidayCalendarCode"
-                  className="w-full rounded-lg border border-line-strong px-3 py-2 text-sm text-ink shadow-sm outline-none focus:border-focus focus:ring-2 focus:ring-focus/25"
-                  {...form.register('holidayCalendarCode')}
-                >
-                  <option value="MX_BANKING">Bancario (días inhábiles de banco)</option>
-                  <option value="MX_LABOR">Laboral (días festivos oficiales)</option>
-                </select>
-              </div>
+              <SelectField label="Calendario de festivos" {...form.register('holidayCalendarCode')}>
+                <option value="MX_BANKING">Bancario (días inhábiles de banco)</option>
+                <option value="MX_LABOR">Laboral (días festivos oficiales)</option>
+              </SelectField>
             </div>
           </Card>
 
@@ -196,8 +185,8 @@ export function SettingsPage() {
           <Card>
             <CardTitle>Ingresos y proyección</CardTitle>
             <CardDescription>
-              Los ingresos variables se proyectan con el factor conservador (RN-10) y las fechas
-              vencidas dejan de proyectarse tras los días de gracia (RN-11).
+              Los ingresos variables se proyectan con un factor conservador; las fechas vencidas
+              dejan de proyectarse tras los días de gracia.
             </CardDescription>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <Field
@@ -234,9 +223,7 @@ export function SettingsPage() {
           <div className="space-y-3">
             <ErrorAlert error={mutation.error} />
             {saved && <SuccessAlert message="Configuración guardada." />}
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? 'Guardando…' : 'Guardar configuración'}
-            </Button>
+            <SubmitButton pending={mutation.isPending}>Guardar configuración</SubmitButton>
           </div>
         </form>
       )}

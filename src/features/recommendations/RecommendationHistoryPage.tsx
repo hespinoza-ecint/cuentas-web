@@ -4,7 +4,6 @@ import { ErrorState } from '../../components/shared/ErrorState.tsx'
 import { MoneyDisplay } from '../../components/shared/MoneyDisplay.tsx'
 import { Badge } from '../../components/ui/badge.tsx'
 import { Button } from '../../components/ui/button.tsx'
-import { Card } from '../../components/ui/card.tsx'
 import {
   Dialog,
   DialogContent,
@@ -13,6 +12,7 @@ import {
   DialogTitle,
 } from '../../components/ui/dialog.tsx'
 import { EmptyState } from '../../components/ui/empty-state.tsx'
+import { ListRow } from '../../components/ui/list-row.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
 import { formatDateTime } from '../../lib/dates.ts'
@@ -76,33 +76,28 @@ export function RecommendationHistoryPage() {
           {items.map((item) => {
             const outcome = OUTCOME_LABELS[item.outcome] ?? { label: item.outcome, tone: 'info' as const }
             return (
-              <li key={item.id}>
-                <Card className="flex flex-wrap items-center justify-between gap-3 p-3">
-                  <div>
-                    <p className="flex flex-wrap items-center gap-2 text-sm text-ink">
-                      <Badge tone={outcome.tone}>{outcome.label}</Badge>
-                      <span className="font-medium">
-                        {item.recommendedCard
-                          ? `${item.recommendedCard.alias} ····${item.recommendedCard.last4}`
-                          : item.outcome === 'CASH'
-                            ? 'Pagar con efectivo'
-                            : 'Sin opción'}
-                      </span>
-                      <span className="text-xs text-ink-muted">
-                        {TYPE_LABELS[item.requestInput.type] ?? item.requestInput.type}
-                      </span>
-                    </p>
-                    <p className="mt-1 text-xs text-ink-muted">
-                      <MoneyDisplay cents={item.requestInput.amount} /> ·{' '}
-                      {formatDateTime(item.createdAt)}
-                      {item.score !== null ? ` · puntaje ${item.score}` : ''}
-                    </p>
-                  </div>
-                  <Button variant="ghost" size="sm" onClick={() => setDetailId(item.id)}>
-                    Ver detalle
-                  </Button>
-                </Card>
-              </li>
+              <ListRow
+                key={item.id}
+                onOpen={() => setDetailId(item.id)}
+                title={
+                  <span className="flex flex-wrap items-center gap-2">
+                    <Badge tone={outcome.tone}>{outcome.label}</Badge>
+                    {item.recommendedCard
+                      ? `${item.recommendedCard.alias} ····${item.recommendedCard.last4}`
+                      : item.outcome === 'CASH'
+                        ? 'Pagar con efectivo'
+                        : 'Sin opción'}
+                    <span className="text-xs font-normal text-ink-muted">
+                      {TYPE_LABELS[item.requestInput.type] ?? item.requestInput.type}
+                    </span>
+                  </span>
+                }
+                subtitle={`${formatDateTime(item.createdAt)}${
+                  item.score !== null ? ` · puntaje ${item.score}` : ''
+                }`}
+                trailing={<MoneyDisplay cents={item.requestInput.amount} className="font-medium" />}
+                menuLabel={`Más acciones de la consulta del ${formatDateTime(item.createdAt)}`}
+              />
             )
           })}
         </ul>
@@ -113,7 +108,7 @@ export function RecommendationHistoryPage() {
           <Button
             variant="secondary"
             size="sm"
-            disabled={history.isFetchingNextPage}
+            loading={history.isFetchingNextPage}
             onClick={() => void history.fetchNextPage()}
           >
             {history.isFetchingNextPage ? 'Cargando…' : 'Cargar más'}
@@ -123,10 +118,10 @@ export function RecommendationHistoryPage() {
 
       <Dialog open={detailId !== null} onOpenChange={(open) => !open && setDetailId(null)}>
         <DialogContent className="lg:max-w-2xl">
-          <DialogTitle>Recomendación reproducible</DialogTitle>
+          <DialogTitle>Detalle de la recomendación</DialogTitle>
           <DialogDescription>
             {detail.data
-              ? `${TYPE_LABELS[detail.data.requestInput.type] ?? detail.data.requestInput.type} · motor ${detail.data.engineVersion}`
+              ? `${TYPE_LABELS[detail.data.requestInput.type] ?? detail.data.requestInput.type} · ${formatDateTime(detail.data.createdAt)}`
               : 'Cargando…'}
           </DialogDescription>
 

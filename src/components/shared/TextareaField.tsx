@@ -1,4 +1,4 @@
-import type { ComponentProps, ReactNode } from 'react'
+import { useId, type ComponentProps, type ReactNode } from 'react'
 import { controlClass } from '../ui/control.ts'
 
 interface TextareaFieldProps extends ComponentProps<'textarea'> {
@@ -18,7 +18,8 @@ export function TextareaField({
   className,
   ...rest
 }: TextareaFieldProps) {
-  const textareaId = id ?? name
+  const generatedId = useId()
+  const textareaId = id ?? name ?? generatedId
   const errorId = error ? `${textareaId}-error` : undefined
 
   return (

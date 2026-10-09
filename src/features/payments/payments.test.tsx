@@ -137,7 +137,8 @@ describe('pagos de tarjeta', () => {
     const user = userEvent.setup()
 
     const list = await screen.findByTestId('payments-list')
-    await user.click(within(list).getByRole('button', { name: 'Revertir' }))
+    await user.click(within(list).getByRole('button', { name: /Más acciones del pago/ }))
+    await user.click(await screen.findByRole('menuitem', { name: 'Revertir' }))
 
     const dialog = await screen.findByRole('dialog')
     await user.type(within(dialog).getByLabelText('Motivo'), 'Pago duplicado')

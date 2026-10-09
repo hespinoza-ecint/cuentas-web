@@ -157,7 +157,8 @@ describe('movimientos', () => {
     const user = userEvent.setup()
 
     const row = (await screen.findByText('Supermercado')).closest('li') as HTMLElement
-    await user.click(within(row).getByRole('button', { name: 'Revertir' }))
+    await user.click(within(row).getByRole('button', { name: 'Más acciones de Supermercado' }))
+    await user.click(await screen.findByRole('menuitem', { name: 'Revertir' }))
 
     const dialog = await screen.findByRole('dialog')
     await user.type(within(dialog).getByLabelText('Motivo'), 'Registrado por error')

@@ -1,19 +1,20 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft } from 'lucide-react'
+import { Pencil, RotateCcw, Scale, Trash2 } from 'lucide-react'
 import { useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
+import { ActionMenu } from '../../components/ui/action-menu.tsx'
 import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
 import { ErrorState } from '../../components/shared/ErrorState.tsx'
 import { MoneyDisplay } from '../../components/shared/MoneyDisplay.tsx'
 import { ReasonDialog } from '../../components/shared/ReasonDialog.tsx'
 import { SelectField } from '../../components/shared/SelectField.tsx'
 import { StatusBadge } from '../../components/shared/StatusBadge.tsx'
-import { SuccessAlert } from '../../components/shared/SuccessAlert.tsx'
 import { Badge } from '../../components/ui/badge.tsx'
 import { Button } from '../../components/ui/button.tsx'
 import { Card, CardDescription, CardTitle } from '../../components/ui/card.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
+import { toast } from '../../lib/toast.ts'
 import { formatLocalDate } from '../../lib/dates.ts'
 import { cn } from '../../lib/utils.ts'
 import { CardFormDialog } from './CardFormDialog.tsx'
@@ -57,7 +58,6 @@ export function CardDetailPage() {
   const [resetOpen, setResetOpen] = useState(false)
   const [selectedStatement, setSelectedStatement] = useState<CardStatement | null>(null)
   const [deleteOpen, setDeleteOpen] = useState(false)
-  const [notice, setNotice] = useState<string | null>(null)
 
   const ledger = useInfiniteQuery({
     queryKey: ['ledger', id, ledgerType],
@@ -70,7 +70,7 @@ export function CardDetailPage() {
   const reset = useMutation({
     mutationFn: (reason: string) => resetCard(id, reason),
     onSuccess: (result) => {
-      setNotice(result.message)
+      toast(result.message)
       setResetOpen(false)
       void queryClient.invalidateQueries({ queryKey: ['card', id] })
       void queryClient.invalidateQueries({ queryKey: ['cards'] })
@@ -106,15 +106,13 @@ export function CardDetailPage() {
 
   const data = card.data
   const utilization = data.creditLimit > 0 ? data.currentBalance / data.creditLimit : 0
+  const usage =
+    utilization <= 0.3 ? 'Uso bajo' : utilization <= 0.5 ? 'Uso medio' : 'Uso alto'
 
   return (
     <div data-testid="card-detail-page">
-      <Link to="/tarjetas" className="mb-2 inline-flex items-center gap-1 text-sm text-ink-muted hover:text-ink">
-        <ArrowLeft className="size-4" aria-hidden="true" />
-        Tarjetas
-      </Link>
-
       <PageHeader
+        back={{ to: '/tarjetas', label: 'Tarjetas' }}
         title={`${data.alias} ····${data.last4}`}
         description={`${data.institution} · corta el día ${data.cutDay} · ${
           data.dueDateMode === 'FIXED_DAY'
@@ -123,32 +121,44 @@ export function CardDetailPage() {
         }`}
         actions={
           <>
-            <Button variant="secondary" size="sm" onClick={() => setReconcileOpen(true)}>
-              Conciliar
-            </Button>
             <Button variant="secondary" size="sm" onClick={() => setEditOpen(true)}>
+              <Pencil className="size-3.5" aria-hidden="true" />
               Editar
             </Button>
-            <Button variant="secondary" size="sm" onClick={() => setResetOpen(true)}>
-              Reiniciar
-            </Button>
-            <Button variant="ghost" size="sm" className="text-danger hover:bg-danger-soft" onClick={() => setDeleteOpen(true)}>
-              Eliminar
-            </Button>
+            <ActionMenu
+              label={`Más acciones de ${data.alias}`}
+              items={[
+                {
+                  label: 'Conciliar con el banco',
+                  icon: Scale,
+                  onSelect: () => setReconcileOpen(true),
+                },
+                {
+                  label: 'Reiniciar historial',
+                  icon: RotateCcw,
+                  onSelect: () => setResetOpen(true),
+                },
+                {
+                  label: 'Eliminar tarjeta',
+                  icon: Trash2,
+                  tone: 'danger',
+                  onSelect: () => setDeleteOpen(true),
+                },
+              ]}
+            />
           </>
         }
       />
 
       <div className="mb-4 space-y-3">
-        <ErrorAlert error={remove.error} />
-        {notice && <SuccessAlert message={notice} />}
+        <ErrorAlert error={reset.error ?? remove.error} />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardTitle>Saldo</CardTitle>
-          <CardDescription>La deuda se calcula desde el libro de la tarjeta (RN-18)</CardDescription>
-          <p className="mt-3 text-2xl font-semibold text-ink">
+          <CardDescription>Calculado desde el historial de movimientos de la tarjeta</CardDescription>
+          <p className="mt-3 text-3xl font-semibold tracking-tight text-ink tabular-nums">
             <MoneyDisplay cents={data.currentBalance} />
           </p>
           <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-surface-strong">
@@ -161,7 +171,8 @@ export function CardDetailPage() {
             />
           </div>
           <p className="mt-2 text-xs text-ink-muted">
-            Disponible <MoneyDisplay cents={data.availableCredit} className="font-medium" /> de{' '}
+            {usage} · disponible{' '}
+            <MoneyDisplay cents={data.availableCredit} className="font-medium" /> de{' '}
             <MoneyDisplay cents={data.creditLimit} className="font-medium" /> ·{' '}
             {(utilization * 100).toFixed(1)}% utilizado · <StatusBadge status={data.status} />
           </p>
@@ -175,7 +186,7 @@ export function CardDetailPage() {
 
         <Card>
           <CardTitle>Ciclo actual</CardTitle>
-          <CardDescription>Fechas calculadas con el calendario de festivos (RN-12/13)</CardDescription>
+          <CardDescription>Fechas calculadas con el calendario de días inhábiles</CardDescription>
           {cycle.isPending && <Skeleton className="mt-3 h-16" />}
           {cycle.isError && <ErrorState error={cycle.error} onRetry={() => void cycle.refetch()} />}
           {cycle.data && (
@@ -203,7 +214,7 @@ export function CardDetailPage() {
 
       <Card className="mt-4">
         <CardTitle>Estados de cuenta</CardTitle>
-        <CardDescription>Los cortes se materializan al consultarlos</CardDescription>
+        <CardDescription>Se generan al consultarlos, con las fechas de tu tarjeta</CardDescription>
 
         {statements.isPending && <Skeleton className="mt-3 h-20" />}
         {statements.isError && (
@@ -220,7 +231,7 @@ export function CardDetailPage() {
                 <button
                   type="button"
                   onClick={() => setSelectedStatement(statement)}
-                  className="flex w-full flex-wrap items-center justify-between gap-3 py-2 text-left hover:bg-surface-subtle"
+                  className="flex w-full flex-wrap items-center justify-between gap-3 py-3 text-left transition hover:bg-surface-subtle"
                 >
                   <div>
                     <p className="flex flex-wrap items-center gap-2 text-sm text-ink">
@@ -252,8 +263,8 @@ export function CardDetailPage() {
       <Card className="mt-4">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <CardTitle>Libro de la tarjeta</CardTitle>
-            <CardDescription>Compras, mensualidades, intereses y pagos (solo inserción)</CardDescription>
+            <CardTitle>Movimientos de la tarjeta</CardTitle>
+            <CardDescription>Compras, mensualidades, intereses y pagos</CardDescription>
           </div>
           <SelectField
             label="Tipo"
@@ -279,7 +290,7 @@ export function CardDetailPage() {
         {entries.length > 0 && (
           <ul className="mt-3 divide-y divide-line" data-testid="ledger-list">
             {entries.map((entry) => (
-              <li key={entry.id} className="flex flex-wrap items-center justify-between gap-3 py-2">
+              <li key={entry.id} className="flex flex-wrap items-center justify-between gap-3 py-2.5">
                 <div>
                   <p className="flex flex-wrap items-center gap-2 text-sm text-ink">
                     <Badge tone="neutral">{LEDGER_TYPE_LABELS[entry.type] ?? entry.type}</Badge>
@@ -301,7 +312,7 @@ export function CardDetailPage() {
             <Button
               variant="secondary"
               size="sm"
-              disabled={ledger.isFetchingNextPage}
+              loading={ledger.isFetchingNextPage}
               onClick={() => void ledger.fetchNextPage()}
             >
               {ledger.isFetchingNextPage ? 'Cargando…' : 'Cargar más'}
@@ -317,7 +328,7 @@ export function CardDetailPage() {
           open
           onOpenChange={setReconcileOpen}
           onReconciled={(difference) => {
-            setNotice(
+            toast(
               difference === 0
                 ? 'El saldo coincidía con el banco.'
                 : `Saldo ajustado (diferencia de ${formatDifference(difference)}).`,

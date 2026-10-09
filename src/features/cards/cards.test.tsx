@@ -109,7 +109,8 @@ describe('tarjetas', () => {
     const user = userEvent.setup()
 
     const list = await screen.findByTestId('cards-list')
-    await user.click(within(list).getByRole('button', { name: 'Reiniciar' }))
+    await user.click(within(list).getByRole('button', { name: 'Más acciones de Oro' }))
+    await user.click(screen.getByRole('menuitem', { name: 'Reiniciar' }))
 
     const dialog = await screen.findByRole('dialog')
     expect(within(dialog).getByText(/saldo \$0 y crédito completo/)).toBeInTheDocument()
@@ -151,7 +152,8 @@ describe('tarjetas', () => {
     const user = userEvent.setup()
 
     const list = await screen.findByTestId('cards-list')
-    await user.click(within(list).getByRole('button', { name: 'Eliminar' }))
+    await user.click(within(list).getByRole('button', { name: 'Más acciones de Oro' }))
+    await user.click(screen.getByRole('menuitem', { name: 'Eliminar' }))
 
     const dialog = await screen.findByRole('dialog')
     expect(within(dialog).getByText(/TODO su historial/)).toBeInTheDocument()

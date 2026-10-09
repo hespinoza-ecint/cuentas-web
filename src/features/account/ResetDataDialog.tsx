@@ -3,15 +3,12 @@ import { useMutation } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
-import { Field } from '../../components/shared/Field.tsx'
+import { PasswordField } from '../../components/shared/PasswordField.tsx'
 import { Button } from '../../components/ui/button.tsx'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogTitle,
-} from '../../components/ui/dialog.tsx'
+import { Checkbox } from '../../components/ui/checkbox.tsx'
+import { DialogDescription, DialogFooter, DialogTitle } from '../../components/ui/dialog.tsx'
+import { FormDialog } from '../../components/ui/form-dialog.tsx'
+import { SubmitButton } from '../../components/ui/submit-button.tsx'
 import { resetAccountData, type ResetScope } from '../users/users-api.ts'
 
 const resetSchema = z.object({
@@ -67,33 +64,26 @@ export function ResetDataDialog({
   })
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} noValidate>
+    <FormDialog open={open} onOpenChange={onOpenChange} dirty={form.formState.isDirty}>
+      <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} noValidate>
           <DialogTitle>{texts.title}</DialogTitle>
           <DialogDescription>{texts.description}</DialogDescription>
 
           <div className="mt-4 space-y-4">
-            <Field
+            <PasswordField
               label="Contraseña"
-              type="password"
               autoComplete="current-password"
               error={form.formState.errors.password?.message}
               {...form.register('password')}
             />
-            <label className="flex items-start gap-2 text-sm text-ink-secondary">
-              <input
-                type="checkbox"
-                className="mt-0.5 size-4 rounded border-line-strong"
-                {...form.register('confirm')}
-              />
-              {texts.checkbox}
-            </label>
-            {form.formState.errors.confirm && (
-              <p role="alert" className="text-xs text-danger">
-                {form.formState.errors.confirm.message}
-              </p>
-            )}
+            <div>
+              <Checkbox alignTop label={texts.checkbox} {...form.register('confirm')} />
+              {form.formState.errors.confirm && (
+                <p role="alert" className="text-xs text-danger">
+                  {form.formState.errors.confirm.message}
+                </p>
+              )}
+            </div>
           </div>
 
           <ErrorAlert error={mutation.error} className="mt-4" />
@@ -102,12 +92,11 @@ export function ResetDataDialog({
             <Button variant="secondary" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit" variant="danger" disabled={mutation.isPending}>
-              {mutation.isPending ? 'Borrando…' : texts.submit}
-            </Button>
+            <SubmitButton pending={mutation.isPending} variant="danger" pendingLabel="Borrando…">
+              {texts.submit}
+            </SubmitButton>
           </DialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+    </FormDialog>
   )
 }

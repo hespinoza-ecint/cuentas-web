@@ -1,10 +1,10 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { CalendarPlus, Pencil, Trash2 } from 'lucide-react'
+import { CalendarPlus, CircleSlash, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
+import { ActionMenu } from '../../components/ui/action-menu.tsx'
 import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
 import { ErrorState } from '../../components/shared/ErrorState.tsx'
 import { MoneyDisplay } from '../../components/shared/MoneyDisplay.tsx'
-import { SuccessAlert } from '../../components/shared/SuccessAlert.tsx'
 import { Badge } from '../../components/ui/badge.tsx'
 import { Button } from '../../components/ui/button.tsx'
 import { Card, CardDescription, CardTitle } from '../../components/ui/card.tsx'
@@ -12,6 +12,7 @@ import { ConfirmDialog } from '../../components/ui/confirm-dialog.tsx'
 import { EmptyState } from '../../components/ui/empty-state.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
+import { toast } from '../../lib/toast.ts'
 import { formatLocalDate } from '../../lib/dates.ts'
 import { listAccounts } from '../accounts/accounts-api.ts'
 import { listCategories } from '../categories/categories-api.ts'
@@ -47,7 +48,6 @@ export function IncomePage() {
   const [skipping, setSkipping] = useState<UpcomingIncomeItem | null>(null)
   const [deletingSource, setDeletingSource] = useState<IncomeSource | null>(null)
   const [deletingSchedule, setDeletingSchedule] = useState<{ source: IncomeSource; schedule: IncomeSchedule } | null>(null)
-  const [notice, setNotice] = useState<string | null>(null)
 
   const accounts = useQuery({ queryKey: ['accounts'], queryFn: listAccounts })
   const categories = useQuery({
@@ -67,11 +67,16 @@ export function IncomePage() {
     getNextPageParam: (lastPage) => lastPage.meta.nextCursor ?? undefined,
   })
 
+  const invalidateIncome = () => {
+    void queryClient.invalidateQueries({ queryKey: ['income-sources'] })
+    void queryClient.invalidateQueries({ queryKey: ['income-upcoming'] })
+  }
+
   const removeSourceMutation = useMutation({
     mutationFn: removeSource,
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['income-sources'] })
-      void queryClient.invalidateQueries({ queryKey: ['income-upcoming'] })
+      invalidateIncome()
+      toast('Fuente de ingreso eliminada con sus calendarios.')
     },
   })
 
@@ -79,8 +84,8 @@ export function IncomePage() {
     mutationFn: ({ source, schedule }: { source: IncomeSource; schedule: IncomeSchedule }) =>
       removeSchedule(source.id, schedule.id),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['income-sources'] })
-      void queryClient.invalidateQueries({ queryKey: ['income-upcoming'] })
+      invalidateIncome()
+      toast('Calendario eliminado.')
     },
   })
 
@@ -92,7 +97,7 @@ export function IncomePage() {
         expectedDate: occurrence.expectedDate,
       }),
     onSuccess: () => {
-      setNotice('Fecha omitida: ya no se proyecta.')
+      toast('Fecha omitida: ya no se proyecta.')
       setSkipping(null)
       void queryClient.invalidateQueries({ queryKey: ['income-upcoming'] })
       void queryClient.invalidateQueries({ queryKey: ['income-transactions'] })
@@ -103,6 +108,7 @@ export function IncomePage() {
   const occurrences = upcoming.data?.occurrences ?? []
   const sourceList = sources.data ?? []
   const history = transactions.data?.pages.flatMap((page) => page.data) ?? []
+  const hasAccounts = (accounts.data ?? []).length > 0
 
   return (
     <div data-testid="income-page">
@@ -110,21 +116,22 @@ export function IncomePage() {
         title="Ingresos"
         description="Fuentes, calendarios y confirmación de depósitos"
         actions={
-          <Button size="sm" onClick={() => setCreateOpen(true)} disabled={(accounts.data ?? []).length === 0}>
+          <Button size="sm" onClick={() => setCreateOpen(true)} disabled={!hasAccounts}>
             Nueva fuente
           </Button>
         }
       />
 
       <div className="mb-4 space-y-3">
-        <ErrorAlert error={removeSourceMutation.error ?? skipMutation.error} />
-        {notice && <SuccessAlert message={notice} />}
+        <ErrorAlert
+          error={removeSourceMutation.error ?? removeScheduleMutation.error ?? skipMutation.error}
+        />
       </div>
 
       <Card className="mb-5">
         <CardTitle>Próximos ingresos ({upcoming.data?.horizonDays ?? 60} días)</CardTitle>
         <CardDescription>
-          Con ajuste de días inhábiles (RN-09) y factor conservador en variables (RN-10).
+          Fechas ajustadas por días inhábiles y depósitos variables con factor conservador.
         </CardDescription>
 
         {upcoming.isPending && <Skeleton className="mt-3 h-16" />}
@@ -137,7 +144,7 @@ export function IncomePage() {
             {occurrences.map((occurrence) => (
               <li
                 key={`${occurrence.incomeScheduleId}-${occurrence.expectedDate}`}
-                className="flex flex-wrap items-center justify-between gap-3 py-2"
+                className="flex flex-wrap items-center justify-between gap-3 py-3"
               >
                 <div>
                   <p className="flex flex-wrap items-center gap-2 text-sm text-ink">
@@ -150,14 +157,21 @@ export function IncomePage() {
                     {occurrence.daysUntil >= 0 ? ` · en ${occurrence.daysUntil} días` : ''}
                   </p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5">
                   <MoneyDisplay cents={occurrence.expectedAmount} className="font-medium text-income" />
                   <Button variant="secondary" size="sm" onClick={() => setConfirming(occurrence)}>
                     Confirmar
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => setSkipping(occurrence)}>
-                    Omitir
-                  </Button>
+                  <ActionMenu
+                    label={`Más acciones del ingreso de ${occurrence.incomeSourceName}`}
+                    items={[
+                      {
+                        label: 'Omitir esta fecha',
+                        icon: CircleSlash,
+                        onSelect: () => setSkipping(occurrence),
+                      },
+                    ]}
+                  />
                 </div>
               </li>
             ))}
@@ -172,59 +186,85 @@ export function IncomePage() {
         {sources.isPending && <Skeleton className="mt-3 h-20" />}
         {sources.isError && <ErrorState error={sources.error} onRetry={() => void sources.refetch()} />}
         {sources.data && sourceList.length === 0 && (
-          <EmptyState
-            title="Sin fuentes de ingreso"
-            description="Registra tu sueldo, freelance o rentas para proyectar tu flujo."
-          />
+          <div className="mt-3">
+            <EmptyState
+              title="Sin fuentes de ingreso"
+              description="Registra tu sueldo, freelance o rentas para proyectar tu flujo."
+              action={
+                hasAccounts ? (
+                  <Button variant="secondary" onClick={() => setCreateOpen(true)}>
+                    <Plus className="size-4" aria-hidden="true" />
+                    Nueva fuente
+                  </Button>
+                ) : undefined
+              }
+            />
+          </div>
         )}
 
         {sourceList.length > 0 && (
-          <ul className="mt-3 space-y-3" data-testid="income-sources">
+          <ul className="mt-3 space-y-2" data-testid="income-sources">
             {sourceList.map((source) => (
-              <li key={source.id} className="rounded-lg border border-line p-3">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <p className="flex flex-wrap items-center gap-2 text-sm text-ink">
+              <li key={source.id} className="rounded-xl border border-line bg-surface">
+                <div className="flex items-start justify-between gap-2 py-2 pr-2 pl-4">
+                  <button
+                    type="button"
+                    onClick={() => setEditingSource(source)}
+                    className="min-w-0 flex-1 py-1 text-left"
+                  >
+                    <span className="flex flex-wrap items-center gap-2 text-sm text-ink">
                       <span className="font-medium">{source.name}</span>
                       <Badge tone={source.isActive ? 'success' : 'neutral'}>
                         {source.isActive ? 'Activa' : 'Inactiva'}
                       </Badge>
-                      <Badge tone="neutral">{source.amountType === 'VARIABLE' ? 'Variable' : 'Fijo'}</Badge>
-                      {source.category && <span className="text-xs text-ink-muted">{source.category.name}</span>}
-                    </p>
-                    <p className="mt-0.5 text-xs text-ink-muted">
+                      <Badge tone="neutral">
+                        {source.amountType === 'VARIABLE' ? 'Variable' : 'Fijo'}
+                      </Badge>
+                      {source.category && (
+                        <span className="text-xs text-ink-muted">{source.category.name}</span>
+                      )}
+                    </span>
+                    <span className="mt-0.5 block text-xs text-ink-muted">
                       Estimado <MoneyDisplay cents={source.estimatedAmount} /> ·{' '}
                       {source.cashAccount?.name ?? 'cuenta'}
                       {source.payer ? ` · ${source.payer}` : ''}
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    <Button variant="secondary" size="sm" onClick={() => setEditingSource(source)}>
-                      Editar
-                    </Button>
-                    <Button variant="secondary" size="sm" onClick={() => setScheduleFor(source)}>
-                      <CalendarPlus className="size-4" aria-hidden="true" />
-                      Calendario
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={() => setDeletingSource(source)}>
-                      Eliminar
-                    </Button>
-                  </div>
+                    </span>
+                  </button>
+                  <ActionMenu
+                    label={`Más acciones de ${source.name}`}
+                    items={[
+                      { label: 'Editar', icon: Pencil, onSelect: () => setEditingSource(source) },
+                      {
+                        label: 'Agregar calendario',
+                        icon: CalendarPlus,
+                        onSelect: () => setScheduleFor(source),
+                      },
+                      {
+                        label: 'Eliminar',
+                        icon: Trash2,
+                        tone: 'danger',
+                        onSelect: () => setDeletingSource(source),
+                      },
+                    ]}
+                  />
                 </div>
 
                 {source.schedules.length > 0 && (
-                  <ul className="mt-2 space-y-1 border-t border-line pt-2">
+                  <ul className="mt-1 space-y-1 border-t border-line px-4 py-1.5">
                     {source.schedules.map((schedule) => (
-                      <li key={schedule.id} className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                      <li
+                        key={schedule.id}
+                        className="flex flex-wrap items-center justify-between gap-2 py-1 text-xs"
+                      >
                         <span className="text-ink-secondary">
                           {describeSchedule(schedule)}
                           {schedule.amountOverride ? ' · monto propio' : ''}
                           {!schedule.isActive ? ' · inactivo' : ''}
                         </span>
-                        <span className="flex gap-1">
+                        <span className="flex gap-0.5">
                           <Button
                             variant="ghost"
-                            size="sm"
+                            size="icon-sm"
                             aria-label={`Editar calendario de ${source.name}`}
                             onClick={() => setEditingSchedule({ source, schedule })}
                           >
@@ -232,7 +272,7 @@ export function IncomePage() {
                           </Button>
                           <Button
                             variant="ghost"
-                            size="sm"
+                            size="icon-sm"
                             aria-label={`Eliminar calendario de ${source.name}`}
                             onClick={() => setDeletingSchedule({ source, schedule })}
                           >
@@ -266,7 +306,7 @@ export function IncomePage() {
             {history.map((entry) => {
               const status = STATUS_LABELS[entry.status] ?? { label: entry.status, tone: 'neutral' as const }
               return (
-                <li key={entry.id} className="flex flex-wrap items-center justify-between gap-3 py-2">
+                <li key={entry.id} className="flex flex-wrap items-center justify-between gap-3 py-2.5">
                   <div>
                     <p className="flex flex-wrap items-center gap-2 text-sm text-ink">
                       <span className="font-medium">{entry.incomeSource?.name ?? 'Ingreso'}</span>
@@ -299,7 +339,7 @@ export function IncomePage() {
             <Button
               variant="secondary"
               size="sm"
-              disabled={transactions.isFetchingNextPage}
+              loading={transactions.isFetchingNextPage}
               onClick={() => void transactions.fetchNextPage()}
             >
               {transactions.isFetchingNextPage ? 'Cargando…' : 'Cargar más'}

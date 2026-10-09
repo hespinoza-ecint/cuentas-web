@@ -8,13 +8,9 @@ import { MoneyDisplay } from '../../components/shared/MoneyDisplay.tsx'
 import { MoneyInput } from '../../components/shared/MoneyInput.tsx'
 import { SelectField } from '../../components/shared/SelectField.tsx'
 import { Button } from '../../components/ui/button.tsx'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogTitle,
-} from '../../components/ui/dialog.tsx'
+import { DialogDescription, DialogFooter, DialogTitle } from '../../components/ui/dialog.tsx'
+import { FormDialog } from '../../components/ui/form-dialog.tsx'
+import { SubmitButton } from '../../components/ui/submit-button.tsx'
 import type { CashAccount } from '../accounts/accounts-api.ts'
 import type { CreditCard } from '../cards/cards-api.ts'
 import { useToday } from '../users/use-settings.ts'
@@ -85,12 +81,11 @@ export function PaymentFormDialog({
   })
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} noValidate>
+    <FormDialog open={open} onOpenChange={onOpenChange} dirty={form.formState.isDirty}>
+      <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} noValidate>
           <DialogTitle>Registrar pago</DialogTitle>
           <DialogDescription>
-            Se aplica primero a mensualidades exigibles, luego al corte y al saldo revolvente (RN-23).
+            Se aplica primero a mensualidades exigibles, luego al corte y al saldo revolvente.
           </DialogDescription>
 
           <div className="mt-4 space-y-4">
@@ -143,12 +138,11 @@ export function PaymentFormDialog({
             <Button variant="secondary" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? 'Aplicando…' : 'Registrar pago'}
-            </Button>
+            <SubmitButton pending={mutation.isPending} pendingLabel="Aplicando…">
+              Registrar pago
+            </SubmitButton>
           </DialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+    </FormDialog>
   )
 }

@@ -1,64 +1,19 @@
 import { CheckCircle2, Info, TriangleAlert, X } from 'lucide-react'
 import { useSyncExternalStore } from 'react'
 import { cn } from '../../lib/utils.ts'
-
-export type ToastTone = 'success' | 'danger' | 'info'
-
-interface ToastItem {
-  id: number
-  message: string
-  tone: ToastTone
-}
+import {
+  dismissToast,
+  getServerSnapshot,
+  getSnapshot,
+  subscribe,
+  type ToastTone,
+} from '../../lib/toast.ts'
 
 /*
  * Avisos breves tras guardar ("Estado visible del sistema"): confirmación
- * inmediata sin bloquear el flujo. Almacén mínimo sin dependencias, montado
- * una sola vez en el shell (ver Toaster).
+ * inmediata sin bloquear el flujo. El contenedor se monta una sola vez en el
+ * shell (ver AppShell). El estado vive en src/lib/toast.ts.
  */
-let toasts: ToastItem[] = []
-const listeners = new Set<() => void>()
-let nextId = 1
-
-function emit(): void {
-  for (const listener of listeners) {
-    listener()
-  }
-}
-
-export function dismissToast(id: number): void {
-  toasts = toasts.filter((item) => item.id !== id)
-  emit()
-}
-
-/** Muestra un aviso breve. Se retira solo (los errores tardan más). */
-export function toast(
-  message: string,
-  options: { tone?: ToastTone; duration?: number } = {},
-): number {
-  const item: ToastItem = { id: nextId++, message, tone: options.tone ?? 'success' }
-  // Máximo 3 avisos; el más viejo cede su lugar.
-  toasts = [...toasts.slice(-2), item]
-  emit()
-  const duration = options.duration ?? (item.tone === 'danger' ? 6000 : 3500)
-  window.setTimeout(() => dismissToast(item.id), duration)
-  return item.id
-}
-
-function subscribe(listener: () => void): () => void {
-  listeners.add(listener)
-  return () => {
-    listeners.delete(listener)
-  }
-}
-
-function getSnapshot(): ToastItem[] {
-  return toasts
-}
-
-function getServerSnapshot(): ToastItem[] {
-  return []
-}
-
 const TONES: Record<ToastTone, { box: string; icon: typeof Info }> = {
   success: { box: 'border-success-line bg-success-soft text-success-ink', icon: CheckCircle2 },
   danger: { box: 'border-danger-line bg-danger-soft text-danger-ink', icon: TriangleAlert },

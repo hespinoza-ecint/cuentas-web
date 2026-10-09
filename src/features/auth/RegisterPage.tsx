@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router'
 import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
 import { Field } from '../../components/shared/Field.tsx'
+import { PasswordField } from '../../components/shared/PasswordField.tsx'
 import { AuthLayout, SubmitButton } from './AuthLayout.tsx'
 import { register as registerAccount } from './auth-api.ts'
 import { registerSchema, type RegisterForm } from './schemas.ts'
@@ -70,17 +71,15 @@ export function RegisterPage() {
           error={formState.errors.email?.message}
           {...register('email')}
         />
-        <Field
+        <PasswordField
           label="Contraseña"
-          type="password"
           autoComplete="new-password"
           hint="Mínimo 10 caracteres"
           error={formState.errors.password?.message}
           {...register('password')}
         />
-        <Field
+        <PasswordField
           label="Confirmar contraseña"
-          type="password"
           autoComplete="new-password"
           error={formState.errors.confirmPassword?.message}
           {...register('confirmPassword')}

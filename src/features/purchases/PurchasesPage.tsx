@@ -1,4 +1,5 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Ban, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
 import { ErrorState } from '../../components/shared/ErrorState.tsx'
@@ -6,14 +7,14 @@ import { MoneyDisplay } from '../../components/shared/MoneyDisplay.tsx'
 import { ReasonDialog } from '../../components/shared/ReasonDialog.tsx'
 import { SelectField } from '../../components/shared/SelectField.tsx'
 import { StatusBadge } from '../../components/shared/StatusBadge.tsx'
-import { SuccessAlert } from '../../components/shared/SuccessAlert.tsx'
 import { Badge } from '../../components/ui/badge.tsx'
 import { Button } from '../../components/ui/button.tsx'
-import { Card } from '../../components/ui/card.tsx'
 import { EmptyState } from '../../components/ui/empty-state.tsx'
 import { FiltersCard } from '../../components/ui/filters-card.tsx'
+import { ListRow } from '../../components/ui/list-row.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
+import { toast } from '../../lib/toast.ts'
 import { formatLocalDate } from '../../lib/dates.ts'
 import { formatCents } from '../../lib/money.ts'
 import { listAccounts } from '../accounts/accounts-api.ts'
@@ -45,7 +46,6 @@ export function PurchasesPage() {
   const [detailId, setDetailId] = useState<string | null>(null)
   const [cancelling, setCancelling] = useState<Purchase | null>(null)
   const [deleting, setDeleting] = useState<Purchase | null>(null)
-  const [notice, setNotice] = useState<string | null>(null)
 
   const purchases = useInfiniteQuery({
     queryKey: ['purchases', cardFilter, typeFilter, statusFilter],
@@ -64,7 +64,7 @@ export function PurchasesPage() {
   const cancel = useMutation({
     mutationFn: ({ id, reason }: { id: string; reason: string }) => cancelPurchase(id, reason),
     onSuccess: () => {
-      setNotice('Compra cancelada: se restauró el crédito disponible.')
+      toast('Compra cancelada: se restauró el crédito disponible.')
       setCancelling(null)
       void queryClient.invalidateQueries({ queryKey: ['purchases'] })
       void queryClient.invalidateQueries({ queryKey: ['cards'] })
@@ -75,7 +75,7 @@ export function PurchasesPage() {
   const remove = useMutation({
     mutationFn: ({ id, reason }: { id: string; reason: string }) => deletePurchase(id, reason),
     onSuccess: (result) => {
-      setNotice(
+      toast(
         result.refundedPrincipal > 0
           ? `Compra eliminada: se descontaron ${formatCents(result.refundedPrincipal)} del saldo de la tarjeta.`
           : 'Compra eliminada: no quedaba saldo pendiente en la tarjeta.',
@@ -89,6 +89,7 @@ export function PurchasesPage() {
   })
 
   const items = purchases.data?.pages.flatMap((page) => page.data) ?? []
+  const hasCards = (cards.data ?? []).length > 0
 
   return (
     <div data-testid="purchases-page">
@@ -96,11 +97,7 @@ export function PurchasesPage() {
         title="Compras"
         description="Regulares, meses sin intereses y diferidas"
         actions={
-          <Button
-            size="sm"
-            onClick={() => setCreateOpen(true)}
-            disabled={(cards.data ?? []).length === 0}
-          >
+          <Button size="sm" onClick={() => setCreateOpen(true)} disabled={!hasCards}>
             Registrar compra
           </Button>
         }
@@ -132,10 +129,7 @@ export function PurchasesPage() {
         </div>
       </FiltersCard>
 
-      <div className="mb-4 space-y-3">
-        <ErrorAlert error={cancel.error ?? remove.error} />
-        {notice && <SuccessAlert message={notice} />}
-      </div>
+      <ErrorAlert error={cancel.error ?? remove.error} className="mb-4" />
 
       {purchases.isPending && (
         <div className="space-y-2">
@@ -151,6 +145,13 @@ export function PurchasesPage() {
         <EmptyState
           title="Sin compras"
           description="Registra una compra para dar seguimiento a sus mensualidades."
+          action={
+            hasCards ? (
+              <Button variant="secondary" onClick={() => setCreateOpen(true)}>
+                Registrar compra
+              </Button>
+            ) : undefined
+          }
         />
       )}
 
@@ -165,46 +166,46 @@ export function PurchasesPage() {
                 (installment) => installment.paidAmount > 0,
               ) ?? false
             const canCancel = purchase.status === 'ACTIVE' && !hasPayments
+            const menu = []
+            if (canCancel) {
+              menu.push({
+                label: 'Cancelar',
+                icon: Ban,
+                onSelect: () => setCancelling(purchase),
+              })
+            }
+            menu.push({
+              label: 'Eliminar',
+              icon: Trash2,
+              tone: 'danger' as const,
+              onSelect: () => setDeleting(purchase),
+            })
             return (
-              <li key={purchase.id}>
-                <Card className="p-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="flex flex-wrap items-center gap-2 text-sm text-ink">
-                        <span className="font-medium">{purchase.description}</span>
-                        <Badge tone="neutral">{TYPE_LABELS[purchase.type] ?? purchase.type}</Badge>
-                        <StatusBadge status={purchase.status} />
-                      </p>
-                      <p className="mt-1 text-xs text-ink-muted">
-                        {purchase.creditCard ? `${purchase.creditCard.alias} ····${purchase.creditCard.last4} · ` : ''}
-                        {formatLocalDate(purchase.purchaseDate)}
-                        {nextInstallment
-                          ? ` · próxima #${nextInstallment.number} por ${(nextInstallment.totalAmount / 100).toFixed(2)} el ${formatLocalDate(nextInstallment.dueDate)}`
-                          : ''}
-                      </p>
-                    </div>
-                    <MoneyDisplay cents={purchase.amount} className="shrink-0 font-semibold" />
-                  </div>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    <Button variant="ghost" size="sm" onClick={() => setDetailId(purchase.id)}>
-                      Detalle
-                    </Button>
-                    {canCancel && (
-                      <Button variant="secondary" size="sm" onClick={() => setCancelling(purchase)}>
-                        Cancelar
-                      </Button>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-danger hover:bg-danger-soft"
-                      onClick={() => setDeleting(purchase)}
-                    >
-                      Eliminar
-                    </Button>
-                  </div>
-                </Card>
-              </li>
+              <ListRow
+                key={purchase.id}
+                onOpen={() => setDetailId(purchase.id)}
+                title={
+                  <span className="flex flex-wrap items-center gap-2">
+                    {purchase.description}
+                    <Badge tone="neutral">{TYPE_LABELS[purchase.type] ?? purchase.type}</Badge>
+                    <StatusBadge status={purchase.status} />
+                  </span>
+                }
+                subtitle={[
+                  purchase.creditCard
+                    ? `${purchase.creditCard.alias} ····${purchase.creditCard.last4}`
+                    : undefined,
+                  formatLocalDate(purchase.purchaseDate),
+                  nextInstallment
+                    ? `próxima #${nextInstallment.number} por ${(nextInstallment.totalAmount / 100).toFixed(2)} el ${formatLocalDate(nextInstallment.dueDate)}`
+                    : undefined,
+                ]
+                  .filter(Boolean)
+                  .join(' · ')}
+                trailing={<MoneyDisplay cents={purchase.amount} className="font-semibold" />}
+                menu={menu}
+                menuLabel={`Más acciones de ${purchase.description}`}
+              />
             )
           })}
         </ul>
@@ -215,7 +216,7 @@ export function PurchasesPage() {
           <Button
             variant="secondary"
             size="sm"
-            disabled={purchases.isFetchingNextPage}
+            loading={purchases.isFetchingNextPage}
             onClick={() => void purchases.fetchNextPage()}
           >
             {purchases.isFetchingNextPage ? 'Cargando…' : 'Cargar más'}

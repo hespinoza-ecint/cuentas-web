@@ -193,7 +193,7 @@ describe('recomendador', () => {
     expect(within(list).getByText(/Oro ····4321/)).toBeInTheDocument()
     expect(within(list).getByText(/\$2,500\.00/)).toBeInTheDocument()
 
-    await user.click(within(list).getByRole('button', { name: 'Ver detalle' }))
+    await user.click(within(list).getByRole('button', { name: /Oro ····4321/ }))
     const dialog = await screen.findByRole('dialog')
     expect(await within(dialog).findByTestId('recommendation-result')).toBeInTheDocument()
     expect(within(dialog).getByText('Contexto y reglas guardadas')).toBeInTheDocument()
@@ -223,7 +223,7 @@ describe('recomendador', () => {
     const cashflowRule = within(list)
       .getByText('Flujo de efectivo no negativo')
       .closest('li') as HTMLElement
-    await user.click(within(cashflowRule).getByRole('checkbox'))
+    await user.click(within(cashflowRule).getByRole('switch'))
 
     await waitFor(() => expect(override).not.toBeNull())
     expect(override?.code).toBe('CASHFLOW_NON_NEGATIVE')

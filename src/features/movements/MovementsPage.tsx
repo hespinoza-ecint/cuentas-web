@@ -1,4 +1,5 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { RotateCcw } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { MoneyDisplay } from '../../components/shared/MoneyDisplay.tsx'
 import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
@@ -8,12 +9,13 @@ import { ReasonDialog } from '../../components/shared/ReasonDialog.tsx'
 import { SelectField } from '../../components/shared/SelectField.tsx'
 import { Badge } from '../../components/ui/badge.tsx'
 import { Button } from '../../components/ui/button.tsx'
-import { Card } from '../../components/ui/card.tsx'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from '../../components/ui/dialog.tsx'
 import { EmptyState } from '../../components/ui/empty-state.tsx'
 import { FiltersCard } from '../../components/ui/filters-card.tsx'
+import { ListRow } from '../../components/ui/list-row.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
+import { toast } from '../../lib/toast.ts'
 import { formatDateTime, formatLocalDate } from '../../lib/dates.ts'
 import { listAccounts } from '../accounts/accounts-api.ts'
 import { AdjustmentDialog } from './AdjustmentDialog.tsx'
@@ -75,6 +77,7 @@ export function MovementsPage() {
       void queryClient.invalidateQueries({ queryKey: ['movements'] })
       void queryClient.invalidateQueries({ queryKey: ['accounts'] })
       setReversing(null)
+      toast('Movimiento revertido con su registro inverso.')
     },
   })
 
@@ -90,9 +93,13 @@ export function MovementsPage() {
     <div data-testid="movements-page">
       <PageHeader
         title="Movimientos"
-        description="Libro de efectivo: cada saldo viene de aquí (RN-05)"
+        description="Entradas y salidas de tus cuentas de efectivo"
         actions={
-          <Button size="sm" onClick={() => setAdjustOpen(true)} disabled={(accounts.data ?? []).length === 0}>
+          <Button
+            size="sm"
+            onClick={() => setAdjustOpen(true)}
+            disabled={(accounts.data ?? []).length === 0}
+          >
             Ajuste manual
           </Button>
         }
@@ -152,49 +159,54 @@ export function MovementsPage() {
       {movements.data && items.length === 0 && (
         <EmptyState
           title="Sin movimientos"
-          description="Ajusta los filtros o registra tu primer movimiento con un ajuste o saldo inicial."
+          description="Ajusta los filtros o registra un ajuste manual para empezar el libro."
+          action={
+            (accounts.data ?? []).length > 0 ? (
+              <Button variant="secondary" onClick={() => setAdjustOpen(true)}>
+                Ajuste manual
+              </Button>
+            ) : undefined
+          }
         />
       )}
 
       {items.length > 0 && (
         <ul className="space-y-2" data-testid="movements-list">
           {items.map((movement) => (
-            <li key={movement.id}>
-              <Card className="p-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="flex flex-wrap items-center gap-2 text-sm text-ink">
-                      <Badge tone={movement.amount >= 0 ? 'success' : 'neutral'}>
-                        {TYPE_LABELS[movement.type] ?? movement.type}
-                      </Badge>
-                      <span className="font-medium">{movement.description}</span>
-                    </p>
-                    <p className="mt-1 text-xs text-ink-muted">
-                      {formatLocalDate(movement.occurredOn)}
-                      {accountName.get(movement.cashAccountId)
-                        ? ` · ${accountName.get(movement.cashAccountId)}`
-                        : ''}
-                      {movement.reason ? ` · ${movement.reason}` : ''}
-                    </p>
-                  </div>
-                  <MoneyDisplay
-                    cents={movement.amount}
-                    colored
-                    className="shrink-0 font-semibold"
-                  />
-                </div>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  <Button variant="ghost" size="sm" onClick={() => setDetail(movement)}>
-                    Detalle
-                  </Button>
-                  {movement.type !== 'REVERSAL' && !reversedIds.has(movement.id) && (
-                    <Button variant="secondary" size="sm" onClick={() => setReversing(movement)}>
-                      Revertir
-                    </Button>
-                  )}
-                </div>
-              </Card>
-            </li>
+            <ListRow
+              key={movement.id}
+              onOpen={() => setDetail(movement)}
+              title={
+                <span className="flex flex-wrap items-center gap-2">
+                  <Badge tone={movement.amount >= 0 ? 'success' : 'neutral'}>
+                    {TYPE_LABELS[movement.type] ?? movement.type}
+                  </Badge>
+                  {movement.description}
+                </span>
+              }
+              subtitle={[
+                formatLocalDate(movement.occurredOn),
+                accountName.get(movement.cashAccountId),
+                movement.reason,
+              ]
+                .filter(Boolean)
+                .join(' · ')}
+              trailing={
+                <MoneyDisplay cents={movement.amount} colored className="font-semibold" />
+              }
+              menu={
+                movement.type !== 'REVERSAL' && !reversedIds.has(movement.id)
+                  ? [
+                      {
+                        label: 'Revertir',
+                        icon: RotateCcw,
+                        onSelect: () => setReversing(movement),
+                      },
+                    ]
+                  : undefined
+              }
+              menuLabel={`Más acciones de ${movement.description}`}
+            />
           ))}
         </ul>
       )}
@@ -204,7 +216,7 @@ export function MovementsPage() {
           <Button
             variant="secondary"
             size="sm"
-            disabled={movements.isFetchingNextPage}
+            loading={movements.isFetchingNextPage}
             onClick={() => void movements.fetchNextPage()}
           >
             {movements.isFetchingNextPage ? 'Cargando…' : 'Cargar más'}
@@ -213,17 +225,17 @@ export function MovementsPage() {
       )}
 
       {adjustOpen && (
-        <AdjustmentDialog
-          accounts={accounts.data ?? []}
-          open
-          onOpenChange={setAdjustOpen}
-        />
+        <AdjustmentDialog accounts={accounts.data ?? []} open onOpenChange={setAdjustOpen} />
       )}
 
       <Dialog open={detail !== null} onOpenChange={(open) => !open && setDetail(null)}>
         <DialogContent>
           <DialogTitle>Detalle del movimiento</DialogTitle>
-          <DialogDescription>{detail?.id}</DialogDescription>
+          <DialogDescription>
+            {detail
+              ? `${TYPE_LABELS[detail.type] ?? detail.type} · ${formatLocalDate(detail.occurredOn)}`
+              : ''}
+          </DialogDescription>
           {detail && (
             <dl className="mt-4 space-y-2 text-sm">
               <Row label="Tipo" value={TYPE_LABELS[detail.type] ?? detail.type} />

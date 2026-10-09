@@ -5,16 +5,11 @@ import { MoneyDisplay } from '../../components/shared/MoneyDisplay.tsx'
 import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
 import { MoneyInput } from '../../components/shared/MoneyInput.tsx'
 import { StatusBadge } from '../../components/shared/StatusBadge.tsx'
-import { SuccessAlert } from '../../components/shared/SuccessAlert.tsx'
 import { Button } from '../../components/ui/button.tsx'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogTitle,
-} from '../../components/ui/dialog.tsx'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from '../../components/ui/dialog.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
+import { SubmitButton } from '../../components/ui/submit-button.tsx'
+import { toast } from '../../lib/toast.ts'
 import { formatLocalDate } from '../../lib/dates.ts'
 import { getStatement, updateStatement, type CardStatement } from './cards-api.ts'
 
@@ -57,6 +52,7 @@ export function StatementDetailDialog({
       void queryClient.invalidateQueries({ queryKey: ['statements', cardId] })
       void queryClient.invalidateQueries({ queryKey: ['statement', cardId, statement.id] })
       void queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      toast('Montos del corte actualizados.')
     },
   })
 
@@ -159,10 +155,9 @@ export function StatementDetailDialog({
               />
             </div>
             <ErrorAlert error={mutation.error} />
-            {mutation.isSuccess && <SuccessAlert message="Montos del corte actualizados." />}
-            <Button type="submit" size="sm" variant="secondary" disabled={mutation.isPending}>
-              {mutation.isPending ? 'Guardando…' : 'Guardar montos'}
-            </Button>
+            <SubmitButton pending={mutation.isPending} size="sm" variant="secondary">
+              Guardar montos
+            </SubmitButton>
           </form>
         </div>
 

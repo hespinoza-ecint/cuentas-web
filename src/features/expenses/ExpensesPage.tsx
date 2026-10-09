@@ -1,4 +1,5 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { RotateCcw } from 'lucide-react'
 import { useState } from 'react'
 import { MoneyDisplay } from '../../components/shared/MoneyDisplay.tsx'
 import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
@@ -8,11 +9,12 @@ import { ReasonDialog } from '../../components/shared/ReasonDialog.tsx'
 import { SelectField } from '../../components/shared/SelectField.tsx'
 import { Badge } from '../../components/ui/badge.tsx'
 import { Button } from '../../components/ui/button.tsx'
-import { Card } from '../../components/ui/card.tsx'
 import { EmptyState } from '../../components/ui/empty-state.tsx'
 import { FiltersCard } from '../../components/ui/filters-card.tsx'
+import { ListRow } from '../../components/ui/list-row.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
+import { toast } from '../../lib/toast.ts'
 import { formatLocalDate } from '../../lib/dates.ts'
 import { listAccounts } from '../accounts/accounts-api.ts'
 import { listCategories } from '../categories/categories-api.ts'
@@ -56,19 +58,21 @@ export function ExpensesPage() {
       void queryClient.invalidateQueries({ queryKey: ['expenses'] })
       void queryClient.invalidateQueries({ queryKey: ['accounts'] })
       setReversing(null)
+      toast('Gasto revertido: el monto volvió a la cuenta.')
     },
   })
 
   const items = expenses.data?.pages.flatMap((page) => page.data) ?? []
   const accountName = new Map((accounts.data ?? []).map((account) => [account.id, account.name]))
+  const hasAccounts = (accounts.data ?? []).length > 0
 
   return (
     <div data-testid="expenses-page">
       <PageHeader
         title="Gastos"
-        description="Gastos pagados con efectivo o débito (RN-25)"
+        description="Pagos hechos en efectivo o débito"
         actions={
-          <Button size="sm" onClick={() => setCreateOpen(true)} disabled={(accounts.data ?? []).length === 0}>
+          <Button size="sm" onClick={() => setCreateOpen(true)} disabled={!hasAccounts}>
             Registrar gasto
           </Button>
         }
@@ -130,44 +134,48 @@ export function ExpensesPage() {
         <EmptyState
           title="Sin gastos"
           description="Registra tu primer gasto o ajusta los filtros."
+          action={
+            hasAccounts ? (
+              <Button variant="secondary" onClick={() => setCreateOpen(true)}>
+                Registrar gasto
+              </Button>
+            ) : undefined
+          }
         />
       )}
 
       {items.length > 0 && (
         <ul className="space-y-2" data-testid="expenses-list">
           {items.map((expense) => (
-            <li key={expense.id}>
-              <Card className="p-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="flex flex-wrap items-center gap-2 text-sm text-ink">
-                      <span className="font-medium">{expense.description}</span>
-                      {expense.category && <Badge tone="neutral">{expense.category.name}</Badge>}
-                      {expense.status === 'REVERSED' && <Badge tone="warning">Revertido</Badge>}
-                      {expense.recurringExpenseId && <Badge tone="info">Recurrente</Badge>}
-                    </p>
-                    <p className="mt-1 text-xs text-ink-muted">
-                      {formatLocalDate(expense.expenseDate)}
-                      {accountName.get(expense.cashAccountId)
-                        ? ` · ${accountName.get(expense.cashAccountId)}`
-                        : ''}
-                    </p>
-                  </div>
-                  <MoneyDisplay
-                    cents={-expense.amount}
-                    colored
-                    className="shrink-0 font-semibold"
-                  />
-                </div>
-                {expense.status !== 'REVERSED' && (
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    <Button variant="secondary" size="sm" onClick={() => setReversing(expense)}>
-                      Revertir
-                    </Button>
-                  </div>
-                )}
-              </Card>
-            </li>
+            <ListRow
+              key={expense.id}
+              title={
+                <span className="flex flex-wrap items-center gap-2">
+                  {expense.description}
+                  {expense.category && <Badge tone="neutral">{expense.category.name}</Badge>}
+                  {expense.status === 'REVERSED' && <Badge tone="warning">Revertido</Badge>}
+                  {expense.recurringExpenseId && <Badge tone="info">Recurrente</Badge>}
+                </span>
+              }
+              subtitle={[formatLocalDate(expense.expenseDate), accountName.get(expense.cashAccountId)]
+                .filter(Boolean)
+                .join(' · ')}
+              trailing={
+                <MoneyDisplay cents={-expense.amount} colored className="font-semibold" />
+              }
+              menu={
+                expense.status !== 'REVERSED'
+                  ? [
+                      {
+                        label: 'Revertir',
+                        icon: RotateCcw,
+                        onSelect: () => setReversing(expense),
+                      },
+                    ]
+                  : undefined
+              }
+              menuLabel={`Más acciones de ${expense.description}`}
+            />
           ))}
         </ul>
       )}
@@ -177,7 +185,7 @@ export function ExpensesPage() {
           <Button
             variant="secondary"
             size="sm"
-            disabled={expenses.isFetchingNextPage}
+            loading={expenses.isFetchingNextPage}
             onClick={() => void expenses.fetchNextPage()}
           >
             {expenses.isFetchingNextPage ? 'Cargando…' : 'Cargar más'}

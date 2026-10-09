@@ -8,9 +8,10 @@ import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
 import { Field } from '../../components/shared/Field.tsx'
 import { MoneyInput } from '../../components/shared/MoneyInput.tsx'
 import { SelectField } from '../../components/shared/SelectField.tsx'
-import { Button } from '../../components/ui/button.tsx'
 import { Card, CardDescription, CardTitle } from '../../components/ui/card.tsx'
+import { Checkbox } from '../../components/ui/checkbox.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
+import { SubmitButton } from '../../components/ui/submit-button.tsx'
 import { listCards } from '../cards/cards-api.ts'
 import { listCategories } from '../categories/categories-api.ts'
 import { PurchaseFormDialog } from '../purchases/PurchaseFormDialog.tsx'
@@ -166,20 +167,17 @@ export function RecomendadorPage() {
                 <legend className="mb-1 text-sm font-medium text-ink-secondary">
                   Tarjetas elegibles (opcional)
                 </legend>
-                <p className="mb-2 text-xs text-ink-muted">
+                <p className="mb-1 text-xs text-ink-muted">
                   Sin selección se evalúan todas las tarjetas activas.
                 </p>
                 <div className="space-y-1">
                   {activeCards.map((card) => (
-                    <label key={card.id} className="flex items-center gap-2 text-sm text-ink-secondary">
-                      <input
-                        type="checkbox"
-                        value={card.id}
-                        className="size-4 rounded border-line-strong"
-                        {...form.register('eligibleCardIds')}
-                      />
-                      {card.alias} ····{card.last4}
-                    </label>
+                    <Checkbox
+                      key={card.id}
+                      label={`${card.alias} ····${card.last4}`}
+                      value={card.id}
+                      {...form.register('eligibleCardIds')}
+                    />
                   ))}
                 </div>
               </fieldset>
@@ -187,10 +185,10 @@ export function RecomendadorPage() {
 
             <ErrorAlert error={mutation.error} />
 
-            <Button type="submit" disabled={mutation.isPending} className="w-full">
+            <SubmitButton pending={mutation.isPending} pendingLabel="Evaluando…" className="w-full">
               <Sparkles className="size-4" aria-hidden="true" />
-              {mutation.isPending ? 'Evaluando…' : 'Recomendar'}
-            </Button>
+              Recomendar
+            </SubmitButton>
           </form>
         </Card>
 

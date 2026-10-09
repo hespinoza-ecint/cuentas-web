@@ -6,13 +6,10 @@ import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
 import { Field } from '../../components/shared/Field.tsx'
 import { MoneyInput } from '../../components/shared/MoneyInput.tsx'
 import { Button } from '../../components/ui/button.tsx'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogTitle,
-} from '../../components/ui/dialog.tsx'
+import { DialogDescription, DialogFooter, DialogTitle } from '../../components/ui/dialog.tsx'
+import { FormDialog } from '../../components/ui/form-dialog.tsx'
+import { SubmitButton } from '../../components/ui/submit-button.tsx'
+import { toast } from '../../lib/toast.ts'
 import { formatLocalDate } from '../../lib/dates.ts'
 import { useToday } from '../users/use-settings.ts'
 import { confirmIncome, type UpcomingIncomeItem } from './income-api.ts'
@@ -60,14 +57,14 @@ export function ConfirmIncomeDialog({
       void queryClient.invalidateQueries({ queryKey: ['income-upcoming'] })
       void queryClient.invalidateQueries({ queryKey: ['income-transactions'] })
       void queryClient.invalidateQueries({ queryKey: ['accounts'] })
+      toast('Ingreso confirmado.')
       onOpenChange(false)
     },
   })
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} noValidate>
+    <FormDialog open={open} onOpenChange={onOpenChange} dirty={form.formState.isDirty}>
+      <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} noValidate>
           <DialogTitle>Confirmar ingreso</DialogTitle>
           <DialogDescription>
             {occurrence.incomeSourceName} · esperado el {formatLocalDate(occurrence.expectedDate)}
@@ -107,12 +104,11 @@ export function ConfirmIncomeDialog({
             <Button variant="secondary" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? 'Confirmando…' : 'Confirmar ingreso'}
-            </Button>
+            <SubmitButton pending={mutation.isPending} pendingLabel="Confirmando…">
+              Confirmar ingreso
+            </SubmitButton>
           </DialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+    </FormDialog>
   )
 }

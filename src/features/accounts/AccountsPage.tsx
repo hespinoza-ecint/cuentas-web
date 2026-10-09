@@ -1,17 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { BadgeDollarSign, Calculator, Pencil, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { MoneyDisplay } from '../../components/shared/MoneyDisplay.tsx'
 import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
 import { ErrorState } from '../../components/shared/ErrorState.tsx'
 import { StatusBadge } from '../../components/shared/StatusBadge.tsx'
-import { SuccessAlert } from '../../components/shared/SuccessAlert.tsx'
 import { Badge } from '../../components/ui/badge.tsx'
 import { Button } from '../../components/ui/button.tsx'
-import { Card } from '../../components/ui/card.tsx'
 import { ConfirmDialog } from '../../components/ui/confirm-dialog.tsx'
 import { EmptyState } from '../../components/ui/empty-state.tsx'
+import { ListRow } from '../../components/ui/list-row.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
+import { toast } from '../../lib/toast.ts'
 import { formatCents } from '../../lib/money.ts'
 import { AccountEditDialog } from './AccountEditDialog.tsx'
 import { AccountFormDialog } from './AccountFormDialog.tsx'
@@ -40,24 +41,25 @@ export function AccountsPage() {
   const [editing, setEditing] = useState<CashAccount | null>(null)
   const [openingFor, setOpeningFor] = useState<CashAccount | null>(null)
   const [deleting, setDeleting] = useState<CashAccount | null>(null)
-  const [notice, setNotice] = useState<string | null>(null)
 
   const recalculate = useMutation({
     mutationFn: recalculateAccount,
     onSuccess: (result) => {
-      setNotice(
+      toast(
         result.matches
-          ? `El saldo coincidía con el libro (${result.movementCount} movimientos).`
+          ? `El saldo ya coincidía con el libro (${result.movementCount} movimientos).`
           : `Saldo corregido a ${formatCents(result.calculatedBalance)}.`,
       )
       void queryClient.invalidateQueries({ queryKey: ['accounts'] })
     },
-    onError: () => setNotice(null),
   })
 
   const remove = useMutation({
     mutationFn: removeAccount,
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['accounts'] }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['accounts'] })
+      toast('Cuenta eliminada del listado.')
+    },
   })
 
   const list = accounts.data ?? []
@@ -66,7 +68,7 @@ export function AccountsPage() {
     <div data-testid="accounts-page">
       <PageHeader
         title="Cuentas de efectivo"
-        description="El saldo se calcula desde el libro de movimientos (RN-05)"
+        description="Efectivo, débito y ahorro: el punto de partida de tus decisiones"
         actions={
           <>
             <Button
@@ -85,8 +87,7 @@ export function AccountsPage() {
       />
 
       <div className="mb-4 space-y-3">
-        <ErrorAlert error={remove.error} />
-        {notice && <SuccessAlert message={notice} />}
+        <ErrorAlert error={recalculate.error ?? remove.error} />
       </div>
 
       {accounts.isPending && (
@@ -108,51 +109,53 @@ export function AccountsPage() {
       )}
 
       {list.length > 0 && (
-        <ul className="space-y-3" data-testid="accounts-list">
+        <ul className="space-y-2" data-testid="accounts-list">
           {list.map((account) => (
-            <li key={account.id}>
-              <Card className="p-4">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p className="flex flex-wrap items-center gap-2 text-sm font-medium text-ink">
-                      {account.name}
-                      {account.isDefault && <Badge tone="info">Predeterminada</Badge>}
-                      {!account.isSpendable && <Badge tone="neutral">No gastable</Badge>}
-                      <StatusBadge status={account.status} />
-                    </p>
-                    <p className="mt-1 text-xs text-ink-muted">
-                      {TYPE_LABELS[account.type] ?? account.type} · {account.currency}
-                    </p>
-                  </div>
-                  <p className="text-xl font-semibold">
-                    <MoneyDisplay cents={account.currentBalance} colored />
-                  </p>
-                </div>
-
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <Button variant="secondary" size="sm" onClick={() => setEditing(account)}>
-                    Editar
-                  </Button>
-                  <Button variant="secondary" size="sm" onClick={() => setOpeningFor(account)}>
-                    Saldo inicial
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    disabled={recalculate.isPending}
-                    onClick={() => {
-                      setNotice(null)
-                      recalculate.mutate(account.id)
-                    }}
-                  >
-                    Recalcular
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={() => setDeleting(account)}>
-                    Eliminar
-                  </Button>
-                </div>
-              </Card>
-            </li>
+            <ListRow
+              key={account.id}
+              onOpen={() => setEditing(account)}
+              title={
+                <span className="flex flex-wrap items-center gap-2">
+                  {account.name}
+                  {account.isDefault && <Badge tone="info">Predeterminada</Badge>}
+                  {!account.isSpendable && <Badge tone="neutral">No gastable</Badge>}
+                  <StatusBadge status={account.status} />
+                </span>
+              }
+              subtitle={`${TYPE_LABELS[account.type] ?? account.type} · ${account.currency}`}
+              trailing={
+                <MoneyDisplay
+                  cents={account.currentBalance}
+                  colored
+                  className="text-base font-semibold"
+                />
+              }
+              menu={[
+                {
+                  label: 'Editar',
+                  icon: Pencil,
+                  onSelect: () => setEditing(account),
+                },
+                {
+                  label: 'Saldo inicial',
+                  icon: BadgeDollarSign,
+                  onSelect: () => setOpeningFor(account),
+                },
+                {
+                  label: 'Recalcular',
+                  icon: Calculator,
+                  disabled: recalculate.isPending,
+                  onSelect: () => recalculate.mutate(account.id),
+                },
+                {
+                  label: 'Eliminar',
+                  icon: Trash2,
+                  tone: 'danger',
+                  onSelect: () => setDeleting(account),
+                },
+              ]}
+              menuLabel={`Más acciones de ${account.name}`}
+            />
           ))}
         </ul>
       )}

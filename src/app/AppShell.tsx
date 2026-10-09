@@ -21,7 +21,6 @@ import {
   findNavItem,
   type NavItem,
 } from './nav.ts'
-import { PwaUpdatePrompt } from './PwaUpdatePrompt.tsx'
 import { QuickActions } from './QuickActions.tsx'
 
 const THEME_OPTIONS: Array<{ value: ThemePreference; label: string; icon: typeof Sun }> = [
@@ -163,8 +162,6 @@ export function AppShell() {
           Tu cuenta está en proceso de eliminación.
         </Banner>
       )}
-
-      <PwaUpdatePrompt />
 
       <div className="mx-auto flex max-w-6xl gap-6 px-4 py-5">
         <aside className="hidden w-56 shrink-0 md:block">

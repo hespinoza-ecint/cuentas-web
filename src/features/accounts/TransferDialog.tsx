@@ -7,13 +7,10 @@ import { Field } from '../../components/shared/Field.tsx'
 import { MoneyInput } from '../../components/shared/MoneyInput.tsx'
 import { SelectField } from '../../components/shared/SelectField.tsx'
 import { Button } from '../../components/ui/button.tsx'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogTitle,
-} from '../../components/ui/dialog.tsx'
+import { DialogDescription, DialogFooter, DialogTitle } from '../../components/ui/dialog.tsx'
+import { FormDialog } from '../../components/ui/form-dialog.tsx'
+import { SubmitButton } from '../../components/ui/submit-button.tsx'
+import { toast } from '../../lib/toast.ts'
 import { useToday } from '../users/use-settings.ts'
 import { transfer, type CashAccount } from './accounts-api.ts'
 
@@ -60,6 +57,7 @@ export function TransferDialog({
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['accounts'] })
       void queryClient.invalidateQueries({ queryKey: ['movements'] })
+      toast('Transferencia registrada.')
       onOpenChange(false)
     },
   })
@@ -75,9 +73,8 @@ export function TransferDialog({
   })
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <form onSubmit={onSubmit} noValidate>
+    <FormDialog open={open} onOpenChange={onOpenChange} dirty={form.formState.isDirty}>
+      <form onSubmit={onSubmit} noValidate>
           <DialogTitle>Transferencia entre cuentas</DialogTitle>
           <DialogDescription>Mueve saldo de una cuenta a otra sin afectar tus totales.</DialogDescription>
 
@@ -137,12 +134,11 @@ export function TransferDialog({
             <Button variant="secondary" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? 'Transfiriendo…' : 'Transferir'}
-            </Button>
+            <SubmitButton pending={mutation.isPending} pendingLabel="Transfiriendo…">
+              Transferir
+            </SubmitButton>
           </DialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+    </FormDialog>
   )
 }

@@ -5,13 +5,11 @@ import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
 import { MoneyInput } from '../../components/shared/MoneyInput.tsx'
 import { ScheduleEditor } from '../../components/shared/ScheduleEditor.tsx'
 import { Button } from '../../components/ui/button.tsx'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogTitle,
-} from '../../components/ui/dialog.tsx'
+import { Checkbox } from '../../components/ui/checkbox.tsx'
+import { DialogDescription, DialogFooter, DialogTitle } from '../../components/ui/dialog.tsx'
+import { FormDialog } from '../../components/ui/form-dialog.tsx'
+import { SubmitButton } from '../../components/ui/submit-button.tsx'
+import { toast } from '../../lib/toast.ts'
 import {
   emptyScheduleValue,
   scheduleValueFrom,
@@ -72,6 +70,7 @@ export function IncomeScheduleDialog({
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['income-sources'] })
       void queryClient.invalidateQueries({ queryKey: ['income-upcoming'] })
+      toast(editing ? 'Calendario guardado.' : 'Calendario agregado.')
       onOpenChange(false)
     },
   })
@@ -85,8 +84,7 @@ export function IncomeScheduleDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+    <FormDialog open={open} onOpenChange={onOpenChange} dirty={form.formState.isDirty}>
         <DialogTitle>{editing ? 'Editar calendario' : 'Agregar calendario'}</DialogTitle>
         <DialogDescription>{source.name}</DialogDescription>
 
@@ -112,14 +110,7 @@ export function IncomeScheduleDialog({
           />
 
           {editing && (
-            <label className="flex items-center gap-2 text-sm text-ink-secondary">
-              <input
-                type="checkbox"
-                className="size-4 rounded border-line-strong"
-                {...form.register('isActive')}
-              />
-              Calendario activo
-            </label>
+            <Checkbox label="Calendario activo" {...form.register('isActive')} />
           )}
         </div>
 
@@ -129,11 +120,10 @@ export function IncomeScheduleDialog({
           <Button variant="secondary" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={handleSubmit} disabled={mutation.isPending}>
-            {mutation.isPending ? 'Guardando…' : editing ? 'Guardar calendario' : 'Agregar calendario'}
-          </Button>
+          <SubmitButton pending={mutation.isPending} onClick={handleSubmit}>
+            {editing ? 'Guardar calendario' : 'Agregar calendario'}
+          </SubmitButton>
         </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    </FormDialog>
   )
 }

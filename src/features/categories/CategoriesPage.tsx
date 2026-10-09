@@ -7,8 +7,11 @@ import { Badge } from '../../components/ui/badge.tsx'
 import { Button } from '../../components/ui/button.tsx'
 import { Card, CardDescription, CardTitle } from '../../components/ui/card.tsx'
 import { ConfirmDialog } from '../../components/ui/confirm-dialog.tsx'
+import { EmptyState } from '../../components/ui/empty-state.tsx'
+import { ListRow } from '../../components/ui/list-row.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
+import { toast } from '../../lib/toast.ts'
 import { CategoryFormDialog } from './CategoryFormDialog.tsx'
 import { listCategories, removeCategory, type Category } from './categories-api.ts'
 
@@ -28,7 +31,10 @@ export function CategoriesPage() {
 
   const remove = useMutation({
     mutationFn: removeCategory,
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['categories'] }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['categories'] })
+      toast('Categoría eliminada.')
+    },
   })
 
   const all = categories.data ?? []
@@ -69,43 +75,45 @@ export function CategoriesPage() {
             <CardTitle>Tus categorías ({own.length})</CardTitle>
             <CardDescription>Se pueden editar y eliminar; las usan tus registros.</CardDescription>
             {own.length === 0 ? (
-              <p className="mt-3 text-sm text-ink-muted">
-                Aún no tienes categorías propias. Crea una para clasificar mejor tus movimientos.
-              </p>
+              <div className="mt-3">
+                <EmptyState
+                  title="Aún no tienes categorías propias"
+                  description="Crea una para clasificar mejor tus movimientos."
+                  action={
+                    <Button variant="secondary" onClick={() => setCreateOpen(true)}>
+                      Nueva categoría
+                    </Button>
+                  }
+                />
+              </div>
             ) : (
-              <ul className="mt-3 divide-y divide-line" data-testid="own-categories">
+              <ul className="mt-3 space-y-2" data-testid="own-categories">
                 {own.map((category) => (
-                  <li key={category.id} className="flex flex-wrap items-center justify-between gap-3 py-2">
-                    <div className="min-w-0">
-                      <p className="flex flex-wrap items-center gap-2 text-sm text-ink">
-                        <span className="font-medium">{category.name}</span>
+                  <ListRow
+                    key={category.id}
+                    onOpen={() => setEditing(category)}
+                    title={
+                      <span className="flex flex-wrap items-center gap-2">
+                        {category.name}
                         <Badge tone="neutral">{KIND_LABELS[category.kind] ?? category.kind}</Badge>
-                        {category.parentId && (
-                          <span className="text-xs text-ink-muted">
-                            en {nameById.get(category.parentId) ?? 'categoría'}
-                          </span>
-                        )}
-                      </p>
-                    </div>
-                    <div className="flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        aria-label={`Editar ${category.name}`}
-                        onClick={() => setEditing(category)}
-                      >
-                        <Pencil className="size-4" aria-hidden="true" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        aria-label={`Eliminar ${category.name}`}
-                        onClick={() => setDeleting(category)}
-                      >
-                        <Trash2 className="size-4 text-danger" aria-hidden="true" />
-                      </Button>
-                    </div>
-                  </li>
+                      </span>
+                    }
+                    subtitle={
+                      category.parentId
+                        ? `Dentro de ${nameById.get(category.parentId) ?? 'categoría'}`
+                        : undefined
+                    }
+                    menu={[
+                      { label: 'Editar', icon: Pencil, onSelect: () => setEditing(category) },
+                      {
+                        label: 'Eliminar',
+                        icon: Trash2,
+                        tone: 'danger',
+                        onSelect: () => setDeleting(category),
+                      },
+                    ]}
+                    menuLabel={`Más acciones de ${category.name}`}
+                  />
                 ))}
               </ul>
             )}

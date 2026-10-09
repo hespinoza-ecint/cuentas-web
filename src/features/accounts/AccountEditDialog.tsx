@@ -6,13 +6,11 @@ import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
 import { Field } from '../../components/shared/Field.tsx'
 import { SelectField } from '../../components/shared/SelectField.tsx'
 import { Button } from '../../components/ui/button.tsx'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogTitle,
-} from '../../components/ui/dialog.tsx'
+import { Checkbox } from '../../components/ui/checkbox.tsx'
+import { DialogDescription, DialogFooter, DialogTitle } from '../../components/ui/dialog.tsx'
+import { FormDialog } from '../../components/ui/form-dialog.tsx'
+import { SubmitButton } from '../../components/ui/submit-button.tsx'
+import { toast } from '../../lib/toast.ts'
 import { updateAccount, type CashAccount } from './accounts-api.ts'
 
 const editSchema = z.object({
@@ -49,14 +47,14 @@ export function AccountEditDialog({
     mutationFn: (values: EditForm) => updateAccount(account.id, values),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['accounts'] })
+      toast('Cambios de la cuenta guardados.')
       onOpenChange(false)
     },
   })
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} noValidate>
+    <FormDialog open={open} onOpenChange={onOpenChange} dirty={form.formState.isDirty}>
+      <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} noValidate>
           <DialogTitle>Editar cuenta</DialogTitle>
           <DialogDescription>{account.name}</DialogDescription>
 
@@ -70,23 +68,15 @@ export function AccountEditDialog({
               <option value="ACTIVE">Activa</option>
               <option value="INACTIVE">Inactiva</option>
             </SelectField>
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm text-ink-secondary">
-                <input
-                  type="checkbox"
-                  className="size-4 rounded border-line-strong"
-                  {...form.register('isSpendable')}
-                />
-                Cuenta para decisiones (saldo gastable)
-              </label>
-              <label className="flex items-center gap-2 text-sm text-ink-secondary">
-                <input
-                  type="checkbox"
-                  className="size-4 rounded border-line-strong"
-                  {...form.register('isDefault')}
-                />
-                Usar como cuenta predeterminada
-              </label>
+            <div className="space-y-1">
+              <Checkbox
+                label="Cuenta para decisiones (saldo gastable)"
+                {...form.register('isSpendable')}
+              />
+              <Checkbox
+                label="Usar como cuenta predeterminada"
+                {...form.register('isDefault')}
+              />
             </div>
           </div>
 
@@ -96,12 +86,9 @@ export function AccountEditDialog({
             <Button variant="secondary" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? 'Guardando…' : 'Guardar cambios'}
-            </Button>
+            <SubmitButton pending={mutation.isPending}>Guardar cambios</SubmitButton>
           </DialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+    </FormDialog>
   )
 }

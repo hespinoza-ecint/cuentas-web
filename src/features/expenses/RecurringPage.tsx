@@ -1,16 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Check, Pencil, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { MoneyDisplay } from '../../components/shared/MoneyDisplay.tsx'
 import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
 import { ErrorState } from '../../components/shared/ErrorState.tsx'
-import { SuccessAlert } from '../../components/shared/SuccessAlert.tsx'
 import { Badge } from '../../components/ui/badge.tsx'
 import { Button } from '../../components/ui/button.tsx'
 import { Card, CardDescription, CardTitle } from '../../components/ui/card.tsx'
+import { Checkbox } from '../../components/ui/checkbox.tsx'
 import { ConfirmDialog } from '../../components/ui/confirm-dialog.tsx'
 import { EmptyState } from '../../components/ui/empty-state.tsx'
+import { ListRow } from '../../components/ui/list-row.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
+import { toast } from '../../lib/toast.ts'
 import { formatLocalDate } from '../../lib/dates.ts'
 import { listAccounts } from '../accounts/accounts-api.ts'
 import { listCards } from '../cards/cards-api.ts'
@@ -49,7 +52,6 @@ export function RecurringPage() {
   const [editing, setEditing] = useState<RecurringExpense | null>(null)
   const [deleting, setDeleting] = useState<RecurringExpense | null>(null)
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
-  const [notice, setNotice] = useState<string | null>(null)
 
   const accounts = useQuery({ queryKey: ['accounts'], queryFn: listAccounts })
   const cards = useQuery({ queryKey: ['cards'], queryFn: listCards })
@@ -72,7 +74,7 @@ export function RecurringPage() {
       // corte) y las futuras confirmadas antes de tiempo, en hoy.
       confirmRecurring(id, { occurrenceDate }),
     onSuccess: (result) => {
-      setNotice(
+      toast(
         result.purchaseId
           ? 'Ocurrencia confirmada: se registró la compra en la tarjeta.'
           : 'Ocurrencia confirmada: se registró el gasto y su movimiento.',
@@ -92,11 +94,13 @@ export function RecurringPage() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['recurring-expenses', includeInactive] })
       void queryClient.invalidateQueries({ queryKey: ['recurring-upcoming'] })
+      toast('Gasto recurrente eliminado.')
     },
   })
 
   const list = recurring.data ?? []
   const occurrences = upcoming.data?.occurrences ?? []
+  const canCreate = (accounts.data ?? []).length > 0 || (cards.data ?? []).length > 0
 
   return (
     <div data-testid="recurring-page">
@@ -104,11 +108,7 @@ export function RecurringPage() {
         title="Gastos recurrentes"
         description="Servicios y rentas que se repiten: confirma cada ocurrencia para registrarla"
         actions={
-          <Button
-            size="sm"
-            onClick={() => setCreateOpen(true)}
-            disabled={(accounts.data ?? []).length === 0 && (cards.data ?? []).length === 0}
-          >
+          <Button size="sm" onClick={() => setCreateOpen(true)} disabled={!canCreate}>
             Nuevo recurrente
           </Button>
         }
@@ -116,7 +116,6 @@ export function RecurringPage() {
 
       <div className="mb-4 space-y-3">
         <ErrorAlert error={remove.error ?? confirm.error} />
-        {notice && <SuccessAlert message={notice} />}
       </div>
 
       <Card className="mb-5">
@@ -138,7 +137,7 @@ export function RecurringPage() {
             {occurrences.map((occurrence) => (
               <li
                 key={`${occurrence.recurringExpenseId}-${occurrence.expectedDate}`}
-                className="flex flex-wrap items-center justify-between gap-3 py-2"
+                className="flex flex-wrap items-center justify-between gap-3 py-3"
               >
                 <div>
                   <p className="text-sm text-ink">
@@ -156,9 +155,10 @@ export function RecurringPage() {
                   <Button
                     variant="secondary"
                     size="sm"
-                    disabled={confirm.isPending && confirmingId === occurrence.recurringExpenseId}
+                    loading={
+                      confirm.isPending && confirmingId === occurrence.recurringExpenseId
+                    }
                     onClick={() => {
-                      setNotice(null)
                       setConfirmingId(occurrence.recurringExpenseId)
                       confirm.mutate({
                         id: occurrence.recurringExpenseId,
@@ -166,6 +166,7 @@ export function RecurringPage() {
                       })
                     }}
                   >
+                    <Check className="size-3.5" aria-hidden="true" />
                     Confirmar
                   </Button>
                 </div>
@@ -175,15 +176,12 @@ export function RecurringPage() {
         )}
       </Card>
 
-      <label className="mb-3 flex items-center gap-2 text-sm text-ink-secondary">
-        <input
-          type="checkbox"
-          className="size-4 rounded border-line-strong"
-          checked={includeInactive}
-          onChange={(event) => setIncludeInactive(event.target.checked)}
-        />
-        Mostrar inactivos
-      </label>
+      <Checkbox
+        className="mb-3"
+        label="Mostrar inactivos"
+        checked={includeInactive}
+        onChange={(event) => setIncludeInactive(event.target.checked)}
+      />
 
       {recurring.isPending && (
         <div className="space-y-2">
@@ -199,44 +197,52 @@ export function RecurringPage() {
         <EmptyState
           title="Sin gastos recurrentes"
           description="Crea uno para proyectar rentas, servicios y suscripciones."
+          action={
+            canCreate ? (
+              <Button variant="secondary" onClick={() => setCreateOpen(true)}>
+                Nuevo recurrente
+              </Button>
+            ) : undefined
+          }
         />
       )}
 
       {list.length > 0 && (
         <ul className="space-y-2" data-testid="recurring-list">
           {list.map((item) => (
-            <li key={item.id}>
-              <Card className="p-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="flex flex-wrap items-center gap-2 text-sm text-ink">
-                      <span className="font-medium">{item.name}</span>
-                      <Badge tone={item.isActive ? 'success' : 'neutral'}>
-                        {item.isActive ? 'Activo' : 'Inactivo'}
-                      </Badge>
-                      <Badge tone="neutral">
-                        {FREQUENCY_LABELS[item.frequency] ?? item.frequency}
-                      </Badge>
-                      {item.category && <span className="text-xs text-ink-muted">{item.category.name}</span>}
-                    </p>
-                    <p className="mt-1 text-xs text-ink-muted">
-                      Desde {formatLocalDate(item.startDate)}
-                      {item.endDate ? ` hasta ${formatLocalDate(item.endDate)}` : ''} ·{' '}
-                      {paymentSource(item)}
-                    </p>
-                  </div>
-                  <MoneyDisplay cents={-item.amount} colored className="shrink-0 font-semibold" />
-                </div>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  <Button variant="secondary" size="sm" onClick={() => setEditing(item)}>
-                    Editar
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={() => setDeleting(item)}>
-                    Eliminar
-                  </Button>
-                </div>
-              </Card>
-            </li>
+            <ListRow
+              key={item.id}
+              onOpen={() => setEditing(item)}
+              title={
+                <span className="flex flex-wrap items-center gap-2">
+                  {item.name}
+                  <Badge tone={item.isActive ? 'success' : 'neutral'}>
+                    {item.isActive ? 'Activo' : 'Inactivo'}
+                  </Badge>
+                  <Badge tone="neutral">
+                    {FREQUENCY_LABELS[item.frequency] ?? item.frequency}
+                  </Badge>
+                </span>
+              }
+              subtitle={[
+                `Desde ${formatLocalDate(item.startDate)}${item.endDate ? ` hasta ${formatLocalDate(item.endDate)}` : ''}`,
+                paymentSource(item),
+                item.category?.name,
+              ]
+                .filter(Boolean)
+                .join(' · ')}
+              trailing={<MoneyDisplay cents={-item.amount} colored className="font-semibold" />}
+              menu={[
+                { label: 'Editar', icon: Pencil, onSelect: () => setEditing(item) },
+                {
+                  label: 'Eliminar',
+                  icon: Trash2,
+                  tone: 'danger',
+                  onSelect: () => setDeleting(item),
+                },
+              ]}
+              menuLabel={`Más acciones de ${item.name}`}
+            />
           ))}
         </ul>
       )}

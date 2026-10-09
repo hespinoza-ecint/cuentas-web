@@ -173,7 +173,8 @@ describe('ingresos', () => {
     const user = userEvent.setup()
 
     const upcoming = await screen.findByTestId('income-upcoming')
-    await user.click(within(upcoming).getByRole('button', { name: 'Omitir' }))
+    await user.click(within(upcoming).getByRole('button', { name: /Más acciones del ingreso/ }))
+    await user.click(await screen.findByRole('menuitem', { name: 'Omitir esta fecha' }))
 
     const dialog = await screen.findByRole('dialog')
     await user.click(within(dialog).getByRole('button', { name: 'Omitir' }))

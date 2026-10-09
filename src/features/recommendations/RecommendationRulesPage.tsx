@@ -2,12 +2,14 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
 import { ErrorState } from '../../components/shared/ErrorState.tsx'
-import { SuccessAlert } from '../../components/shared/SuccessAlert.tsx'
 import { Badge } from '../../components/ui/badge.tsx'
 import { Button } from '../../components/ui/button.tsx'
 import { Card, CardDescription } from '../../components/ui/card.tsx'
+import { controlClass } from '../../components/ui/control.ts'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
+import { Switch } from '../../components/ui/switch.tsx'
+import { toast } from '../../lib/toast.ts'
 import {
   listRules,
   removeRuleOverride,
@@ -18,7 +20,6 @@ import {
 export function RecommendationRulesPage() {
   const queryClient = useQueryClient()
   const rules = useQuery({ queryKey: ['rules'], queryFn: listRules })
-  const [notice, setNotice] = useState<string | null>(null)
 
   function invalidate() {
     void queryClient.invalidateQueries({ queryKey: ['rules'] })
@@ -28,7 +29,7 @@ export function RecommendationRulesPage() {
     mutationFn: ({ code, input }: { code: string; input: { isEnabled?: boolean; weight?: number } }) =>
       upsertRuleOverride(code, input),
     onSuccess: () => {
-      setNotice('Regla personalizada guardada.')
+      toast('Regla personalizada guardada.')
       invalidate()
     },
   })
@@ -36,7 +37,7 @@ export function RecommendationRulesPage() {
   const reset = useMutation({
     mutationFn: removeRuleOverride,
     onSuccess: () => {
-      setNotice('Regla restablecida al valor global.')
+      toast('Regla restablecida al valor global.')
       invalidate()
     },
   })
@@ -50,7 +51,6 @@ export function RecommendationRulesPage() {
 
       <div className="mb-4 space-y-3">
         <ErrorAlert error={override.error ?? reset.error} />
-        {notice && <SuccessAlert message={notice} />}
       </div>
 
       {rules.isPending && (
@@ -111,16 +111,15 @@ function RuleCard({
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <label className="flex items-center gap-2 text-sm text-ink-secondary">
-            <input
-              type="checkbox"
-              className="size-4 rounded border-line-strong"
+          <span className="flex items-center gap-2 text-sm text-ink-secondary">
+            <Switch
               checked={rule.isEnabled}
               disabled={pending}
-              onChange={(event) => onSave({ isEnabled: event.target.checked })}
+              label={`${rule.name}: activa`}
+              onCheckedChange={(checked) => onSave({ isEnabled: checked })}
             />
             Activa
-          </label>
+          </span>
 
           {rule.kind === 'SCORING' && (
             <div className="flex items-center gap-2">
@@ -133,7 +132,7 @@ function RuleCard({
                 value={weight}
                 disabled={pending}
                 onChange={(event) => setWeight(event.target.value)}
-                className="w-16 rounded-lg border border-line-strong px-2 py-1 text-sm shadow-sm outline-none focus:border-focus focus:ring-2 focus:ring-focus/25"
+                className={controlClass({ className: 'w-16 px-2 py-1 text-sm' })}
               />
               <Button
                 variant="secondary"

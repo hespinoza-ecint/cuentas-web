@@ -6,13 +6,9 @@ import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
 import { Field } from '../../components/shared/Field.tsx'
 import { MoneyInput } from '../../components/shared/MoneyInput.tsx'
 import { Button } from '../../components/ui/button.tsx'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogTitle,
-} from '../../components/ui/dialog.tsx'
+import { DialogDescription, DialogFooter, DialogTitle } from '../../components/ui/dialog.tsx'
+import { FormDialog } from '../../components/ui/form-dialog.tsx'
+import { SubmitButton } from '../../components/ui/submit-button.tsx'
 import { useToday } from '../users/use-settings.ts'
 import { reconcileCard, type CreditCard } from './cards-api.ts'
 
@@ -54,12 +50,11 @@ export function ReconcileDialog({
   })
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} noValidate>
+    <FormDialog open={open} onOpenChange={onOpenChange} dirty={form.formState.isDirty}>
+      <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} noValidate>
           <DialogTitle>Conciliar con el banco</DialogTitle>
           <DialogDescription>
-            {card.alias}: se ajusta el saldo a lo reportado y queda registrado en el libro (RN-15).
+            {card.alias}: se ajusta el saldo a lo reportado y el ajuste queda en el historial.
           </DialogDescription>
 
           <div className="mt-4 space-y-4">
@@ -97,12 +92,11 @@ export function ReconcileDialog({
             <Button variant="secondary" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? 'Conciliando…' : 'Conciliar'}
-            </Button>
+            <SubmitButton pending={mutation.isPending} pendingLabel="Conciliando…">
+              Conciliar
+            </SubmitButton>
           </DialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+    </FormDialog>
   )
 }

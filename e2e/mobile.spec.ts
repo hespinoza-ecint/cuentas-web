@@ -42,18 +42,20 @@ test('flujo móvil: navegación, acciones rápidas y diálogos utilizables', asy
   await page.getByRole('button', { name: 'Cambiar a modo claro' }).click()
   await expect(page.locator('html')).not.toHaveClass(/dark/)
 
-  // Barra inferior con las pestañas fijas y el botón "Más".
+  // Barra inferior: módulos fijos, botón "+" central y "Más".
   const tabBar = page.getByRole('navigation', { name: 'Navegación inferior' })
   await expect(tabBar).toBeVisible()
-  for (const label of ['Inicio', 'Compras', 'Tarjetas', 'Recomendador', 'Más']) {
+  for (const label of ['Inicio', 'Movimientos', 'Tarjetas', 'Más']) {
     await expect(tabBar.getByText(label, { exact: true })).toBeVisible()
   }
+  await expect(tabBar.getByRole('button', { name: 'Acciones rápidas' })).toBeVisible()
   await expectNoHorizontalScroll(page)
 
-  // La hoja "Más" navega a secciones que no están en la barra.
-  await page.getByRole('button', { name: 'Más' }).click()
-  const moreSheet = page.getByRole('dialog', { name: 'Más secciones' })
-  await moreSheet.getByRole('link', { name: 'Cuentas' }).click()
+  // Pestañas del módulo: Movimientos → Cuentas.
+  await tabBar.getByRole('link', { name: 'Movimientos' }).click()
+  const movementsTabs = page.getByRole('navigation', { name: 'Secciones de Movimientos' })
+  await movementsTabs.getByRole('link', { name: 'Cuentas' }).click()
+  await expect(page).toHaveURL(/\/cuentas$/)
 
   // Diálogo de cuenta: el botón principal queda a la vista (pie fijo).
   await page.getByRole('button', { name: 'Nueva cuenta' }).first().click()
@@ -63,10 +65,11 @@ test('flujo móvil: navegación, acciones rápidas y diálogos utilizables', asy
   const createAccount = accountDialog.getByRole('button', { name: 'Crear cuenta' })
   await expect(createAccount).toBeInViewport()
   await createAccount.click()
+  await expect(page.getByText('Cuenta creada.')).toBeVisible()
   await expect(page.getByText('$500.00').first()).toBeVisible()
   await expectNoHorizontalScroll(page)
 
-  // Acciones rápidas "＋": registra un gasto sin salir de la pantalla.
+  // Acciones rápidas "+": registra un gasto sin salir de la pantalla.
   await page.getByRole('button', { name: 'Acciones rápidas' }).click()
   await page.getByRole('dialog', { name: 'Registrar' }).getByRole('button', { name: /Gasto/ }).click()
   const expenseDialog = page.getByRole('dialog', { name: 'Registrar gasto' })
@@ -76,9 +79,12 @@ test('flujo móvil: navegación, acciones rápidas y diálogos utilizables', asy
   await expect(saveExpense).toBeInViewport()
   await saveExpense.click()
   await expect(expenseDialog).toBeHidden()
+  await expect(page.getByText('Gasto registrado.')).toBeVisible()
 
-  // Pestaña fija "Compras" y, sin tarjetas, la compra rápida invita a crearlas.
-  await tabBar.getByRole('link', { name: 'Compras' }).click()
+  // Pestañas del módulo: Tarjetas → Compras. Sin tarjetas, la compra rápida invita a crearlas.
+  await tabBar.getByRole('link', { name: 'Tarjetas' }).click()
+  const cardsTabs = page.getByRole('navigation', { name: 'Secciones de Tarjetas' })
+  await cardsTabs.getByRole('link', { name: 'Compras' }).click()
   await expect(page).toHaveURL(/\/compras$/)
   await expectNoHorizontalScroll(page)
 

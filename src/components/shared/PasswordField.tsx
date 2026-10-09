@@ -1,10 +1,11 @@
 import { Eye, EyeOff } from 'lucide-react'
-import { useId, useState, type ComponentProps, type Ref } from 'react'
+import { useId, useState, type ComponentProps, type ReactNode, type Ref } from 'react'
 import { controlClass } from '../ui/control.ts'
 
 interface PasswordFieldProps extends Omit<ComponentProps<'input'>, 'type'> {
   label: string
   error?: string
+  hint?: ReactNode
   ref?: Ref<HTMLInputElement>
 }
 
@@ -12,7 +13,7 @@ interface PasswordFieldProps extends Omit<ComponentProps<'input'>, 'type'> {
  * Campo de contrasena con boton para mostrar u ocultar el contenido.
  * El boton mide 44px de ancho y anuncia su accion con aria-label.
  */
-export function PasswordField({ label, error, id, name, ref, ...rest }: PasswordFieldProps) {
+export function PasswordField({ label, hint, error, id, name, ref, ...rest }: PasswordFieldProps) {
   const generatedId = useId()
   const inputId = id ?? name ?? generatedId
   const errorId = error ? `${inputId}-error` : undefined
@@ -47,6 +48,7 @@ export function PasswordField({ label, error, id, name, ref, ...rest }: Password
           )}
         </button>
       </div>
+      {hint && !error && <p className="mt-1 text-xs text-ink-muted">{hint}</p>}
       {error && (
         <p id={errorId} role="alert" className="mt-1 text-xs font-medium text-danger">
           {error}
