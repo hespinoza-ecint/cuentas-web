@@ -147,4 +147,5 @@ actualizaciones) está en
 - [Fase 15 — Reiniciar y eliminar tarjetas](docs/fase-15-reiniciar-eliminar-tarjeta.md)
 - [Fase 16 — Ocurrencias vencidas de recurrentes](docs/fase-16-recurrentes-vencidos.md)
 - [Fase 17 — Flujo de efectivo hasta la última mensualidad](docs/fase-17-flujo-hasta-ultima-mensualidad.md)
+- [Fase 18 — Ventana de fechas del flujo](docs/fase-18-ventana-de-fechas-del-flujo.md)
 - [Pruebas E2E con Playwright](docs/e2e-playwright.md)

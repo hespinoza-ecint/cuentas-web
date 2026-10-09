@@ -1,7 +1,8 @@
-import { screen } from '@testing-library/react'
+import { fireEvent, screen, waitFor } from '@testing-library/react'
 import { HttpResponse, http } from 'msw'
 import { describe, expect, it } from 'vitest'
-import { API_BASE, problem, refreshOk } from '../../test/fixtures.ts'
+import { addDays, todayInTimeZone } from '../../lib/dates.ts'
+import { API_BASE, problem, refreshOk, settingsHandler } from '../../test/fixtures.ts'
 import { server } from '../../test/msw/server.ts'
 import { renderApp } from '../../test/render-app.tsx'
 
@@ -74,8 +75,10 @@ const summary = {
 
 const projection = {
   today: '2026-10-05',
+  from: '2026-10-05',
+  to: '2026-11-04',
   timezone: 'America/Mexico_City',
-  horizonDays: 60,
+  horizonDays: 30,
   startingBalance: 975000,
   minCashBuffer: 100000,
   points: [],
@@ -94,7 +97,7 @@ function projectionHandler() {
 
 describe('dashboard', () => {
   it('muestra efectivo, flujo mínimo, tarjetas, próximos movimientos y gastos', async () => {
-    server.use(refreshOk, summaryHandler(), projectionHandler())
+    server.use(refreshOk, settingsHandler, summaryHandler(), projectionHandler())
     renderApp(['/'])
 
     expect(await screen.findByText('Hola, Ana')).toBeInTheDocument()
@@ -110,9 +113,41 @@ describe('dashboard', () => {
     expect(screen.getByText('Supermercado')).toBeInTheDocument()
   })
 
+  it('permite elegir el rango de fechas de la proyeccion (default 30 dias)', async () => {
+    const requested: URLSearchParams[] = []
+    const today = todayInTimeZone('America/Mexico_City')
+
+    server.use(
+      refreshOk,
+      settingsHandler,
+      summaryHandler(),
+      http.get(`${API_BASE}/api/v1/cashflow/projection`, ({ request }) => {
+        requested.push(new URL(request.url).searchParams)
+        return HttpResponse.json(projection)
+      }),
+    )
+    renderApp(['/'])
+
+    await screen.findByTestId('cashflow-chart')
+
+    // Default: hoy a hoy + 30 dias.
+    expect(requested[0].get('from')).toBe(today)
+    expect(requested[0].get('to')).toBe(addDays(today, 30))
+
+    // Cambiar "Hasta" vuelve a pedir la proyeccion con el nuevo rango.
+    const until = screen.getByLabelText('Hasta')
+    fireEvent.change(until, { target: { value: addDays(today, 90) } })
+
+    await waitFor(() => {
+      expect(requested.at(-1)?.get('to')).toBe(addDays(today, 90))
+    })
+    expect(requested.at(-1)?.get('from')).toBe(today)
+  })
+
   it('muestra el error del resumen con opción de reintentar', async () => {
     server.use(
       refreshOk,
+      settingsHandler,
       http.get(`${API_BASE}/api/v1/dashboard/summary`, () =>
         problem(500, { title: 'Error', detail: 'Error interno del servidor.' }),
       ),

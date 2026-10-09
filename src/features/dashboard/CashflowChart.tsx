@@ -25,14 +25,28 @@ interface ChartPoint {
 const PADDING = { top: 16, right: 16, bottom: 26, left: 16 }
 
 /** Gráfica ligera de flujo (SVG propio; sin dependencias de gráficas). */
-export function CashflowChart({ projection }: { projection: CashflowProjection }) {
+export function CashflowChart({
+  projection,
+  from,
+  to,
+  minDate,
+  maxDate,
+  onRangeChange,
+}: {
+  projection: CashflowProjection
+  from: string
+  to: string
+  minDate: string
+  maxDate: string
+  onRangeChange: (range: { from: string; to: string }) => void
+}) {
   const narrow = useNarrowChart()
   const width = narrow ? 360 : 640
   const height = narrow ? 190 : 200
 
   const { path, areaPath, points, minPoint, zeroY, dateTicks } = useMemo(() => {
     const series: ChartPoint[] = [
-      { date: projection.today, balance: projection.startingBalance },
+      { date: projection.from, balance: projection.startingBalance },
       ...projection.points.map((point) => ({ date: point.date, balance: point.balance })),
     ]
 
@@ -82,11 +96,36 @@ export function CashflowChart({ projection }: { projection: CashflowProjection }
         <div className="min-w-0">
           <CardTitle>Flujo de efectivo proyectado</CardTitle>
           <CardDescription>
-            Próximos {projection.horizonDays} días · saldo inicial{' '}
+            Del {formatLocalDate(projection.from)} al {formatLocalDate(projection.to)} · saldo inicial{' '}
             <MoneyDisplay cents={projection.startingBalance} className="font-medium" /> · mínimo{' '}
             <MoneyDisplay cents={projection.minimum.balance} className="font-medium" /> el{' '}
             {formatLocalDate(projection.minimum.date)}
           </CardDescription>
+        </div>
+
+        <div className="flex flex-wrap items-end gap-2">
+          <label className="flex flex-col gap-0.5 text-xs font-medium text-slate-500">
+            Desde
+            <input
+              type="date"
+              value={from}
+              min={minDate}
+              max={to}
+              onChange={(event) => onRangeChange({ from: event.target.value, to })}
+              className="rounded-lg border border-slate-300 px-2 py-1 text-xs text-slate-900 shadow-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+            />
+          </label>
+          <label className="flex flex-col gap-0.5 text-xs font-medium text-slate-500">
+            Hasta
+            <input
+              type="date"
+              value={to}
+              min={from}
+              max={maxDate}
+              onChange={(event) => onRangeChange({ from, to: event.target.value })}
+              className="rounded-lg border border-slate-300 px-2 py-1 text-xs text-slate-900 shadow-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+            />
+          </label>
         </div>
       </div>
 
@@ -136,7 +175,7 @@ export function CashflowChart({ projection }: { projection: CashflowProjection }
 
       {projection.points.length === 0 && (
         <p className="mt-2 text-xs text-slate-500">
-          No hay movimientos programados en el horizonte; la línea es tu saldo actual.
+          No hay movimientos programados en la ventana; la línea es tu saldo actual.
         </p>
       )}
     </Card>

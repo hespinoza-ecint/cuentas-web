@@ -1,5 +1,9 @@
 # Fase 17 — Flujo de efectivo hasta la última mensualidad (frontend)
 
+> **Actualizado en la fase 18**: la gráfica ahora tiene una **ventana de fechas**
+> seleccionable (default 30 días). Ver
+> `fase-18-ventana-de-fechas-del-flujo.md`.
+
 ## 1. Objetivo
 
 Que la gráfica de flujo del dashboard muestre el panorama completo de las

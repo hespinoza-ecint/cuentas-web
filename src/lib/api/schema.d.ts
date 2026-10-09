@@ -2343,6 +2343,8 @@ export interface operations {
     CashflowController_projection: {
         parameters: {
             query?: {
+                from?: string;
+                to?: string;
                 days?: number;
             };
             header?: never;

@@ -78,8 +78,12 @@ export interface DashboardSummary {
 
 export interface CashflowProjection {
   today: string
+  from: string
+  to: string
   timezone: string
+  /** Días de la ventana (`from` → `to`). */
   horizonDays: number
+  /** Saldo al inicio de la ventana (incluye lo ocurrido antes del `from`). */
   startingBalance: number
   minCashBuffer: number
   points: {
@@ -104,11 +108,12 @@ export async function fetchDashboardSummary(month?: string): Promise<DashboardSu
   return data as DashboardSummary
 }
 
-export async function fetchCashflowProjection(days?: number): Promise<CashflowProjection> {
-  // Sin `days`, el backend cubre hasta la ultima obligacion programada
-  // (p. ej. el fin de una compra a 24 MSI).
+export async function fetchCashflowProjection(range: {
+  from: string
+  to: string
+}): Promise<CashflowProjection> {
   const { data, error, response } = await api.GET('/api/v1/cashflow/projection', {
-    params: { query: days !== undefined ? { days } : {} },
+    params: { query: { from: range.from, to: range.to } },
   })
   if (error || !data) {
     throw problemFrom(error, response)

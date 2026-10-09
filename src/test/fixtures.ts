@@ -76,8 +76,10 @@ export const emptyDashboardHandlers = [
   http.get(`${API_BASE}/api/v1/cashflow/projection`, () =>
     HttpResponse.json({
       today: '2026-10-05',
+      from: '2026-10-05',
+      to: '2026-11-04',
       timezone: 'America/Mexico_City',
-      horizonDays: 60,
+      horizonDays: 30,
       startingBalance: 0,
       minCashBuffer: 0,
       points: [],

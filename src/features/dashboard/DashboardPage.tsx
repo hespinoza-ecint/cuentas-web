@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { ArrowDownRight, ArrowUpRight, CreditCard, Sparkles } from 'lucide-react'
+import { useState } from 'react'
 import { Link } from 'react-router'
 import { MoneyDisplay } from '../../components/shared/MoneyDisplay.tsx'
 import { ErrorState } from '../../components/shared/ErrorState.tsx'
@@ -8,9 +9,10 @@ import { Card, CardDescription, CardTitle } from '../../components/ui/card.tsx'
 import { EmptyState } from '../../components/ui/empty-state.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
-import { formatLocalDate, formatMonth } from '../../lib/dates.ts'
+import { addDays, formatLocalDate, formatMonth } from '../../lib/dates.ts'
 import { cn } from '../../lib/utils.ts'
 import { useSessionUser } from '../auth/use-session.ts'
+import { useToday } from '../users/use-settings.ts'
 import { CashflowChart } from './CashflowChart.tsx'
 import { fetchCashflowProjection, fetchDashboardSummary } from './dashboard-api.ts'
 
@@ -21,16 +23,32 @@ const PAYMENT_TYPES: Record<string, string> = {
   ANNUAL_FEE: 'Anualidad',
 }
 
+/** Ventana por defecto de la proyeccion: hoy a hoy + 30 dias. */
+const DEFAULT_WINDOW_DAYS = 30
+/** Tope de la ventana (el backend tambien lo valida). */
+const MAX_WINDOW_DAYS = 1825
+
 export function DashboardPage() {
   const user = useSessionUser()
+  const today = useToday()
+  const [range, setRange] = useState<{ from: string; to: string } | null>(null)
+  const from = range?.from ?? today
+  const to = range?.to ?? addDays(today, DEFAULT_WINDOW_DAYS)
+
   const summary = useQuery({
     queryKey: ['dashboard', 'summary'],
     queryFn: () => fetchDashboardSummary(),
   })
   const projection = useQuery({
-    queryKey: ['cashflow', 'projection'],
-    queryFn: () => fetchCashflowProjection(),
+    queryKey: ['cashflow', 'projection', from, to],
+    queryFn: () => fetchCashflowProjection({ from, to }),
   })
+
+  const changeRange = (next: { from: string; to: string }) => {
+    const nextFrom = next.from >= today ? next.from : today
+    const nextTo = next.to > nextFrom ? next.to : addDays(nextFrom, DEFAULT_WINDOW_DAYS)
+    setRange({ from: nextFrom, to: nextTo })
+  }
 
   return (
     <div data-testid="dashboard-page">
@@ -73,7 +91,11 @@ export function DashboardPage() {
 
             <Card>
               <CardTitle>Flujo mínimo proyectado</CardTitle>
-              <CardDescription>Próximos {projection.data?.horizonDays ?? 60} días</CardDescription>
+              <CardDescription>
+                {projection.data
+                  ? `Del ${formatLocalDate(projection.data.from)} al ${formatLocalDate(projection.data.to)}`
+                  : 'Proyección de tu efectivo'}
+              </CardDescription>
               {projection.isPending && <Skeleton className="mt-3 h-8 w-32" />}
               {projection.isError && (
                 <p className="mt-3 text-sm text-slate-500">No se pudo calcular el flujo.</p>
@@ -126,7 +148,16 @@ export function DashboardPage() {
             </Card>
           </div>
 
-          {projection.data && <CashflowChart projection={projection.data} />}
+          {projection.data && (
+            <CashflowChart
+              projection={projection.data}
+              from={from}
+              to={to}
+              minDate={today}
+              maxDate={addDays(from, MAX_WINDOW_DAYS)}
+              onRangeChange={changeRange}
+            />
+          )}
 
           <Card>
             <div className="flex items-center justify-between gap-3">
