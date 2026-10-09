@@ -16,14 +16,19 @@ export function DialogContent({
       <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-overlay/60" />
       <DialogPrimitive.Content
         className={cn(
-          // Móvil: hoja anclada abajo, ancho completo, con scroll interno.
-          'fixed inset-x-0 bottom-0 z-50 max-h-[90dvh] overflow-y-auto rounded-t-2xl border border-line bg-surface p-5 shadow-xl focus:outline-none',
+          // Móvil: hoja anclada abajo, ancho completo, con scroll interno y
+          // agarradera visual para indicar que se puede arrastrar/cerrar.
+          'fixed inset-x-0 bottom-0 z-50 max-h-[90dvh] overflow-y-auto overscroll-contain rounded-t-2xl border border-line bg-surface px-5 pt-3 pb-5 shadow-sheet focus:outline-none',
           // Escritorio: diálogo centrado como siempre.
-          'sm:top-1/2 sm:right-auto sm:bottom-auto sm:left-1/2 sm:max-h-[85dvh] sm:w-[calc(100vw-2rem)] sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl',
+          'sm:top-1/2 sm:right-auto sm:bottom-auto sm:left-1/2 sm:max-h-[85dvh] sm:w-[calc(100vw-2rem)] sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:pt-5 sm:shadow-menu',
           className,
         )}
         {...props}
       >
+        <div
+          aria-hidden="true"
+          className="mx-auto mb-2 h-1.5 w-10 rounded-full bg-surface-strong sm:hidden"
+        />
         {children}
       </DialogPrimitive.Content>
     </DialogPrimitive.Portal>
@@ -44,7 +49,10 @@ export function DialogDescription({
   ...props
 }: ComponentProps<typeof DialogPrimitive.Description>) {
   return (
-    <DialogPrimitive.Description className={cn('mt-1 text-sm text-ink-muted', className)} {...props} />
+    <DialogPrimitive.Description
+      className={cn('mt-1 text-sm text-ink-muted', className)}
+      {...props}
+    />
   )
 }
 

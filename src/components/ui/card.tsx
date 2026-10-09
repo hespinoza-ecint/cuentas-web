@@ -1,10 +1,11 @@
 import type { ComponentProps } from 'react'
 import { cn } from '../../lib/utils.ts'
 
+/** Tarjeta contenedora: borde fino y sombra casi imperceptible (libro contable). */
 export function Card({ className, ...props }: ComponentProps<'section'>) {
   return (
     <section
-      className={cn('rounded-xl border border-line bg-surface p-5 shadow-sm', className)}
+      className={cn('rounded-xl border border-line bg-surface p-4 shadow-card sm:p-5', className)}
       {...props}
     />
   )

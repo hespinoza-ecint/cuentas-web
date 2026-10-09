@@ -1,24 +1,33 @@
 import type { ComponentProps, ReactNode } from 'react'
 import { controlClass } from '../ui/control.ts'
 
-interface FieldProps extends ComponentProps<'input'> {
+interface TextareaFieldProps extends ComponentProps<'textarea'> {
   label: string
   error?: string
   hint?: ReactNode
 }
 
-/** Campo de texto con etiqueta visible, ayuda y error junto al campo. */
-export function Field({ label, error, hint, id, name, ref, className, ...rest }: FieldProps) {
-  const inputId = id ?? name
-  const errorId = error ? `${inputId}-error` : undefined
+/** Área de texto con la misma receta visual que los demás campos. */
+export function TextareaField({
+  label,
+  error,
+  hint,
+  id,
+  name,
+  ref,
+  className,
+  ...rest
+}: TextareaFieldProps) {
+  const textareaId = id ?? name
+  const errorId = error ? `${textareaId}-error` : undefined
 
   return (
     <div className="min-w-0">
-      <label htmlFor={inputId} className="mb-1 block text-sm font-medium text-ink-secondary">
+      <label htmlFor={textareaId} className="mb-1 block text-sm font-medium text-ink-secondary">
         {label}
       </label>
-      <input
-        id={inputId}
+      <textarea
+        id={textareaId}
         name={name}
         ref={ref}
         aria-invalid={error ? true : undefined}

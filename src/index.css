@@ -8,138 +8,178 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
- * Sistema de color semantico (fase 19).
+ * Tipografia: Manrope variable (200-800) autoalojada en /public/fonts.
+ * Se precachea con el service worker, asi que funciona sin conexion.
+ * Se descargaron los subconjuntos latin y latin-ext (espanol completo).
+ */
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url('/fonts/manrope-latin.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url('/fonts/manrope-latin-ext.woff2') format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+/*
+ * Sistema de color semantico, direccion "estado de cuenta" (fase 20):
+ * papel calido + tinta, marca azul tinta (sin violeta) y montos como
+ * protagonistas. Los demonios de tipo se cubren en design-tokens.test.ts
+ * (prohibiciones) y design-tokens-contrast.test.ts (contraste AA real).
  *
- * - Los componentes solo usan tokens con nombre de uso: `bg-surface`,
- *   `text-ink`, `text-danger`, `border-line`, etc.
  * - `--color-*: initial` borra la paleta por defecto de Tailwind: clases como
  *   `bg-slate-500` dejan de generar CSS y no se pueden usar por error.
  * - Aqui se define el modo claro; el bloque `.dark` redefine los mismos
  *   tokens. Como las utilidades referencian `var(--color-*)`, el cambio de
  *   tema es automatico sin clases `dark:` por componente.
- * - Hay una prueba guardia en src/lib/design-tokens.test.ts que falla si
- *   vuelven las paletas por defecto, `dark:` o colores fijos.
  */
 @theme {
   --color-*: initial;
 
-  /* Superficies */
-  --color-canvas: #f4f6fa; /* fondo de la app */
+  /* Tipografia */
+  --font-sans: 'Manrope', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --text-2xs: 0.6875rem; /* 11px: etiquetas de la barra inferior */
+  --text-2xs--line-height: 1.45;
+  --text-2xs--letter-spacing: 0.01em;
+
+  /* Superficies (papel) */
+  --color-canvas: #f6f5f1; /* fondo de la app */
   --color-surface: #ffffff; /* tarjetas, cabecera, menus y dialogos */
-  --color-surface-subtle: #eef2f7; /* hover y fondos suaves */
-  --color-surface-strong: #e2e8f0; /* skeleton, banner neutro, barras de progreso */
-  --color-inverse: #0a0f1c; /* pantallas de acceso, carga y 404 (siempre oscuras) */
-  --color-overlay: #05080f; /* velo de dialogos; usar con opacidad (bg-overlay/60) */
+  --color-surface-subtle: #efeee9; /* hover y fondos suaves */
+  --color-surface-strong: #e3e2db; /* skeleton, banner neutro, barras de progreso */
+  --color-inverse: #1a1915; /* pantallas de acceso, carga y 404 (siempre oscuras) */
+  --color-overlay: #131210; /* velo de dialogos; usar con opacidad (bg-overlay/60) */
 
   /* Bordes */
-  --color-line: #e2e8f0; /* divisores y bordes de tarjeta */
-  --color-line-strong: #8a96a8; /* inputs y checkboxes (3:1 sobre surface) */
+  --color-line: #e6e4dd; /* divisores y bordes de tarjeta */
+  --color-line-strong: #8b8779; /* inputs y checkboxes (3:1 sobre surface) */
 
-  /* Texto */
-  --color-ink: #0f172a; /* primario */
-  --color-ink-secondary: #475569; /* etiquetas y texto de apoyo */
-  --color-ink-muted: #5d6b80; /* descripciones, fechas y placeholder (AA sobre canvas y surface) */
-  --color-on-accent: #ffffff; /* texto sobre solidos de color (p. ej. boton de peligro) */
-  --color-on-inverse-muted: #94a3b8; /* texto secundario sobre fondos inverse */
+  /* Texto (tinta) */
+  --color-ink: #211f1c; /* primario */
+  --color-ink-secondary: #55524b; /* etiquetas y texto de apoyo */
+  --color-ink-muted: #6e6b62; /* descripciones, fechas y placeholder (AA sobre canvas y surface) */
+  --color-on-accent: #ffffff; /* texto sobre solidos de color (boton de peligro) */
+  --color-on-inverse-muted: #a8a59b; /* texto secundario sobre fondos inverse */
 
-  /* Marca (indigo) */
-  --color-brand: #4f46e5; /* botones primarios, FAB y enlaces de acento */
-  --color-brand-hover: #4338ca;
-  --color-brand-soft: #eef2ff; /* relleno suave de marca (navegacion activa) */
-  --color-brand-ink: #4338ca; /* texto de marca sobre fondos claros */
+  /* Marca (azul tinta) */
+  --color-brand: #1e46c8; /* botones primarios, enlaces de acento y graficas */
+  --color-brand-hover: #1738a6;
+  --color-brand-soft: #e9edfa; /* relleno suave de marca (navegacion activa) */
+  --color-brand-ink: #1c3fb8; /* texto de marca sobre fondos claros */
   --color-on-brand: #ffffff;
-  --color-focus: #6366f1; /* anillo y borde de foco */
+  --color-focus: #3f63e0; /* anillo y borde de foco */
 
   /* Exito / ingresos */
-  --color-success: #047857;
-  --color-success-soft: #ecfdf5;
-  --color-success-line: #a7f3d0;
-  --color-success-ink: #065f46;
+  --color-success: #0e7a52;
+  --color-success-soft: #e6f3ec;
+  --color-success-line: #b9dfcd;
+  --color-success-ink: #0b5c3e;
 
   /* Peligro / gastos / alertas */
-  --color-danger: #b91c1c;
-  --color-danger-soft: #fef2f2;
-  --color-danger-line: #fecaca;
-  --color-danger-ink: #991b1b;
-  --color-danger-solid: #dc2626; /* boton destructivo; se conserva en modo oscuro */
-  --color-danger-solid-hover: #b91c1c;
+  --color-danger: #b3261e;
+  --color-danger-soft: #fbeceb;
+  --color-danger-line: #f0c4c0;
+  --color-danger-ink: #8f1f18;
+  --color-danger-solid: #b3261e; /* boton destructivo */
+  --color-danger-solid-hover: #8e1d17;
 
   /* Aviso */
-  --color-warning: #b45309;
-  --color-warning-soft: #fffbeb;
-  --color-warning-line: #fde68a;
-  --color-warning-ink: #92400e;
+  --color-warning: #8f5a06;
+  --color-warning-soft: #f9f0dd;
+  --color-warning-line: #ead8a8;
+  --color-warning-ink: #74500a;
 
   /* Informativo */
-  --color-info: #0369a1;
-  --color-info-soft: #f0f9ff;
-  --color-info-line: #bae6fd;
-  --color-info-ink: #075985;
+  --color-info: #0f5f96;
+  --color-info-soft: #e8f2f9;
+  --color-info-line: #bcd8ea;
+  --color-info-ink: #0c4c78;
 
   /* Dominio: hoy espejan exito y peligro; se pueden desacoplar sin tocar componentes */
-  --color-income: #047857;
-  --color-expense: #b91c1c;
+  --color-income: #0e7a52;
+  --color-expense: #b3261e;
 
   /* Graficas */
-  --color-chart-line: #4f46e5;
-  --color-chart-area: #c7d2fe;
-  --color-chart-grid: #cbd5e1;
+  --color-chart-line: #1e46c8;
+  --color-chart-area: #cdd7f3;
+  --color-chart-grid: #d8d5cb;
+
+  /* Sombras: apenas perceptibles (direccion de libro contable) */
+  --shadow-card: 0 1px 2px rgb(33 31 28 / 0.05);
+  --shadow-menu: 0 6px 24px rgb(26 25 21 / 0.14), 0 2px 6px rgb(26 25 21 / 0.08);
+  --shadow-sheet: 0 -8px 32px rgb(26 25 21 / 0.16);
 }
 
 /*
- * Modo oscuro: los mismos tokens en azul medianoche (grises azulados), sin
- * negro ni blanco puros para reducir la fatiga visual. `inverse`, `overlay`,
- * `on-accent`, `danger-solid*` y `on-inverse-muted` no se redefinen: las
- * pantallas oscuras y los solidos de color son iguales en ambos temas.
+ * Modo oscuro: los mismos tokens en azul medianoche, sin negro ni blanco
+ * puros para reducir la fatiga visual. `inverse`, `overlay`, `on-accent` y
+ * `on-inverse-muted` no se redefinen: las pantallas oscuras son iguales en
+ * ambos temas.
  */
 .dark {
   color-scheme: dark;
 
-  --color-canvas: #0a0f1c;
-  --color-surface: #141d31;
-  --color-surface-subtle: #1c2740;
-  --color-surface-strong: #26324a;
+  --color-canvas: #0f141d;
+  --color-surface: #161d2a;
+  --color-surface-subtle: #1e2737;
+  --color-surface-strong: #29344a;
 
-  --color-line: #26324a;
-  --color-line-strong: #5b6b86;
+  --color-line: #273349;
+  --color-line-strong: #6b7d99;
 
-  --color-ink: #e6ebf2;
-  --color-ink-secondary: #a9b4c4;
-  --color-ink-muted: #8b99ae;
+  --color-ink: #e9edf4;
+  --color-ink-secondary: #b6bfcd;
+  --color-ink-muted: #96a2b5;
 
-  --color-brand: #818cf8;
-  --color-brand-hover: #a5b4fc;
-  --color-brand-soft: #1e2250;
-  --color-brand-ink: #a5b4fc;
-  --color-on-brand: #0a0f1c;
-  --color-focus: #a5b4fc;
+  --color-brand: #8fa8ff;
+  --color-brand-hover: #a9bcff;
+  --color-brand-soft: #1d2745;
+  --color-brand-ink: #a3b6ff;
+  --color-on-brand: #0f141d;
+  --color-focus: #a3b6ff;
 
-  --color-success: #34d399;
-  --color-success-soft: #0b2a22;
-  --color-success-line: #065f46;
-  --color-success-ink: #6ee7b7;
+  --color-success: #3ddc97;
+  --color-success-soft: #0d2b22;
+  --color-success-line: #17603f;
+  --color-success-ink: #7ce7b4;
 
-  --color-danger: #f87171;
-  --color-danger-soft: #2d1418;
-  --color-danger-line: #7f1d1d;
-  --color-danger-ink: #fca5a5;
+  --color-danger: #f28b84;
+  --color-danger-soft: #33161a;
+  --color-danger-line: #7f2622;
+  --color-danger-ink: #f7a9a3;
+  --color-danger-solid: #cc3a31;
+  --color-danger-solid-hover: #b02f27;
 
-  --color-warning: #fbbf24;
-  --color-warning-soft: #2a200b;
-  --color-warning-line: #78350f;
-  --color-warning-ink: #fcd34d;
+  --color-warning: #e5b13a;
+  --color-warning-soft: #29220d;
+  --color-warning-line: #6d5316;
+  --color-warning-ink: #f2cd7a;
 
-  --color-info: #38bdf8;
-  --color-info-soft: #0c2236;
-  --color-info-line: #0c4a6e;
-  --color-info-ink: #7dd3fc;
+  --color-info: #67b8ef;
+  --color-info-soft: #0c2132;
+  --color-info-line: #17527d;
+  --color-info-ink: #9ed3f7;
 
-  --color-income: #34d399;
-  --color-expense: #f87171;
+  --color-income: #3ddc97;
+  --color-expense: #f28b84;
 
-  --color-chart-line: #818cf8;
-  --color-chart-area: #312e81;
-  --color-chart-grid: #3a455e;
+  --color-chart-line: #8fa8ff;
+  --color-chart-area: #26315a;
+  --color-chart-grid: #33405a;
 }
 
 html,
@@ -152,8 +192,61 @@ body {
   margin: 0;
   background-color: var(--color-canvas);
   color: var(--color-ink);
+  font-family: var(--font-sans);
   /* Evita que iOS agrande el texto al girar el telefono. */
   -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* El resaltado azul del toque (tap highlight) no pertenece a una app nativa. */
+*,
+::before,
+::after {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/*
+ * Foco visible consistente para teclado. Los componentes pueden conservar su
+ * anillo propio con `focus-visible:outline-none`.
+ */
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/*
+ * Al enfocar un campo con el teclado virtual, deja aire suficiente para que
+ * el pie fijo de las hojas no lo tape.
+ */
+input,
+select,
+textarea {
+  scroll-margin-block: 6rem;
+}
+
+/* Animaciones discretas: solo transform/opacity y respetando la preferencia. */
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* Entrada de los avisos breves (components/ui/toast.tsx). */
+.toast-enter {
+  animation: toast-in 180ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Respeta notch y barra de gestos en PWA (iOS/Android). */

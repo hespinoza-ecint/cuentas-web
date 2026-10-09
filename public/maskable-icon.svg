@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Cuentas">
-  <rect width="512" height="512" fill="#0f172a" />
-  <rect x="146" y="156" width="220" height="56" rx="20" fill="#38bdf8" />
-  <rect x="146" y="228" width="220" height="56" rx="20" fill="#22d3ee" />
-  <rect x="146" y="300" width="220" height="56" rx="20" fill="#a5b4fc" />
+  <rect width="512" height="512" fill="#1e46c8" />
+  <rect x="146" y="156" width="220" height="56" rx="20" fill="#ffffff" />
+  <rect x="146" y="228" width="220" height="56" rx="20" fill="#cdd7f3" />
+  <rect x="146" y="300" width="220" height="56" rx="20" fill="#8fa8ff" />
 </svg>

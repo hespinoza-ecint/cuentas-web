@@ -3,11 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- interactive-widget: el teclado virtual redimensiona el contenido (Android). -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content"
+    />
+    <!-- iOS: la PWA se abre a pantalla completa con la barra de estado clara. -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Cuentas" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <!-- Valor inicial; el script de abajo lo ajusta al tema (ver src/index.css). -->
-    <meta name="theme-color" content="#0a0f1c" />
+    <meta name="theme-color" content="#0f141d" />
     <meta name="description" content="Cuentas — asistente financiero personal" />
     <title>Cuentas</title>
+    <link
+      rel="preload"
+      href="/fonts/manrope-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <script>
       // Aplica el tema antes del primer render para evitar el destello claro.
       // Debe coincidir con la lógica de src/lib/theme.ts.
@@ -28,7 +45,7 @@
         var meta = document.querySelector('meta[name="theme-color"]')
         if (meta) {
           var isDark = document.documentElement.classList.contains('dark')
-          meta.setAttribute('content', isDark ? '#0a0f1c' : '#f4f6fa')
+          meta.setAttribute('content', isDark ? '#0f141d' : '#f6f5f1')
         }
       })()
     </script>

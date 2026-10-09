@@ -1,5 +1,6 @@
 import { useId, useState } from 'react'
 import { parsePesosToCents } from '../../lib/money.ts'
+import { controlClass } from '../ui/control.ts'
 
 interface MoneyInputProps {
   id?: string
@@ -67,7 +68,7 @@ export function MoneyInput({
   const errorId = message ? `${inputId}-error` : undefined
 
   return (
-    <div>
+    <div className="min-w-0">
       <label htmlFor={inputId} className="mb-1 block text-sm font-medium text-ink-secondary">
         {label}
       </label>
@@ -83,19 +84,19 @@ export function MoneyInput({
           onBlur={onBlur}
           disabled={disabled}
           inputMode="decimal"
+          autoComplete="off"
           placeholder={placeholder}
           aria-invalid={message ? true : undefined}
           aria-describedby={errorId}
-          className={`w-full rounded-lg border py-2 pr-3 pl-7 text-base text-ink shadow-sm outline-none transition focus:ring-2 sm:text-sm ${
-            message
-              ? 'border-danger focus:border-danger focus:ring-danger/25'
-              : 'border-line-strong focus:border-focus focus:ring-focus/25'
-          }`}
+          className={controlClass({
+            error: Boolean(message),
+            className: 'pr-3 pl-7 tabular-nums',
+          })}
         />
       </div>
       {hint && !message && <p className="mt-1 text-xs text-ink-muted">{hint}</p>}
       {message && (
-        <p id={errorId} role="alert" className="mt-1 text-xs text-danger">
+        <p id={errorId} role="alert" className="mt-1 text-xs font-medium text-danger">
           {message}
         </p>
       )}
