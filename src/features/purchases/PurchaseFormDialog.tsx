@@ -213,7 +213,7 @@ export function PurchaseFormDialog({
                     error={form.formState.errors.firstStatementMonth?.message}
                     {...form.register('firstStatementMonth')}
                   />
-                  <p className="mt-1 text-xs text-slate-500">
+                  <p className="mt-1 text-xs text-ink-muted">
                     Déjalo vacío si es una compra nueva. Si ya venía en pagos, elige el mes de su
                     primer corte: las mensualidades ya vencidas se registran como pagadas y la
                     tarjeta solo suma el principal pendiente.

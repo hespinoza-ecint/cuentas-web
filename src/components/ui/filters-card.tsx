@@ -23,7 +23,7 @@ export function FiltersCard({ activeCount, children }: FiltersCardProps) {
         type="button"
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
-        className="flex w-full items-center justify-between gap-2 text-sm font-medium text-slate-700 sm:hidden"
+        className="flex w-full items-center justify-between gap-2 text-sm font-medium text-ink-secondary sm:hidden"
       >
         <span className="flex items-center gap-2">
           <SlidersHorizontal className="size-4" aria-hidden="true" />

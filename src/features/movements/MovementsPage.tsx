@@ -163,13 +163,13 @@ export function MovementsPage() {
               <Card className="p-3">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="flex flex-wrap items-center gap-2 text-sm text-slate-900">
+                    <p className="flex flex-wrap items-center gap-2 text-sm text-ink">
                       <Badge tone={movement.amount >= 0 ? 'success' : 'neutral'}>
                         {TYPE_LABELS[movement.type] ?? movement.type}
                       </Badge>
                       <span className="font-medium">{movement.description}</span>
                     </p>
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="mt-1 text-xs text-ink-muted">
                       {formatLocalDate(movement.occurredOn)}
                       {accountName.get(movement.cashAccountId)
                         ? ` · ${accountName.get(movement.cashAccountId)}`
@@ -267,8 +267,8 @@ export function MovementsPage() {
 function Row({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-4">
-      <dt className="text-slate-500">{label}</dt>
-      <dd className="text-right font-medium text-slate-900">{value}</dd>
+      <dt className="text-ink-muted">{label}</dt>
+      <dd className="text-right font-medium text-ink">{value}</dd>
     </div>
   )
 }

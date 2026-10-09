@@ -1,5 +1,12 @@
 # Fase 13 — Modo oscuro
 
+> **Nota (fase 19):** este documento describe la primera implementación del modo
+> oscuro (inversión de la escala `slate` bajo `.dark`). Desde la
+> [fase 19](fase-19-sistema-de-color.md) el tema se construye con tokens
+> semánticos (`--color-surface`, `--color-ink`, `--color-danger`…) y las clases
+> `slate-*` ya no existen en el código. El selector de tema, la persistencia y
+> el script anti-destello descritos aquí siguen vigentes.
+
 ## 1. Objetivo
 
 Ofrecer un tema oscuro completo (claro, oscuro o el del sistema) sin duplicar

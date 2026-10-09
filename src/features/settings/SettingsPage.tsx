@@ -145,13 +145,13 @@ export function SettingsPage() {
               <div>
                 <label
                   htmlFor="holidayCalendarCode"
-                  className="mb-1 block text-sm font-medium text-slate-700"
+                  className="mb-1 block text-sm font-medium text-ink-secondary"
                 >
                   Calendario de festivos
                 </label>
                 <select
                   id="holidayCalendarCode"
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                  className="w-full rounded-lg border border-line-strong px-3 py-2 text-sm text-ink shadow-sm outline-none focus:border-focus focus:ring-2 focus:ring-focus/25"
                   {...form.register('holidayCalendarCode')}
                 >
                   <option value="MX_BANKING">Bancario (días inhábiles de banco)</option>

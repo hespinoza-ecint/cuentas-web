@@ -26,7 +26,7 @@ export function RecommendationResultView({
         <Card>
           <CardTitle>Ninguna opción recomendada</CardTitle>
           <CardDescription>Estas sugerencias pueden ayudarte a decidir:</CardDescription>
-          <ul className="mt-3 space-y-1 text-sm text-slate-600">
+          <ul className="mt-3 space-y-1 text-sm text-ink-secondary">
             {result.suggestions.map((suggestion) => (
               <li key={suggestion.code}>• {suggestion.message}</li>
             ))}
@@ -39,7 +39,7 @@ export function RecommendationResultView({
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <CardTitle>Recomendación</CardTitle>
-              <p className="mt-1 text-lg font-semibold text-slate-900">
+              <p className="mt-1 text-lg font-semibold text-ink">
                 {result.recommended.kind === 'CARD'
                   ? result.recommended.cardAlias
                   : 'Pagar con efectivo'}
@@ -49,7 +49,7 @@ export function RecommendationResultView({
               <Badge tone={LEVEL_LABELS[result.recommended.level]?.tone ?? 'neutral'}>
                 {LEVEL_LABELS[result.recommended.level]?.label ?? result.recommended.level}
               </Badge>
-              <p className="mt-1 text-xs text-slate-500">Puntaje {result.recommended.score}/100</p>
+              <p className="mt-1 text-xs text-ink-muted">Puntaje {result.recommended.score}/100</p>
             </div>
           </div>
 
@@ -79,7 +79,7 @@ export function RecommendationResultView({
           </dl>
 
           {result.recommended.reasons.length > 0 && (
-            <ul className="mt-4 space-y-1 text-sm text-slate-600">
+            <ul className="mt-4 space-y-1 text-sm text-ink-secondary">
               {result.recommended.reasons.map((reason) => (
                 <li key={reason.code}>• {reason.message}</li>
               ))}
@@ -87,7 +87,7 @@ export function RecommendationResultView({
           )}
 
           {result.recommended.warnings.length > 0 && (
-            <ul className="mt-3 space-y-1 text-sm text-amber-700">
+            <ul className="mt-3 space-y-1 text-sm text-warning">
               {result.recommended.warnings.map((warning) => (
                 <li key={warning.code}>⚠ {warning.message}</li>
               ))}
@@ -96,8 +96,8 @@ export function RecommendationResultView({
 
           {result.recommended.paymentPlan.length > 0 && (
             <div className="mt-4">
-              <p className="text-sm font-medium text-slate-700">Plan de pagos</p>
-              <ul className="mt-1 space-y-1 text-xs text-slate-600">
+              <p className="text-sm font-medium text-ink-secondary">Plan de pagos</p>
+              <ul className="mt-1 space-y-1 text-xs text-ink-secondary">
                 {result.recommended.paymentPlan.map((entry, index) => (
                   <li key={`${entry.date}-${index}`} className="flex justify-between gap-3">
                     <span>{formatLocalDate(entry.date)}</span>
@@ -122,12 +122,12 @@ export function RecommendationResultView({
         <Card>
           <CardTitle>Alternativas</CardTitle>
           <CardDescription>Ordenadas por puntaje</CardDescription>
-          <ul className="mt-3 divide-y divide-slate-100" data-testid="recommendation-alternatives">
+          <ul className="mt-3 divide-y divide-line" data-testid="recommendation-alternatives">
             {result.alternatives.map((option, index) => (
               <li key={`${option.kind}-${option.cardId ?? 'cash'}-${index}`} className="py-2">
                 <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
                   <span className="flex items-center gap-2">
-                    <span className="font-medium text-slate-900">
+                    <span className="font-medium text-ink">
                       {option.kind === 'CARD' ? option.cardAlias : 'Efectivo'}
                     </span>
                     {option.eligible ? (
@@ -138,10 +138,10 @@ export function RecommendationResultView({
                       <Badge tone="danger">Descartada</Badge>
                     )}
                   </span>
-                  {option.eligible && <span className="text-xs text-slate-500">Puntaje {option.score}</span>}
+                  {option.eligible && <span className="text-xs text-ink-muted">Puntaje {option.score}</span>}
                 </div>
                 {option.eliminatedBy.length > 0 && (
-                  <ul className="mt-1 space-y-0.5 text-xs text-red-600">
+                  <ul className="mt-1 space-y-0.5 text-xs text-danger">
                     {option.eliminatedBy.map((finding) => (
                       <li key={finding.code}>{finding.message}</li>
                     ))}
@@ -153,7 +153,7 @@ export function RecommendationResultView({
         </Card>
       )}
 
-      <p className="text-xs text-slate-400 italic">{result.disclaimer}</p>
+      <p className="text-xs text-ink-muted italic">{result.disclaimer}</p>
     </div>
   )
 }
@@ -169,9 +169,9 @@ function Metric({
 }) {
   return (
     <div>
-      <dt className="text-xs text-slate-500">{label}</dt>
-      <dd className="font-medium text-slate-900">{value}</dd>
-      {hint && <p className="text-xs text-slate-400">{hint}</p>}
+      <dt className="text-xs text-ink-muted">{label}</dt>
+      <dd className="font-medium text-ink">{value}</dd>
+      {hint && <p className="text-xs text-ink-muted">{hint}</p>}
     </div>
   )
 }

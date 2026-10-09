@@ -114,13 +114,13 @@ export function AccountsPage() {
               <Card className="p-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <p className="flex flex-wrap items-center gap-2 text-sm font-medium text-slate-900">
+                    <p className="flex flex-wrap items-center gap-2 text-sm font-medium text-ink">
                       {account.name}
                       {account.isDefault && <Badge tone="info">Predeterminada</Badge>}
                       {!account.isSpendable && <Badge tone="neutral">No gastable</Badge>}
                       <StatusBadge status={account.status} />
                     </p>
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="mt-1 text-xs text-ink-muted">
                       {TYPE_LABELS[account.type] ?? account.type} · {account.currency}
                     </p>
                   </div>

@@ -119,18 +119,18 @@ export function AccountFormDialog({
             />
 
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm text-slate-700">
+              <label className="flex items-center gap-2 text-sm text-ink-secondary">
                 <input
                   type="checkbox"
-                  className="size-4 rounded border-slate-300"
+                  className="size-4 rounded border-line-strong"
                   {...form.register('isSpendable')}
                 />
                 Cuenta para decisiones (saldo gastable)
               </label>
-              <label className="flex items-center gap-2 text-sm text-slate-700">
+              <label className="flex items-center gap-2 text-sm text-ink-secondary">
                 <input
                   type="checkbox"
-                  className="size-4 rounded border-slate-300"
+                  className="size-4 rounded border-line-strong"
                   {...form.register('isDefault')}
                 />
                 Usar como cuenta predeterminada

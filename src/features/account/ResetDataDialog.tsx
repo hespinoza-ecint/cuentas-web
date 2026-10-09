@@ -81,16 +81,16 @@ export function ResetDataDialog({
               error={form.formState.errors.password?.message}
               {...form.register('password')}
             />
-            <label className="flex items-start gap-2 text-sm text-slate-700">
+            <label className="flex items-start gap-2 text-sm text-ink-secondary">
               <input
                 type="checkbox"
-                className="mt-0.5 size-4 rounded border-slate-300"
+                className="mt-0.5 size-4 rounded border-line-strong"
                 {...form.register('confirm')}
               />
               {texts.checkbox}
             </label>
             {form.formState.errors.confirm && (
-              <p role="alert" className="text-xs text-red-600">
+              <p role="alert" className="text-xs text-danger">
                 {form.formState.errors.confirm.message}
               </p>
             )}

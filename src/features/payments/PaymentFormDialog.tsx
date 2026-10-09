@@ -102,7 +102,7 @@ export function PaymentFormDialog({
               ))}
             </SelectField>
             {watchedCard && (
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-ink-muted">
                 Saldo actual <MoneyDisplay cents={watchedCard.currentBalance} className="font-medium" /> ·
                 disponible <MoneyDisplay cents={watchedCard.availableCredit} className="font-medium" />
               </p>

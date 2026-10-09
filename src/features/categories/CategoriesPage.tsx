@@ -69,19 +69,19 @@ export function CategoriesPage() {
             <CardTitle>Tus categorías ({own.length})</CardTitle>
             <CardDescription>Se pueden editar y eliminar; las usan tus registros.</CardDescription>
             {own.length === 0 ? (
-              <p className="mt-3 text-sm text-slate-500">
+              <p className="mt-3 text-sm text-ink-muted">
                 Aún no tienes categorías propias. Crea una para clasificar mejor tus movimientos.
               </p>
             ) : (
-              <ul className="mt-3 divide-y divide-slate-100" data-testid="own-categories">
+              <ul className="mt-3 divide-y divide-line" data-testid="own-categories">
                 {own.map((category) => (
                   <li key={category.id} className="flex flex-wrap items-center justify-between gap-3 py-2">
                     <div className="min-w-0">
-                      <p className="flex flex-wrap items-center gap-2 text-sm text-slate-900">
+                      <p className="flex flex-wrap items-center gap-2 text-sm text-ink">
                         <span className="font-medium">{category.name}</span>
                         <Badge tone="neutral">{KIND_LABELS[category.kind] ?? category.kind}</Badge>
                         {category.parentId && (
-                          <span className="text-xs text-slate-500">
+                          <span className="text-xs text-ink-muted">
                             en {nameById.get(category.parentId) ?? 'categoría'}
                           </span>
                         )}
@@ -102,7 +102,7 @@ export function CategoriesPage() {
                         aria-label={`Eliminar ${category.name}`}
                         onClick={() => setDeleting(category)}
                       >
-                        <Trash2 className="size-4 text-red-600" aria-hidden="true" />
+                        <Trash2 className="size-4 text-danger" aria-hidden="true" />
                       </Button>
                     </div>
                   </li>

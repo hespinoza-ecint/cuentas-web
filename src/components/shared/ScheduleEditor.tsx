@@ -23,7 +23,7 @@ export function ScheduleEditor({ value, onChange, error, lockFrequency = false }
   }
 
   return (
-    <div className="space-y-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
+    <div className="space-y-4 rounded-lg border border-line bg-surface-subtle p-4">
       <SelectField
         label="Frecuencia"
         value={value.frequency}
@@ -143,10 +143,10 @@ export function ScheduleEditor({ value, onChange, error, lockFrequency = false }
           <option value="NEXT">Mover al día hábil siguiente</option>
           <option value="NONE">No ajustar</option>
         </SelectField>
-        <label className="flex items-end gap-2 pb-2 text-sm text-slate-700">
+        <label className="flex items-end gap-2 pb-2 text-sm text-ink-secondary">
           <input
             type="checkbox"
-            className="size-4 rounded border-slate-300"
+            className="size-4 rounded border-line-strong"
             checked={value.useHolidays}
             onChange={(event) => update({ useHolidays: event.target.checked })}
           />
@@ -155,7 +155,7 @@ export function ScheduleEditor({ value, onChange, error, lockFrequency = false }
       </div>
 
       {error && (
-        <p role="alert" className="text-xs text-red-600">
+        <p role="alert" className="text-xs text-danger">
           {error}
         </p>
       )}

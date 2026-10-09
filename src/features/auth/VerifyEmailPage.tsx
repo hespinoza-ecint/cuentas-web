@@ -62,18 +62,18 @@ export function VerifyEmailPage() {
       title="Verifica tu correo"
       subtitle="Confirma tu dirección para empezar a operar"
       footer={
-        <Link to="/login" className="font-medium text-slate-900 underline">
+        <Link to="/login" className="font-medium text-ink underline">
           Ir a iniciar sesión
         </Link>
       }
     >
       <div className="space-y-4">
         {state === 'verifying' && (
-          <p className="text-sm text-slate-600">Verificando tu enlace…</p>
+          <p className="text-sm text-ink-secondary">Verificando tu enlace…</p>
         )}
 
         {state === 'success' && (
-          <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+          <div className="rounded-lg border border-success-line bg-success-soft px-3 py-2 text-sm text-success-ink">
             {message}
           </div>
         )}
@@ -81,19 +81,19 @@ export function VerifyEmailPage() {
         {state === 'error' && (
           <>
             <ErrorAlert error={verifyError} />
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-ink-muted">
               El enlace pudo haber vencido o ya fue usado. Solicita uno nuevo.
             </p>
           </>
         )}
 
-        {state === 'idle' && message && <p className="text-sm text-slate-600">{message}</p>}
+        {state === 'idle' && message && <p className="text-sm text-ink-secondary">{message}</p>}
 
-        <form onSubmit={onResend} className="space-y-4 border-t border-slate-200 pt-4" noValidate>
-          <p className="text-sm font-medium text-slate-700">Reenviar verificación</p>
+        <form onSubmit={onResend} className="space-y-4 border-t border-line pt-4" noValidate>
+          <p className="text-sm font-medium text-ink-secondary">Reenviar verificación</p>
           <ErrorAlert error={resendError} />
           {resendMessage && (
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+            <div className="rounded-lg border border-success-line bg-success-soft px-3 py-2 text-sm text-success-ink">
               {resendMessage}
             </div>
           )}

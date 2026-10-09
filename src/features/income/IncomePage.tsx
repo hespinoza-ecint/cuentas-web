@@ -130,28 +130,28 @@ export function IncomePage() {
         {upcoming.isPending && <Skeleton className="mt-3 h-16" />}
         {upcoming.isError && <ErrorState error={upcoming.error} onRetry={() => void upcoming.refetch()} />}
         {upcoming.data && occurrences.length === 0 && (
-          <p className="mt-3 text-sm text-slate-500">No hay ingresos próximos.</p>
+          <p className="mt-3 text-sm text-ink-muted">No hay ingresos próximos.</p>
         )}
         {occurrences.length > 0 && (
-          <ul className="mt-3 divide-y divide-slate-100" data-testid="income-upcoming">
+          <ul className="mt-3 divide-y divide-line" data-testid="income-upcoming">
             {occurrences.map((occurrence) => (
               <li
                 key={`${occurrence.incomeScheduleId}-${occurrence.expectedDate}`}
                 className="flex flex-wrap items-center justify-between gap-3 py-2"
               >
                 <div>
-                  <p className="flex flex-wrap items-center gap-2 text-sm text-slate-900">
+                  <p className="flex flex-wrap items-center gap-2 text-sm text-ink">
                     <span className="font-medium">{occurrence.incomeSourceName}</span>
                     {occurrence.overdue && <Badge tone="warning">Vencido</Badge>}
                     {occurrence.amountType === 'VARIABLE' && <Badge tone="info">Variable</Badge>}
                   </p>
-                  <p className="mt-0.5 text-xs text-slate-500">
+                  <p className="mt-0.5 text-xs text-ink-muted">
                     {formatLocalDate(occurrence.expectedDate)}
                     {occurrence.daysUntil >= 0 ? ` · en ${occurrence.daysUntil} días` : ''}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <MoneyDisplay cents={occurrence.expectedAmount} className="font-medium text-emerald-600" />
+                  <MoneyDisplay cents={occurrence.expectedAmount} className="font-medium text-income" />
                   <Button variant="secondary" size="sm" onClick={() => setConfirming(occurrence)}>
                     Confirmar
                   </Button>
@@ -181,18 +181,18 @@ export function IncomePage() {
         {sourceList.length > 0 && (
           <ul className="mt-3 space-y-3" data-testid="income-sources">
             {sourceList.map((source) => (
-              <li key={source.id} className="rounded-lg border border-slate-200 p-3">
+              <li key={source.id} className="rounded-lg border border-line p-3">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <p className="flex flex-wrap items-center gap-2 text-sm text-slate-900">
+                    <p className="flex flex-wrap items-center gap-2 text-sm text-ink">
                       <span className="font-medium">{source.name}</span>
                       <Badge tone={source.isActive ? 'success' : 'neutral'}>
                         {source.isActive ? 'Activa' : 'Inactiva'}
                       </Badge>
                       <Badge tone="neutral">{source.amountType === 'VARIABLE' ? 'Variable' : 'Fijo'}</Badge>
-                      {source.category && <span className="text-xs text-slate-500">{source.category.name}</span>}
+                      {source.category && <span className="text-xs text-ink-muted">{source.category.name}</span>}
                     </p>
-                    <p className="mt-0.5 text-xs text-slate-500">
+                    <p className="mt-0.5 text-xs text-ink-muted">
                       Estimado <MoneyDisplay cents={source.estimatedAmount} /> ·{' '}
                       {source.cashAccount?.name ?? 'cuenta'}
                       {source.payer ? ` · ${source.payer}` : ''}
@@ -213,10 +213,10 @@ export function IncomePage() {
                 </div>
 
                 {source.schedules.length > 0 && (
-                  <ul className="mt-2 space-y-1 border-t border-slate-100 pt-2">
+                  <ul className="mt-2 space-y-1 border-t border-line pt-2">
                     {source.schedules.map((schedule) => (
                       <li key={schedule.id} className="flex flex-wrap items-center justify-between gap-2 text-xs">
-                        <span className="text-slate-600">
+                        <span className="text-ink-secondary">
                           {describeSchedule(schedule)}
                           {schedule.amountOverride ? ' · monto propio' : ''}
                           {!schedule.isActive ? ' · inactivo' : ''}
@@ -236,7 +236,7 @@ export function IncomePage() {
                             aria-label={`Eliminar calendario de ${source.name}`}
                             onClick={() => setDeletingSchedule({ source, schedule })}
                           >
-                            <Trash2 className="size-3.5 text-red-600" aria-hidden="true" />
+                            <Trash2 className="size-3.5 text-danger" aria-hidden="true" />
                           </Button>
                         </span>
                       </li>
@@ -258,21 +258,21 @@ export function IncomePage() {
           <ErrorState error={transactions.error} onRetry={() => void transactions.refetch()} />
         )}
         {transactions.data && history.length === 0 && (
-          <p className="mt-3 text-sm text-slate-500">Aún no has confirmado ingresos.</p>
+          <p className="mt-3 text-sm text-ink-muted">Aún no has confirmado ingresos.</p>
         )}
 
         {history.length > 0 && (
-          <ul className="mt-3 divide-y divide-slate-100" data-testid="income-history">
+          <ul className="mt-3 divide-y divide-line" data-testid="income-history">
             {history.map((entry) => {
               const status = STATUS_LABELS[entry.status] ?? { label: entry.status, tone: 'neutral' as const }
               return (
                 <li key={entry.id} className="flex flex-wrap items-center justify-between gap-3 py-2">
                   <div>
-                    <p className="flex flex-wrap items-center gap-2 text-sm text-slate-900">
+                    <p className="flex flex-wrap items-center gap-2 text-sm text-ink">
                       <span className="font-medium">{entry.incomeSource?.name ?? 'Ingreso'}</span>
                       <Badge tone={status.tone}>{status.label}</Badge>
                     </p>
-                    <p className="mt-0.5 text-xs text-slate-500">
+                    <p className="mt-0.5 text-xs text-ink-muted">
                       Esperado {entry.expectedDate ? formatLocalDate(entry.expectedDate) : '—'}
                       {entry.actualDate ? ` · real ${formatLocalDate(entry.actualDate)}` : ''}
                       {entry.notes ? ` · ${entry.notes}` : ''}
@@ -280,10 +280,10 @@ export function IncomePage() {
                   </div>
                   <div className="text-right text-sm">
                     {entry.actualAmount !== null && (
-                      <MoneyDisplay cents={entry.actualAmount} className="font-medium text-emerald-600" />
+                      <MoneyDisplay cents={entry.actualAmount} className="font-medium text-income" />
                     )}
                     {entry.expectedAmount !== null && entry.actualAmount !== entry.expectedAmount && (
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-ink-muted">
                         estimado <MoneyDisplay cents={entry.expectedAmount} />
                       </p>
                     )}

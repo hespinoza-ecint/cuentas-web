@@ -33,8 +33,26 @@ export function effectiveTheme(value: ThemePreference = preference): EffectiveTh
   return value
 }
 
+/**
+ * Sincroniza la barra del sistema (meta theme-color) con el fondo de la app,
+ * leyendo el token --color-canvas que define src/index.css.
+ */
+function syncThemeColor(): void {
+  const meta = document.querySelector('meta[name="theme-color"]')
+  if (!(meta instanceof HTMLMetaElement)) {
+    return
+  }
+  const canvas = getComputedStyle(document.documentElement)
+    .getPropertyValue('--color-canvas')
+    .trim()
+  if (canvas) {
+    meta.setAttribute('content', canvas)
+  }
+}
+
 function applyTheme(): void {
   document.documentElement.classList.toggle('dark', effectiveTheme() === 'dark')
+  syncThemeColor()
 }
 
 function emit(): void {

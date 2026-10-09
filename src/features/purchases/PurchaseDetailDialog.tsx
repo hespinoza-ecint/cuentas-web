@@ -100,7 +100,7 @@ export function PurchaseDetailDialog({
               <span className="flex items-center gap-2">
                 <StatusBadge status={purchase.data.status} />
                 {plan && (
-                  <span className="text-xs text-slate-500">
+                  <span className="text-xs text-ink-muted">
                     {plan.type === 'MSI' ? `${plan.months} MSI` : `Diferida a ${plan.months} meses`}
                   </span>
                 )}
@@ -110,7 +110,7 @@ export function PurchaseDetailDialog({
 
             {plan && (
               <>
-                <dl className="grid grid-cols-2 gap-2 text-xs text-slate-600">
+                <dl className="grid grid-cols-2 gap-2 text-xs text-ink-secondary">
                   <div>
                     Principal pendiente:{' '}
                     <MoneyDisplay cents={plan.outstandingPrincipal} className="font-medium" />
@@ -132,11 +132,11 @@ export function PurchaseDetailDialog({
                 </dl>
 
                 <div>
-                  <p className="mb-2 font-medium text-slate-700">Mensualidades</p>
-                  <ul className="divide-y divide-slate-100" data-testid="installments-list">
+                  <p className="mb-2 font-medium text-ink-secondary">Mensualidades</p>
+                  <ul className="divide-y divide-line" data-testid="installments-list">
                     {plan.installments.map((installment) => (
                       <li key={installment.id} className="flex flex-wrap items-center justify-between gap-2 py-1.5">
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-ink-muted">
                           #{installment.number} · vence {formatLocalDate(installment.dueDate)}
                         </span>
                         <span className="flex items-center gap-2">
@@ -150,13 +150,13 @@ export function PurchaseDetailDialog({
 
                 {plan.status === 'ACTIVE' && plan.outstandingPrincipal > 0 && (
                   <form
-                    className="space-y-3 border-t border-slate-100 pt-3"
+                    className="space-y-3 border-t border-line pt-3"
                     noValidate
                     onSubmit={form.handleSubmit((values) => prepay.mutate(values))}
                   >
-                    <p className="font-medium text-slate-700">Anticipo o liquidación</p>
+                    <p className="font-medium text-ink-secondary">Anticipo o liquidación</p>
                     {nextInstallment && (
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-ink-muted">
                         Próxima mensualidad #{nextInstallment.number} por{' '}
                         <MoneyDisplay cents={nextInstallment.totalAmount} /> (vence{' '}
                         {formatLocalDate(nextInstallment.dueDate)}).
@@ -183,14 +183,14 @@ export function PurchaseDetailDialog({
                         )}
                       />
                       <div>
-                        <label htmlFor="prepayDate" className="mb-1 block text-sm font-medium text-slate-700">
+                        <label htmlFor="prepayDate" className="mb-1 block text-sm font-medium text-ink-secondary">
                           Fecha
                         </label>
                         <input
                           id="prepayDate"
                           type="date"
                           max={today}
-                          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                          className="w-full rounded-lg border border-line-strong px-3 py-2 text-sm shadow-sm outline-none focus:border-focus focus:ring-2 focus:ring-focus/25"
                           {...form.register('paymentDate')}
                         />
                       </div>

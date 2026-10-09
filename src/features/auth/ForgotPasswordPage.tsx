@@ -30,13 +30,13 @@ export function ForgotPasswordPage() {
       title="Recuperar contraseña"
       subtitle="Te enviaremos un enlace para restablecerla"
       footer={
-        <Link to="/login" className="font-medium text-slate-900 underline">
+        <Link to="/login" className="font-medium text-ink underline">
           Volver a iniciar sesión
         </Link>
       }
     >
       {sentMessage ? (
-        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+        <div className="rounded-lg border border-success-line bg-success-soft px-3 py-2 text-sm text-success-ink">
           {sentMessage}
         </div>
       ) : (

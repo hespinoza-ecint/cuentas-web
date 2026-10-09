@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#0f172a" />
+    <!-- Valor inicial; el script de abajo lo ajusta al tema (ver src/index.css). -->
+    <meta name="theme-color" content="#0a0f1c" />
     <meta name="description" content="Cuentas — asistente financiero personal" />
     <title>Cuentas</title>
     <script>
@@ -22,6 +23,12 @@
           }
         } catch (error) {
           // Sin localStorage: se mantiene el tema del sistema.
+        }
+        // La barra del sistema sigue el fondo de la app (tokens de src/index.css).
+        var meta = document.querySelector('meta[name="theme-color"]')
+        if (meta) {
+          var isDark = document.documentElement.classList.contains('dark')
+          meta.setAttribute('content', isDark ? '#0a0f1c' : '#f4f6fa')
         }
       })()
     </script>

@@ -105,8 +105,8 @@ export function StatementDetailDialog({
           )}
           {detail.data && detail.data.allocations.length > 0 && (
             <div>
-              <p className="mb-2 text-sm font-medium text-slate-700">Pagos aplicados</p>
-              <ul className="space-y-1 text-xs text-slate-600">
+              <p className="mb-2 text-sm font-medium text-ink-secondary">Pagos aplicados</p>
+              <ul className="space-y-1 text-xs text-ink-secondary">
                 {detail.data.allocations.map((allocation, index) => (
                   <li key={`${allocation.targetType}-${index}`} className="flex justify-between gap-3">
                     <span>
@@ -127,11 +127,11 @@ export function StatementDetailDialog({
           )}
 
           <form
-            className="space-y-3 border-t border-slate-100 pt-3"
+            className="space-y-3 border-t border-line pt-3"
             noValidate
             onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
           >
-            <p className="text-sm font-medium text-slate-700">Montos reportados por el banco</p>
+            <p className="text-sm font-medium text-ink-secondary">Montos reportados por el banco</p>
             <div className="grid gap-3 sm:grid-cols-2">
               <Controller
                 name="noInterestPaymentReported"
@@ -179,8 +179,8 @@ export function StatementDetailDialog({
 function Row({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-4">
-      <dt className="text-slate-500">{label}</dt>
-      <dd className="text-right font-medium text-slate-900">{value}</dd>
+      <dt className="text-ink-muted">{label}</dt>
+      <dd className="text-right font-medium text-ink">{value}</dd>
     </div>
   )
 }

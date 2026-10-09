@@ -170,12 +170,12 @@ export function PurchasesPage() {
                 <Card className="p-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="flex flex-wrap items-center gap-2 text-sm text-slate-900">
+                      <p className="flex flex-wrap items-center gap-2 text-sm text-ink">
                         <span className="font-medium">{purchase.description}</span>
                         <Badge tone="neutral">{TYPE_LABELS[purchase.type] ?? purchase.type}</Badge>
                         <StatusBadge status={purchase.status} />
                       </p>
-                      <p className="mt-1 text-xs text-slate-500">
+                      <p className="mt-1 text-xs text-ink-muted">
                         {purchase.creditCard ? `${purchase.creditCard.alias} ····${purchase.creditCard.last4} · ` : ''}
                         {formatLocalDate(purchase.purchaseDate)}
                         {nextInstallment
@@ -197,7 +197,7 @@ export function PurchasesPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-red-600 hover:bg-red-50"
+                      className="text-danger hover:bg-danger-soft"
                       onClick={() => setDeleting(purchase)}
                     >
                       Eliminar

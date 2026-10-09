@@ -18,6 +18,7 @@ repositorio hermano [`cuentas-api`](../cuentas-api).
 | 5 | Dashboard analítico, administración y cuenta/datos (exportación completa y reset total o solo de tarjetas) | ✅ Implementada |
 | 6 | Optimización (code splitting, offline de lectura, accesibilidad, despliegue) | ✅ Implementada |
 | E2E | Playwright contra el backend real (ver `docs/e2e-playwright.md`) | ✅ Implementada |
+| 19 | Sistema de color semántico: tokens claro/oscuro accesibles (reemplaza al esquema de la fase 13) | ✅ Implementada |
 | 5 | Dashboard analítico, reglas y administración | ⏳ Pendiente |
 | 6 | Optimización (PWA offline de lectura, accesibilidad, rendimiento, despliegue) | ⏳ Pendiente |
 
@@ -148,4 +149,5 @@ actualizaciones) está en
 - [Fase 16 — Ocurrencias vencidas de recurrentes](docs/fase-16-recurrentes-vencidos.md)
 - [Fase 17 — Flujo de efectivo hasta la última mensualidad](docs/fase-17-flujo-hasta-ultima-mensualidad.md)
 - [Fase 18 — Ventana de fechas del flujo](docs/fase-18-ventana-de-fechas-del-flujo.md)
+- [Fase 19 — Sistema de color semántico (claro/oscuro)](docs/fase-19-sistema-de-color.md)
 - [Pruebas E2E con Playwright](docs/e2e-playwright.md)

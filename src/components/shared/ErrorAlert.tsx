@@ -20,11 +20,11 @@ export function ErrorAlert({ error, className = '' }: ErrorAlertProps) {
   return (
     <div
       role="alert"
-      className={`rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 ${className}`}
+      className={`rounded-lg border border-danger-line bg-danger-soft px-3 py-2 text-sm text-danger-ink ${className}`}
     >
       <p>{message}</p>
       {problem?.requestId && (
-        <p className="mt-1 text-xs text-red-600">Referencia: {problem.requestId}</p>
+        <p className="mt-1 text-xs text-danger">Referencia: {problem.requestId}</p>
       )}
     </div>
   )

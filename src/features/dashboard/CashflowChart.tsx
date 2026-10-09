@@ -104,7 +104,7 @@ export function CashflowChart({
         </div>
 
         <div className="flex flex-wrap items-end gap-2">
-          <label className="flex flex-col gap-0.5 text-xs font-medium text-slate-500">
+          <label className="flex flex-col gap-0.5 text-xs font-medium text-ink-muted">
             Desde
             <input
               type="date"
@@ -112,10 +112,10 @@ export function CashflowChart({
               min={minDate}
               max={to}
               onChange={(event) => onRangeChange({ from: event.target.value, to })}
-              className="rounded-lg border border-slate-300 px-2 py-1 text-xs text-slate-900 shadow-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+              className="rounded-lg border border-line-strong px-2 py-1 text-xs text-ink shadow-sm outline-none focus:border-focus focus:ring-2 focus:ring-focus/25"
             />
           </label>
-          <label className="flex flex-col gap-0.5 text-xs font-medium text-slate-500">
+          <label className="flex flex-col gap-0.5 text-xs font-medium text-ink-muted">
             Hasta
             <input
               type="date"
@@ -123,7 +123,7 @@ export function CashflowChart({
               min={from}
               max={maxDate}
               onChange={(event) => onRangeChange({ from, to: event.target.value })}
-              className="rounded-lg border border-slate-300 px-2 py-1 text-xs text-slate-900 shadow-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+              className="rounded-lg border border-line-strong px-2 py-1 text-xs text-ink shadow-sm outline-none focus:border-focus focus:ring-2 focus:ring-focus/25"
             />
           </label>
         </div>
@@ -142,19 +142,19 @@ export function CashflowChart({
           x2={width - PADDING.right}
           y1={zeroY}
           y2={zeroY}
-          stroke="#cbd5e1"
+          className="stroke-chart-grid"
           strokeDasharray="4 4"
         />
-        <path d={areaPath} fill="#bae6fd" opacity="0.5" />
-        <path d={path} fill="none" stroke="#0284c7" strokeWidth="2" />
+        <path d={areaPath} className="fill-chart-area" opacity="0.5" />
+        <path d={path} fill="none" className="stroke-chart-line" strokeWidth="2" />
         {points.map((point) => (
-          <circle key={point.date} cx={point.x} cy={point.y} r="3" fill="#0284c7">
+          <circle key={point.date} cx={point.x} cy={point.y} r="3" className="fill-chart-line">
             <title>
               {formatLocalDate(point.date)}: {formatted(point.balance)}
             </title>
           </circle>
         ))}
-        <circle cx={minPoint.x} cy={minPoint.y} r="4" fill="#dc2626">
+        <circle cx={minPoint.x} cy={minPoint.y} r="4" className="fill-danger">
           <title>
             Mínimo {formatLocalDate(minPoint.date)}: {formatted(minPoint.balance)}
           </title>
@@ -165,7 +165,7 @@ export function CashflowChart({
             x={Math.min(Math.max(tick.x, PADDING.left + 16), width - PADDING.right - 16)}
             y={height - 6}
             textAnchor="middle"
-            className="fill-slate-500"
+            className="fill-ink-muted"
             fontSize={narrow ? 11 : 10}
           >
             {formatLocalDate(tick.date)}
@@ -174,7 +174,7 @@ export function CashflowChart({
       </svg>
 
       {projection.points.length === 0 && (
-        <p className="mt-2 text-xs text-slate-500">
+        <p className="mt-2 text-xs text-ink-muted">
           No hay movimientos programados en la ventana; la línea es tu saldo actual.
         </p>
       )}

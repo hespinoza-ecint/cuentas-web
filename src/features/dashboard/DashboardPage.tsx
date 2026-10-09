@@ -62,7 +62,7 @@ export function DashboardPage() {
         actions={
           <Link
             to="/recomendador"
-            className="inline-flex h-8 items-center gap-2 rounded-lg bg-slate-900 px-3 text-xs font-medium text-white hover:bg-slate-700"
+            className="inline-flex h-8 items-center gap-2 rounded-lg bg-brand px-3 text-xs font-medium text-on-brand hover:bg-brand-hover"
           >
             <Sparkles className="size-4" aria-hidden="true" />
             ¿Qué tarjeta uso?
@@ -79,10 +79,10 @@ export function DashboardPage() {
             <Card>
               <CardTitle>Efectivo disponible</CardTitle>
               <CardDescription>Cuentas que cuentan para tus decisiones</CardDescription>
-              <p className="mt-3 text-2xl font-semibold text-slate-900">
+              <p className="mt-3 text-2xl font-semibold text-ink">
                 <MoneyDisplay cents={summary.data.cash.spendableBalance} />
               </p>
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-xs text-ink-muted">
                 Total en {summary.data.cash.accountCount}{' '}
                 {summary.data.cash.accountCount === 1 ? 'cuenta' : 'cuentas'}:{' '}
                 <MoneyDisplay cents={summary.data.cash.totalBalance} className="font-medium" />
@@ -98,14 +98,14 @@ export function DashboardPage() {
               </CardDescription>
               {projection.isPending && <Skeleton className="mt-3 h-8 w-32" />}
               {projection.isError && (
-                <p className="mt-3 text-sm text-slate-500">No se pudo calcular el flujo.</p>
+                <p className="mt-3 text-sm text-ink-muted">No se pudo calcular el flujo.</p>
               )}
               {projection.data && (
                 <>
                   <p className="mt-3 text-2xl font-semibold">
                     <MoneyDisplay cents={projection.data.minimum.balance} colored />
                   </p>
-                  <p className="mt-1 text-xs text-slate-500">
+                  <p className="mt-1 text-xs text-ink-muted">
                     el {formatLocalDate(projection.data.minimum.date)} · colchón{' '}
                     <MoneyDisplay cents={projection.data.minCashBuffer} className="font-medium" />
                   </p>
@@ -125,15 +125,15 @@ export function DashboardPage() {
               <CardDescription>Qué tarjeta te sugerimos usar</CardDescription>
               {summary.data.lastRecommendation ? (
                 <div className="mt-3">
-                  <p className="flex items-center gap-2 text-lg font-semibold text-slate-900">
-                    <Sparkles className="size-4 text-amber-500" aria-hidden="true" />
+                  <p className="flex items-center gap-2 text-lg font-semibold text-ink">
+                    <Sparkles className="size-4 text-warning" aria-hidden="true" />
                     {summary.data.lastRecommendation.cardAlias
                       ? `${summary.data.lastRecommendation.cardAlias} ····${summary.data.lastRecommendation.last4}`
                       : summary.data.lastRecommendation.outcome === 'CASH'
                         ? 'Pagar con efectivo'
                         : 'Sin opción recomendada'}
                   </p>
-                  <p className="mt-1 text-xs text-slate-500">
+                  <p className="mt-1 text-xs text-ink-muted">
                     {summary.data.lastRecommendation.score !== null
                       ? `Puntaje ${summary.data.lastRecommendation.score} · `
                       : ''}
@@ -141,7 +141,7 @@ export function DashboardPage() {
                   </p>
                 </div>
               ) : (
-                <p className="mt-3 text-sm text-slate-500">
+                <p className="mt-3 text-sm text-ink-muted">
                   Aún no hay recomendaciones. En la siguiente fase podrás pedir una desde aquí.
                 </p>
               )}
@@ -173,7 +173,7 @@ export function DashboardPage() {
                   />
                 </CardDescription>
               </div>
-              <CreditCard className="size-5 text-slate-400" aria-hidden="true" />
+              <CreditCard className="size-5 text-ink-muted" aria-hidden="true" />
             </div>
 
             {summary.data.cards.items.length === 0 ? (
@@ -186,33 +186,33 @@ export function DashboardPage() {
             ) : (
               <ul className="mt-4 grid gap-3 sm:grid-cols-2" data-testid="dashboard-cards">
                 {summary.data.cards.items.map((card) => (
-                  <li key={card.id} className="rounded-lg border border-slate-200 p-3">
+                  <li key={card.id} className="rounded-lg border border-line p-3">
                     <div className="flex items-center justify-between gap-2">
-                      <p className="text-sm font-medium text-slate-900">
-                        {card.alias} <span className="text-slate-400">····{card.last4}</span>
+                      <p className="text-sm font-medium text-ink">
+                        {card.alias} <span className="text-ink-muted">····{card.last4}</span>
                       </p>
-                      <span className="text-xs text-slate-500">
+                      <span className="text-xs text-ink-muted">
                         {(card.utilizationBps / 100).toFixed(1)}%
                       </span>
                     </div>
-                    <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                    <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-surface-strong">
                       <div
                         className={cn(
                           'h-full rounded-full',
                           card.utilizationBps <= 3000
-                            ? 'bg-emerald-500'
+                            ? 'bg-success'
                             : card.utilizationBps <= 5000
-                              ? 'bg-amber-500'
-                              : 'bg-red-500',
+                              ? 'bg-warning'
+                              : 'bg-danger',
                         )}
                         style={{ width: `${Math.min(card.utilizationBps / 100, 100)}%` }}
                       />
                     </div>
-                    <p className="mt-2 text-xs text-slate-500">
+                    <p className="mt-2 text-xs text-ink-muted">
                       Saldo <MoneyDisplay cents={card.currentBalance} className="font-medium" /> de{' '}
                       <MoneyDisplay cents={card.creditLimit} className="font-medium" />
                     </p>
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="mt-1 text-xs text-ink-muted">
                       Corte {formatLocalDate(card.nextCutDate)} · pago{' '}
                       {formatLocalDate(card.nextDueDate)}
                     </p>
@@ -237,7 +237,7 @@ export function DashboardPage() {
                 <MoneyDisplay cents={summary.data.upcomingIncome.total} className="font-medium" />
               </CardDescription>
               {summary.data.upcomingIncome.items.length === 0 ? (
-                <p className="mt-3 text-sm text-slate-500">No hay ingresos programados.</p>
+                <p className="mt-3 text-sm text-ink-muted">No hay ingresos programados.</p>
               ) : (
                 <ul className="mt-3 space-y-2">
                   {summary.data.upcomingIncome.items.map((income) => (
@@ -245,13 +245,13 @@ export function DashboardPage() {
                       key={`${income.incomeScheduleId}-${income.date}`}
                       className="flex items-center justify-between gap-3 text-sm"
                     >
-                      <span className="min-w-0 truncate text-slate-600">
+                      <span className="min-w-0 truncate text-ink-secondary">
                         {income.name}
-                        <span className="ml-2 text-xs text-slate-400">
+                        <span className="ml-2 text-xs text-ink-muted">
                           {formatLocalDate(income.date)}
                         </span>
                       </span>
-                      <MoneyDisplay cents={income.amount} className="font-medium text-emerald-600" />
+                      <MoneyDisplay cents={income.amount} className="font-medium text-income" />
                     </li>
                   ))}
                 </ul>
@@ -265,7 +265,7 @@ export function DashboardPage() {
                 <MoneyDisplay cents={summary.data.upcomingPayments.total} className="font-medium" />
               </CardDescription>
               {summary.data.upcomingPayments.items.length === 0 ? (
-                <p className="mt-3 text-sm text-slate-500">No hay pagos programados.</p>
+                <p className="mt-3 text-sm text-ink-muted">No hay pagos programados.</p>
               ) : (
                 <ul className="mt-3 space-y-2">
                   {summary.data.upcomingPayments.items.map((payment) => (
@@ -273,16 +273,16 @@ export function DashboardPage() {
                       key={`${payment.type}-${payment.description}-${payment.date}`}
                       className="flex items-center justify-between gap-3 text-sm"
                     >
-                      <span className="min-w-0 truncate text-slate-600">
+                      <span className="min-w-0 truncate text-ink-secondary">
                         <Badge tone="neutral" className="mr-2">
                           {PAYMENT_TYPES[payment.type] ?? payment.type}
                         </Badge>
                         {payment.description}
-                        <span className="ml-2 text-xs text-slate-400">
+                        <span className="ml-2 text-xs text-ink-muted">
                           {formatLocalDate(payment.date)}
                         </span>
                       </span>
-                      <MoneyDisplay cents={payment.amount} className="font-medium text-red-600" />
+                      <MoneyDisplay cents={payment.amount} className="font-medium text-expense" />
                     </li>
                   ))}
                 </ul>
@@ -297,7 +297,7 @@ export function DashboardPage() {
               <MoneyDisplay cents={summary.data.expenses.previousSpent} className="font-medium" />
             </CardDescription>
             <div className="mt-3 flex flex-wrap items-baseline gap-3">
-              <p className="text-2xl font-semibold text-slate-900">
+              <p className="text-2xl font-semibold text-ink">
                 <MoneyDisplay cents={summary.data.expenses.spent} />
               </p>
               {summary.data.expenses.previousSpent > 0 && (
@@ -314,10 +314,10 @@ export function DashboardPage() {
                     key={category.categoryId ?? 'sin-categoria'}
                     className="flex items-center justify-between gap-3 text-sm"
                   >
-                    <span className="truncate text-slate-600">
+                    <span className="truncate text-ink-secondary">
                       {category.name ?? 'Sin categoría'}
                     </span>
-                    <MoneyDisplay cents={category.amount} className="font-medium text-slate-700" />
+                    <MoneyDisplay cents={category.amount} className="font-medium text-ink-secondary" />
                   </li>
                 ))}
               </ul>
@@ -336,7 +336,7 @@ function DeltaBadge({ current, previous }: { current: number; previous: number }
     <span
       className={cn(
         'inline-flex items-center gap-1 text-xs font-medium',
-        up ? 'text-red-600' : 'text-emerald-600',
+        up ? 'text-expense' : 'text-income',
       )}
     >
       {up ? (

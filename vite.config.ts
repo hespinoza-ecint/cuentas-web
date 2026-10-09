@@ -36,8 +36,9 @@ export default defineConfig({
         short_name: 'Cuentas',
         description: 'Asistente financiero personal: efectivo, ingresos, gastos y tarjetas.',
         lang: 'es-MX',
-        theme_color: '#0f172a',
-        background_color: '#0f172a',
+        // Azul medianoche de arranque (equivale al canvas oscuro de src/index.css).
+        theme_color: '#0a0f1c',
+        background_color: '#0a0f1c',
         display: 'standalone',
         start_url: '/',
         icons: [

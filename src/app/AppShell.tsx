@@ -54,10 +54,10 @@ export function AppShell() {
   }, [menuOpen])
 
   return (
-    <div className="min-h-dvh bg-slate-100 dark:bg-slate-950">
-      <header className="safe-t sticky top-0 z-40 border-b border-slate-200 bg-white">
+    <div className="min-h-dvh bg-canvas">
+      <header className="safe-t sticky top-0 z-40 border-b border-line bg-surface">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4">
-          <Link to="/" className="flex items-center gap-2 font-semibold text-slate-900">
+          <Link to="/" className="flex items-center gap-2 font-semibold text-ink">
             <Wallet className="size-5" aria-hidden="true" />
             Cuentas
           </Link>
@@ -87,9 +87,9 @@ export function AppShell() {
                   />
                   <div
                     role="menu"
-                    className="absolute right-0 z-50 mt-2 max-h-[70vh] w-56 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1 shadow-lg"
+                    className="absolute right-0 z-50 mt-2 max-h-[70vh] w-56 overflow-y-auto rounded-xl border border-line bg-surface p-1 shadow-lg"
                   >
-                    <p className="truncate px-3 py-2 text-xs text-slate-500">{user?.email}</p>
+                    <p className="truncate px-3 py-2 text-xs text-ink-muted">{user?.email}</p>
                     {items.map((item) => (
                       <NavLink
                         key={item.to}
@@ -97,19 +97,19 @@ export function AppShell() {
                         end={item.end}
                         role="menuitem"
                         onClick={() => setMenuOpen(false)}
-                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100"
+                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-ink-secondary hover:bg-surface-subtle"
                       >
                         <item.icon className="size-4" aria-hidden="true" />
                         {item.label}
                       </NavLink>
                     ))}
-                    <div className="my-1 h-px bg-slate-100" />
+                    <div className="my-1 h-px bg-line" />
                     <button
                       type="button"
                       role="menuitem"
                       disabled={pending}
                       onClick={() => void logout()}
-                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-600 hover:bg-red-50 disabled:opacity-60"
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-danger hover:bg-danger-soft disabled:opacity-60"
                     >
                       <LogOut className="size-4" aria-hidden="true" />
                       {pending ? 'Cerrando…' : 'Cerrar sesión'}
@@ -125,7 +125,7 @@ export function AppShell() {
       {!online && (
         <div
           role="status"
-          className="flex items-center justify-center gap-2 border-b border-slate-300 bg-slate-200 px-4 py-2 text-center text-sm text-slate-700"
+          className="flex items-center justify-center gap-2 border-b border-line-strong bg-surface-strong px-4 py-2 text-center text-sm text-ink-secondary"
         >
           <WifiOff className="size-4" aria-hidden="true" />
           Sin conexión: se muestran los últimos datos guardados. Las operaciones se reactivan al
@@ -134,7 +134,7 @@ export function AppShell() {
       )}
 
       {user?.status === 'PENDING_DELETION' && (
-        <div className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-center text-sm text-amber-800">
+        <div className="border-b border-warning-line bg-warning-soft px-4 py-2 text-center text-sm text-warning-ink">
           Tu cuenta está en proceso de eliminación.{' '}
           <Link to="/cuenta" className="font-medium underline">
             Gestionar
@@ -154,8 +154,8 @@ export function AppShell() {
                   cn(
                     'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition',
                     isActive
-                      ? 'bg-slate-900 text-white'
-                      : 'text-slate-600 hover:bg-slate-200/60 hover:text-slate-900',
+                      ? 'bg-brand-soft text-brand-ink'
+                      : 'text-ink-secondary hover:bg-surface-strong/60 hover:text-ink',
                   )
                 }
               >
@@ -173,7 +173,7 @@ export function AppShell() {
 
       <nav
         aria-label="Navegación inferior"
-        className="safe-b fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white md:hidden"
+        className="safe-b fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface md:hidden"
       >
         <div className="mx-auto grid max-w-md grid-cols-5">
           {tabs.map((item) => (
@@ -188,12 +188,12 @@ export function AppShell() {
                   <span
                     className={cn(
                       'flex h-7 w-12 items-center justify-center rounded-full transition',
-                      isActive ? 'bg-slate-900 text-white' : 'text-slate-500',
+                      isActive ? 'bg-brand-soft text-brand-ink' : 'text-ink-muted',
                     )}
                   >
                     <item.icon className="size-5" aria-hidden="true" />
                   </span>
-                  <span className={isActive ? 'text-slate-900' : 'text-slate-500'}>{item.label}</span>
+                  <span className={isActive ? 'text-brand-ink' : 'text-ink-muted'}>{item.label}</span>
                 </>
               )}
             </NavLink>
@@ -207,12 +207,12 @@ export function AppShell() {
             <span
               className={cn(
                 'flex h-7 w-12 items-center justify-center rounded-full transition',
-                moreActive ? 'bg-slate-900 text-white' : 'text-slate-500',
+                moreActive ? 'bg-brand-soft text-brand-ink' : 'text-ink-muted',
               )}
             >
               <Menu className="size-5" aria-hidden="true" />
             </span>
-            <span className={moreActive ? 'text-slate-900' : 'text-slate-500'}>Más</span>
+            <span className={moreActive ? 'text-brand-ink' : 'text-ink-muted'}>Más</span>
           </button>
         </div>
       </nav>
@@ -226,7 +226,7 @@ export function AppShell() {
 
           {groups.map((group) => (
             <div key={group.label} className="mt-4">
-              <p className="text-xs font-semibold tracking-wide text-slate-400 uppercase">
+              <p className="text-xs font-semibold tracking-wide text-ink-muted uppercase">
                 {group.label}
               </p>
               <div className="mt-1 grid grid-cols-2 gap-1">
@@ -236,9 +236,9 @@ export function AppShell() {
                     to={item.to}
                     end={item.end}
                     onClick={() => setMoreOpen(false)}
-                    className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-100"
+                    className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-ink-secondary hover:bg-surface-subtle"
                   >
-                    <item.icon className="size-4 shrink-0 text-slate-500" aria-hidden="true" />
+                    <item.icon className="size-4 shrink-0 text-ink-muted" aria-hidden="true" />
                     <span className="truncate">{item.label}</span>
                   </NavLink>
                 ))}
@@ -246,8 +246,8 @@ export function AppShell() {
             </div>
           ))}
 
-          <div className="mt-5 border-t border-slate-100 pt-3">
-            <p className="px-1 text-xs font-semibold tracking-wide text-slate-400 uppercase">
+          <div className="mt-5 border-t border-line pt-3">
+            <p className="px-1 text-xs font-semibold tracking-wide text-ink-muted uppercase">
               Tema
             </p>
             <div className="mt-1 grid grid-cols-3 gap-1" role="group" aria-label="Tema">
@@ -260,8 +260,8 @@ export function AppShell() {
                   className={cn(
                     'flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-medium transition',
                     theme.preference === option.value
-                      ? 'bg-slate-900 text-white'
-                      : 'text-slate-600 hover:bg-slate-100',
+                      ? 'bg-brand-soft text-brand-ink'
+                      : 'text-ink-secondary hover:bg-surface-subtle',
                   )}
                 >
                   <option.icon className="size-3.5" aria-hidden="true" />
@@ -271,12 +271,12 @@ export function AppShell() {
             </div>
           </div>
 
-          <div className="mt-3 border-t border-slate-100 pt-2">
+          <div className="mt-3 border-t border-line pt-2">
             <button
               type="button"
               disabled={pending}
               onClick={() => void logout()}
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-60"
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-danger hover:bg-danger-soft disabled:opacity-60"
             >
               <LogOut className="size-4" aria-hidden="true" />
               {pending ? 'Cerrando…' : 'Cerrar sesión'}

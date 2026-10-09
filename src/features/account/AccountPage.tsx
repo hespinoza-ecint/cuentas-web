@@ -56,7 +56,7 @@ export function AccountPage() {
         <Card>
           <CardTitle>Eliminación programada</CardTitle>
           <CardDescription>{deletedMessage}</CardDescription>
-          <p className="mt-3 text-sm text-slate-600">
+          <p className="mt-3 text-sm text-ink-secondary">
             Para cancelar la eliminación, inicia sesión de nuevo con tu correo y contraseña.
           </p>
           <div className="mt-4">
@@ -91,7 +91,7 @@ export function AccountPage() {
         <Card>
           <CardTitle>Estado de la cuenta</CardTitle>
           <CardDescription>{user?.email}</CardDescription>
-          <p className="mt-3 flex items-center gap-2 text-sm text-slate-700">
+          <p className="mt-3 flex items-center gap-2 text-sm text-ink-secondary">
             <StatusBadge status={user?.status ?? 'ACTIVE'} />
             {pendingDeletion
               ? 'Tu cuenta se eliminará en los próximos 30 días.'
@@ -137,7 +137,7 @@ export function AccountPage() {
         {!pendingDeletion && (
           <Card>
             <CardTitle className="flex items-center gap-2">
-              <CreditCard className="size-4 text-amber-600" aria-hidden="true" />
+              <CreditCard className="size-4 text-warning" aria-hidden="true" />
               Restablecer tarjetas
             </CardTitle>
             <CardDescription>
@@ -155,7 +155,7 @@ export function AccountPage() {
         {!pendingDeletion && (
           <Card>
             <CardTitle className="flex items-center gap-2">
-              <RotateCcw className="size-4 text-amber-600" aria-hidden="true" />
+              <RotateCcw className="size-4 text-warning" aria-hidden="true" />
               Restablecer datos
             </CardTitle>
             <CardDescription>
@@ -175,7 +175,7 @@ export function AccountPage() {
         {!pendingDeletion && (
           <Card>
             <CardTitle className="flex items-center gap-2">
-              <ShieldAlert className="size-4 text-red-600" aria-hidden="true" />
+              <ShieldAlert className="size-4 text-danger" aria-hidden="true" />
               Eliminar cuenta
             </CardTitle>
             <CardDescription>

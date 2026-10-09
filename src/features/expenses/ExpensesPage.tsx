@@ -140,13 +140,13 @@ export function ExpensesPage() {
               <Card className="p-3">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="flex flex-wrap items-center gap-2 text-sm text-slate-900">
+                    <p className="flex flex-wrap items-center gap-2 text-sm text-ink">
                       <span className="font-medium">{expense.description}</span>
                       {expense.category && <Badge tone="neutral">{expense.category.name}</Badge>}
                       {expense.status === 'REVERSED' && <Badge tone="warning">Revertido</Badge>}
                       {expense.recurringExpenseId && <Badge tone="info">Recurrente</Badge>}
                     </p>
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="mt-1 text-xs text-ink-muted">
                       {formatLocalDate(expense.expenseDate)}
                       {accountName.get(expense.cashAccountId)
                         ? ` · ${accountName.get(expense.cashAccountId)}`

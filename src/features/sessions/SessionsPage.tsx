@@ -74,12 +74,12 @@ export function SessionsPage() {
               <li key={session.id}>
                 <Card className="flex flex-wrap items-center justify-between gap-3 p-4">
                   <div className="min-w-0">
-                    <p className="flex items-center gap-2 text-sm font-medium text-slate-900">
-                      <MonitorSmartphone className="size-4 text-slate-400" aria-hidden="true" />
+                    <p className="flex items-center gap-2 text-sm font-medium text-ink">
+                      <MonitorSmartphone className="size-4 text-ink-muted" aria-hidden="true" />
                       {session.deviceName ?? session.userAgent ?? 'Dispositivo desconocido'}
                       {session.current && <Badge tone="info">Actual</Badge>}
                     </p>
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="mt-1 text-xs text-ink-muted">
                       {session.ip ? `${session.ip} · ` : ''}
                       Creada {formatDateTime(session.createdAt)} · Último uso{' '}
                       {formatDateTime(session.lastUsedAt)}

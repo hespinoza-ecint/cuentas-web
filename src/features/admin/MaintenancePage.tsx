@@ -41,7 +41,7 @@ export function MaintenancePage() {
             <Metric label="Tokens eliminados" value={run.data.tokensDeleted} />
             <Metric label="Idempotencia" value={run.data.idempotencyDeleted} />
             <Metric label="Cuentas purgadas" value={run.data.usersPurged} />
-            <p className="col-span-2 text-xs text-slate-500 sm:col-span-4">
+            <p className="col-span-2 text-xs text-ink-muted sm:col-span-4">
               Ejecutado {formatDateTime(run.data.ranAt)}
             </p>
           </dl>
@@ -54,8 +54,8 @@ export function MaintenancePage() {
 function Metric({ label, value }: { label: string; value: number }) {
   return (
     <div>
-      <dt className="text-xs text-slate-500">{label}</dt>
-      <dd className="text-lg font-semibold text-slate-900">{value}</dd>
+      <dt className="text-xs text-ink-muted">{label}</dt>
+      <dd className="text-lg font-semibold text-ink">{value}</dd>
     </div>
   )
 }

@@ -12,7 +12,7 @@ export function Field({ label, error, hint, id, name, ref, ...rest }: FieldProps
 
   return (
     <div>
-      <label htmlFor={inputId} className="mb-1 block text-sm font-medium text-slate-700">
+      <label htmlFor={inputId} className="mb-1 block text-sm font-medium text-ink-secondary">
         {label}
       </label>
       <input
@@ -21,16 +21,16 @@ export function Field({ label, error, hint, id, name, ref, ...rest }: FieldProps
         ref={ref}
         aria-invalid={error ? true : undefined}
         aria-describedby={errorId}
-        className={`w-full rounded-lg border px-3 py-2 text-base text-slate-900 shadow-sm outline-none transition focus:ring-2 sm:text-sm ${
+        className={`w-full rounded-lg border px-3 py-2 text-base text-ink shadow-sm outline-none transition focus:ring-2 sm:text-sm ${
           error
-            ? 'border-red-400 focus:border-red-500 focus:ring-red-200'
-            : 'border-slate-300 focus:border-slate-500 focus:ring-slate-200'
+            ? 'border-danger focus:border-danger focus:ring-danger/25'
+            : 'border-line-strong focus:border-focus focus:ring-focus/25'
         }`}
         {...rest}
       />
-      {hint && !error && <p className="mt-1 text-xs text-slate-500">{hint}</p>}
+      {hint && !error && <p className="mt-1 text-xs text-ink-muted">{hint}</p>}
       {error && (
-        <p id={errorId} role="alert" className="mt-1 text-xs text-red-600">
+        <p id={errorId} role="alert" className="mt-1 text-xs text-danger">
           {error}
         </p>
       )}

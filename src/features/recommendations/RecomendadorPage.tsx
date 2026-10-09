@@ -163,19 +163,19 @@ export function RecomendadorPage() {
 
             {type === 'MSI' && activeCards.length > 0 && (
               <fieldset>
-                <legend className="mb-1 text-sm font-medium text-slate-700">
+                <legend className="mb-1 text-sm font-medium text-ink-secondary">
                   Tarjetas elegibles (opcional)
                 </legend>
-                <p className="mb-2 text-xs text-slate-500">
+                <p className="mb-2 text-xs text-ink-muted">
                   Sin selección se evalúan todas las tarjetas activas.
                 </p>
                 <div className="space-y-1">
                   {activeCards.map((card) => (
-                    <label key={card.id} className="flex items-center gap-2 text-sm text-slate-700">
+                    <label key={card.id} className="flex items-center gap-2 text-sm text-ink-secondary">
                       <input
                         type="checkbox"
                         value={card.id}
-                        className="size-4 rounded border-slate-300"
+                        className="size-4 rounded border-line-strong"
                         {...form.register('eligibleCardIds')}
                       />
                       {card.alias} ····{card.last4}
@@ -197,7 +197,7 @@ export function RecomendadorPage() {
         <div>
           {mutation.isPending && (
             <Card className="py-16 text-center">
-              <p className="animate-pulse text-sm text-slate-500">
+              <p className="animate-pulse text-sm text-ink-muted">
                 Simulando tarjetas y flujo de efectivo…
               </p>
             </Card>
@@ -205,9 +205,9 @@ export function RecomendadorPage() {
 
           {!mutation.isPending && !result && (
             <Card className="flex h-full flex-col items-center justify-center py-16 text-center">
-              <Sparkles className="size-8 text-slate-300" aria-hidden="true" />
-              <p className="mt-2 text-sm font-medium text-slate-700">Aún no hay recomendación</p>
-              <p className="mt-1 max-w-sm text-xs text-slate-500">
+              <Sparkles className="size-8 text-ink-muted" aria-hidden="true" />
+              <p className="mt-2 text-sm font-medium text-ink-secondary">Aún no hay recomendación</p>
+              <p className="mt-1 max-w-sm text-xs text-ink-muted">
                 Captura el monto y la fecha para ver la mejor opción con sus motivos, advertencias
                 y alternativas.
               </p>

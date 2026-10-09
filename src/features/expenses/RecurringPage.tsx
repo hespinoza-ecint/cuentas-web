@@ -131,19 +131,19 @@ export function RecurringPage() {
           <ErrorState error={upcoming.error} onRetry={() => void upcoming.refetch()} />
         )}
         {upcoming.data && occurrences.length === 0 && (
-          <p className="mt-3 text-sm text-slate-500">No hay ocurrencias próximas.</p>
+          <p className="mt-3 text-sm text-ink-muted">No hay ocurrencias próximas.</p>
         )}
         {occurrences.length > 0 && (
-          <ul className="mt-3 divide-y divide-slate-100" data-testid="upcoming-occurrences">
+          <ul className="mt-3 divide-y divide-line" data-testid="upcoming-occurrences">
             {occurrences.map((occurrence) => (
               <li
                 key={`${occurrence.recurringExpenseId}-${occurrence.expectedDate}`}
                 className="flex flex-wrap items-center justify-between gap-3 py-2"
               >
                 <div>
-                  <p className="text-sm text-slate-900">
+                  <p className="text-sm text-ink">
                     <span className="font-medium">{occurrence.name}</span>
-                    <span className="ml-2 text-xs text-slate-500">
+                    <span className="ml-2 text-xs text-ink-muted">
                       {formatLocalDate(occurrence.expectedDate)}
                       {occurrence.daysUntil >= 0
                         ? ` · en ${occurrence.daysUntil} días`
@@ -175,10 +175,10 @@ export function RecurringPage() {
         )}
       </Card>
 
-      <label className="mb-3 flex items-center gap-2 text-sm text-slate-700">
+      <label className="mb-3 flex items-center gap-2 text-sm text-ink-secondary">
         <input
           type="checkbox"
-          className="size-4 rounded border-slate-300"
+          className="size-4 rounded border-line-strong"
           checked={includeInactive}
           onChange={(event) => setIncludeInactive(event.target.checked)}
         />
@@ -209,7 +209,7 @@ export function RecurringPage() {
               <Card className="p-3">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="flex flex-wrap items-center gap-2 text-sm text-slate-900">
+                    <p className="flex flex-wrap items-center gap-2 text-sm text-ink">
                       <span className="font-medium">{item.name}</span>
                       <Badge tone={item.isActive ? 'success' : 'neutral'}>
                         {item.isActive ? 'Activo' : 'Inactivo'}
@@ -217,9 +217,9 @@ export function RecurringPage() {
                       <Badge tone="neutral">
                         {FREQUENCY_LABELS[item.frequency] ?? item.frequency}
                       </Badge>
-                      {item.category && <span className="text-xs text-slate-500">{item.category.name}</span>}
+                      {item.category && <span className="text-xs text-ink-muted">{item.category.name}</span>}
                     </p>
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="mt-1 text-xs text-ink-muted">
                       Desde {formatLocalDate(item.startDate)}
                       {item.endDate ? ` hasta ${formatLocalDate(item.endDate)}` : ''} ·{' '}
                       {paymentSource(item)}

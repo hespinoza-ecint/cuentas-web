@@ -137,7 +137,7 @@ export function CardPaymentsPage() {
               <Card className="p-3">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="flex flex-wrap items-center gap-2 text-sm text-slate-900">
+                    <p className="flex flex-wrap items-center gap-2 text-sm text-ink">
                       <span className="font-medium">{cardName.get(payment.creditCardId) ?? 'Tarjeta'}</span>
                       <Badge tone="neutral">{TYPE_LABELS[payment.type] ?? payment.type}</Badge>
                       {payment.status === 'REVERSED' ? (
@@ -146,7 +146,7 @@ export function CardPaymentsPage() {
                         <StatusBadge status="PAID" />
                       )}
                     </p>
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="mt-1 text-xs text-ink-muted">
                       {formatLocalDate(payment.paymentDate)} · desde {accountName.get(payment.cashAccountId) ?? 'cuenta'}
                     </p>
                   </div>
@@ -212,19 +212,19 @@ export function CardPaymentsPage() {
           {detail.data && (
             <div className="mt-4 space-y-3 text-sm">
               <div className="flex justify-between gap-4">
-                <span className="text-slate-500">Monto</span>
+                <span className="text-ink-muted">Monto</span>
                 <MoneyDisplay cents={detail.data.amount} className="font-semibold" />
               </div>
               <div className="flex justify-between gap-4">
-                <span className="text-slate-500">Estado</span>
+                <span className="text-ink-muted">Estado</span>
                 <StatusBadge status={detail.data.status === 'APPLIED' ? 'PAID' : 'REVERSED'} />
               </div>
               {detail.data.notes && (
-                <p className="text-xs text-slate-500">{detail.data.notes}</p>
+                <p className="text-xs text-ink-muted">{detail.data.notes}</p>
               )}
               <div>
-                <p className="mb-1 font-medium text-slate-700">Aplicación</p>
-                <ul className="space-y-1 text-xs text-slate-600">
+                <p className="mb-1 font-medium text-ink-secondary">Aplicación</p>
+                <ul className="space-y-1 text-xs text-ink-secondary">
                   {(detail.data.allocations ?? []).map((allocation) => (
                     <li key={allocation.id} className="flex justify-between gap-3">
                       <span>{TARGET_LABELS[allocation.targetType] ?? allocation.targetType}</span>

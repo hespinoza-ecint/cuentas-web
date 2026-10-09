@@ -109,7 +109,7 @@ export function CardDetailPage() {
 
   return (
     <div data-testid="card-detail-page">
-      <Link to="/tarjetas" className="mb-2 inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-900">
+      <Link to="/tarjetas" className="mb-2 inline-flex items-center gap-1 text-sm text-ink-muted hover:text-ink">
         <ArrowLeft className="size-4" aria-hidden="true" />
         Tarjetas
       </Link>
@@ -132,7 +132,7 @@ export function CardDetailPage() {
             <Button variant="secondary" size="sm" onClick={() => setResetOpen(true)}>
               Reiniciar
             </Button>
-            <Button variant="ghost" size="sm" className="text-red-600 hover:bg-red-50" onClick={() => setDeleteOpen(true)}>
+            <Button variant="ghost" size="sm" className="text-danger hover:bg-danger-soft" onClick={() => setDeleteOpen(true)}>
               Eliminar
             </Button>
           </>
@@ -148,25 +148,25 @@ export function CardDetailPage() {
         <Card>
           <CardTitle>Saldo</CardTitle>
           <CardDescription>La deuda se calcula desde el libro de la tarjeta (RN-18)</CardDescription>
-          <p className="mt-3 text-2xl font-semibold text-slate-900">
+          <p className="mt-3 text-2xl font-semibold text-ink">
             <MoneyDisplay cents={data.currentBalance} />
           </p>
-          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-surface-strong">
             <div
               className={cn(
                 'h-full rounded-full',
-                utilization <= 0.3 ? 'bg-emerald-500' : utilization <= 0.5 ? 'bg-amber-500' : 'bg-red-500',
+                utilization <= 0.3 ? 'bg-success' : utilization <= 0.5 ? 'bg-warning' : 'bg-danger',
               )}
               style={{ width: `${Math.min(utilization * 100, 100)}%` }}
             />
           </div>
-          <p className="mt-2 text-xs text-slate-500">
+          <p className="mt-2 text-xs text-ink-muted">
             Disponible <MoneyDisplay cents={data.availableCredit} className="font-medium" /> de{' '}
             <MoneyDisplay cents={data.creditLimit} className="font-medium" /> ·{' '}
             {(utilization * 100).toFixed(1)}% utilizado · <StatusBadge status={data.status} />
           </p>
           {(data.annualFee ?? 0) > 0 && (
-            <p className="mt-2 text-xs text-slate-500">
+            <p className="mt-2 text-xs text-ink-muted">
               Anualidad <MoneyDisplay cents={data.annualFee ?? 0} className="font-medium" />
               {data.annualFeeMonth ? ` en el mes ${data.annualFeeMonth}` : ''}
             </p>
@@ -181,20 +181,20 @@ export function CardDetailPage() {
           {cycle.data && (
             <dl className="mt-3 space-y-2 text-sm">
               <div className="flex justify-between gap-4">
-                <dt className="text-slate-500">Periodo</dt>
-                <dd className="font-medium text-slate-900">
+                <dt className="text-ink-muted">Periodo</dt>
+                <dd className="font-medium text-ink">
                   {formatLocalDate(cycle.data.currentPeriodStart)} → {formatLocalDate(cycle.data.nextCutDate)}
                 </dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-slate-500">Cargos del ciclo</dt>
+                <dt className="text-ink-muted">Cargos del ciclo</dt>
                 <dd>
                   <MoneyDisplay cents={cycle.data.cycleChargesToDate} className="font-medium" />
                 </dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-slate-500">Vencimiento proyectado</dt>
-                <dd className="font-medium text-slate-900">{formatLocalDate(cycle.data.projectedDueDate)}</dd>
+                <dt className="text-ink-muted">Vencimiento proyectado</dt>
+                <dd className="font-medium text-ink">{formatLocalDate(cycle.data.projectedDueDate)}</dd>
               </div>
             </dl>
           )}
@@ -210,27 +210,27 @@ export function CardDetailPage() {
           <ErrorState error={statements.error} onRetry={() => void statements.refetch()} />
         )}
         {statements.data && statements.data.length === 0 && (
-          <p className="mt-3 text-sm text-slate-500">Aún no hay cortes generados.</p>
+          <p className="mt-3 text-sm text-ink-muted">Aún no hay cortes generados.</p>
         )}
 
         {statements.data && statements.data.length > 0 && (
-          <ul className="mt-3 divide-y divide-slate-100" data-testid="statements-list">
+          <ul className="mt-3 divide-y divide-line" data-testid="statements-list">
             {statements.data.map((statement) => (
               <li key={statement.id}>
                 <button
                   type="button"
                   onClick={() => setSelectedStatement(statement)}
-                  className="flex w-full flex-wrap items-center justify-between gap-3 py-2 text-left hover:bg-slate-50"
+                  className="flex w-full flex-wrap items-center justify-between gap-3 py-2 text-left hover:bg-surface-subtle"
                 >
                   <div>
-                    <p className="flex flex-wrap items-center gap-2 text-sm text-slate-900">
+                    <p className="flex flex-wrap items-center gap-2 text-sm text-ink">
                       <span className="font-medium">Corte {formatLocalDate(statement.cutDate)}</span>
                       <StatusBadge status={statement.status} />
                       {statement.minimumPaymentReported !== null && (
                         <Badge tone="info">Montos del banco</Badge>
                       )}
                     </p>
-                    <p className="mt-0.5 text-xs text-slate-500">
+                    <p className="mt-0.5 text-xs text-ink-muted">
                       Vence {formatLocalDate(statement.dueDate)} · sin intereses{' '}
                       <MoneyDisplay
                         cents={statement.noInterestPaymentReported ?? statement.noInterestPaymentCalc}
@@ -273,23 +273,23 @@ export function CardDetailPage() {
         {ledger.isPending && <Skeleton className="mt-3 h-20" />}
         {ledger.isError && <ErrorState error={ledger.error} onRetry={() => void ledger.refetch()} />}
         {ledger.data && entries.length === 0 && (
-          <p className="mt-3 text-sm text-slate-500">Sin movimientos para este filtro.</p>
+          <p className="mt-3 text-sm text-ink-muted">Sin movimientos para este filtro.</p>
         )}
 
         {entries.length > 0 && (
-          <ul className="mt-3 divide-y divide-slate-100" data-testid="ledger-list">
+          <ul className="mt-3 divide-y divide-line" data-testid="ledger-list">
             {entries.map((entry) => (
               <li key={entry.id} className="flex flex-wrap items-center justify-between gap-3 py-2">
                 <div>
-                  <p className="flex flex-wrap items-center gap-2 text-sm text-slate-900">
+                  <p className="flex flex-wrap items-center gap-2 text-sm text-ink">
                     <Badge tone="neutral">{LEDGER_TYPE_LABELS[entry.type] ?? entry.type}</Badge>
                     <span className="font-medium">{entry.description}</span>
                   </p>
-                  <p className="mt-0.5 text-xs text-slate-500">{formatLocalDate(entry.occurredOn)}</p>
+                  <p className="mt-0.5 text-xs text-ink-muted">{formatLocalDate(entry.occurredOn)}</p>
                 </div>
                 <MoneyDisplay
                   cents={entry.amount}
-                  className={cn('font-semibold', entry.amount > 0 ? 'text-red-600' : 'text-emerald-600')}
+                  className={cn('font-semibold', entry.amount > 0 ? 'text-expense' : 'text-income')}
                 />
               </li>
             ))}

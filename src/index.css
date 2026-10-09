@@ -1,11 +1,145 @@
 @import 'tailwindcss';
 
-/* Variante `dark:` basada en la clase .dark del <html> (la controla la app). */
+/*
+ * Variante `dark:` basada en la clase .dark del <html> (la controla la app).
+ * Los componentes NO deben usar clases `dark:`: la paleta se redefine por
+ * tokens en el bloque `.dark` de abajo (ver AGENTS.md).
+ */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Texto sobre fondos de acento (p. ej. botones de peligro): no se invierte. */
+/*
+ * Sistema de color semantico (fase 19).
+ *
+ * - Los componentes solo usan tokens con nombre de uso: `bg-surface`,
+ *   `text-ink`, `text-danger`, `border-line`, etc.
+ * - `--color-*: initial` borra la paleta por defecto de Tailwind: clases como
+ *   `bg-slate-500` dejan de generar CSS y no se pueden usar por error.
+ * - Aqui se define el modo claro; el bloque `.dark` redefine los mismos
+ *   tokens. Como las utilidades referencian `var(--color-*)`, el cambio de
+ *   tema es automatico sin clases `dark:` por componente.
+ * - Hay una prueba guardia en src/lib/design-tokens.test.ts que falla si
+ *   vuelven las paletas por defecto, `dark:` o colores fijos.
+ */
 @theme {
-  --color-on-accent: #ffffff;
+  --color-*: initial;
+
+  /* Superficies */
+  --color-canvas: #f4f6fa; /* fondo de la app */
+  --color-surface: #ffffff; /* tarjetas, cabecera, menus y dialogos */
+  --color-surface-subtle: #eef2f7; /* hover y fondos suaves */
+  --color-surface-strong: #e2e8f0; /* skeleton, banner neutro, barras de progreso */
+  --color-inverse: #0a0f1c; /* pantallas de acceso, carga y 404 (siempre oscuras) */
+  --color-overlay: #05080f; /* velo de dialogos; usar con opacidad (bg-overlay/60) */
+
+  /* Bordes */
+  --color-line: #e2e8f0; /* divisores y bordes de tarjeta */
+  --color-line-strong: #8a96a8; /* inputs y checkboxes (3:1 sobre surface) */
+
+  /* Texto */
+  --color-ink: #0f172a; /* primario */
+  --color-ink-secondary: #475569; /* etiquetas y texto de apoyo */
+  --color-ink-muted: #5d6b80; /* descripciones, fechas y placeholder (AA sobre canvas y surface) */
+  --color-on-accent: #ffffff; /* texto sobre solidos de color (p. ej. boton de peligro) */
+  --color-on-inverse-muted: #94a3b8; /* texto secundario sobre fondos inverse */
+
+  /* Marca (indigo) */
+  --color-brand: #4f46e5; /* botones primarios, FAB y enlaces de acento */
+  --color-brand-hover: #4338ca;
+  --color-brand-soft: #eef2ff; /* relleno suave de marca (navegacion activa) */
+  --color-brand-ink: #4338ca; /* texto de marca sobre fondos claros */
+  --color-on-brand: #ffffff;
+  --color-focus: #6366f1; /* anillo y borde de foco */
+
+  /* Exito / ingresos */
+  --color-success: #047857;
+  --color-success-soft: #ecfdf5;
+  --color-success-line: #a7f3d0;
+  --color-success-ink: #065f46;
+
+  /* Peligro / gastos / alertas */
+  --color-danger: #b91c1c;
+  --color-danger-soft: #fef2f2;
+  --color-danger-line: #fecaca;
+  --color-danger-ink: #991b1b;
+  --color-danger-solid: #dc2626; /* boton destructivo; se conserva en modo oscuro */
+  --color-danger-solid-hover: #b91c1c;
+
+  /* Aviso */
+  --color-warning: #b45309;
+  --color-warning-soft: #fffbeb;
+  --color-warning-line: #fde68a;
+  --color-warning-ink: #92400e;
+
+  /* Informativo */
+  --color-info: #0369a1;
+  --color-info-soft: #f0f9ff;
+  --color-info-line: #bae6fd;
+  --color-info-ink: #075985;
+
+  /* Dominio: hoy espejan exito y peligro; se pueden desacoplar sin tocar componentes */
+  --color-income: #047857;
+  --color-expense: #b91c1c;
+
+  /* Graficas */
+  --color-chart-line: #4f46e5;
+  --color-chart-area: #c7d2fe;
+  --color-chart-grid: #cbd5e1;
+}
+
+/*
+ * Modo oscuro: los mismos tokens en azul medianoche (grises azulados), sin
+ * negro ni blanco puros para reducir la fatiga visual. `inverse`, `overlay`,
+ * `on-accent`, `danger-solid*` y `on-inverse-muted` no se redefinen: las
+ * pantallas oscuras y los solidos de color son iguales en ambos temas.
+ */
+.dark {
+  color-scheme: dark;
+
+  --color-canvas: #0a0f1c;
+  --color-surface: #141d31;
+  --color-surface-subtle: #1c2740;
+  --color-surface-strong: #26324a;
+
+  --color-line: #26324a;
+  --color-line-strong: #5b6b86;
+
+  --color-ink: #e6ebf2;
+  --color-ink-secondary: #a9b4c4;
+  --color-ink-muted: #8b99ae;
+
+  --color-brand: #818cf8;
+  --color-brand-hover: #a5b4fc;
+  --color-brand-soft: #1e2250;
+  --color-brand-ink: #a5b4fc;
+  --color-on-brand: #0a0f1c;
+  --color-focus: #a5b4fc;
+
+  --color-success: #34d399;
+  --color-success-soft: #0b2a22;
+  --color-success-line: #065f46;
+  --color-success-ink: #6ee7b7;
+
+  --color-danger: #f87171;
+  --color-danger-soft: #2d1418;
+  --color-danger-line: #7f1d1d;
+  --color-danger-ink: #fca5a5;
+
+  --color-warning: #fbbf24;
+  --color-warning-soft: #2a200b;
+  --color-warning-line: #78350f;
+  --color-warning-ink: #fcd34d;
+
+  --color-info: #38bdf8;
+  --color-info-soft: #0c2236;
+  --color-info-line: #0c4a6e;
+  --color-info-ink: #7dd3fc;
+
+  --color-income: #34d399;
+  --color-expense: #f87171;
+
+  --color-chart-line: #818cf8;
+  --color-chart-area: #312e81;
+  --color-chart-grid: #3a455e;
 }
 
 html,
@@ -16,7 +150,9 @@ body,
 
 body {
   margin: 0;
-  /* Evita que iOS agrande el texto al girar el teléfono. */
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  /* Evita que iOS agrande el texto al girar el telefono. */
   -webkit-text-size-adjust: 100%;
 }
 
@@ -27,59 +163,4 @@ body {
 
 @utility safe-b {
   padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-
-/*
- * Modo oscuro: Tailwind 4 emite los colores del tema como variables CSS y las
- * utilidades las referencian (`bg-slate-100` → `var(--color-slate-100)`), así
- * que basta redefinir la paleta bajo `.dark` para oscurecer toda la app.
- *
- * - `white` pasa a ser la superficie (tarjetas, cabecera, diálogos).
- * - La escala `slate` se invierte: fondos oscuros, textos y bordes claros.
- * - `slate-950` se conserva oscuro (overlay de diálogos y pantallas de acceso).
- * - Los acentos claros (avisos y badges) se vuelven profundos y su texto claro.
- */
-.dark {
-  color-scheme: dark;
-
-  --color-white: #0f172a;
-
-  --color-slate-50: #1e293b;
-  --color-slate-100: #1e293b;
-  --color-slate-200: #334155;
-  --color-slate-300: #475569;
-  --color-slate-400: #94a3b8;
-  --color-slate-500: #94a3b8;
-  --color-slate-600: #cbd5e1;
-  --color-slate-700: #e2e8f0;
-  --color-slate-900: #f8fafc;
-
-  --color-red-50: #450a0a;
-  --color-red-100: #7f1d1d;
-  --color-red-200: #7f1d1d;
-  --color-red-800: #fca5a5;
-
-  --color-emerald-50: #022c22;
-  --color-emerald-100: #064e3b;
-  --color-emerald-200: #065f46;
-  --color-emerald-800: #6ee7b7;
-
-  --color-amber-50: #451a03;
-  --color-amber-100: #78350f;
-  --color-amber-200: #92400e;
-  --color-amber-600: #fbbf24;
-  --color-amber-700: #fbbf24;
-  --color-amber-800: #fcd34d;
-
-  --color-sky-100: #0c4a6e;
-  --color-sky-800: #7dd3fc;
-}
-
-/* Las tonalidades 600 de montos y errores son muy oscuras sobre fondo oscuro. */
-.dark .text-red-600 {
-  color: var(--color-red-400);
-}
-
-.dark .text-emerald-600 {
-  color: var(--color-emerald-400);
 }

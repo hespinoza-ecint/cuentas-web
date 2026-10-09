@@ -79,7 +79,7 @@ export function RecommendationHistoryPage() {
               <li key={item.id}>
                 <Card className="flex flex-wrap items-center justify-between gap-3 p-3">
                   <div>
-                    <p className="flex flex-wrap items-center gap-2 text-sm text-slate-900">
+                    <p className="flex flex-wrap items-center gap-2 text-sm text-ink">
                       <Badge tone={outcome.tone}>{outcome.label}</Badge>
                       <span className="font-medium">
                         {item.recommendedCard
@@ -88,11 +88,11 @@ export function RecommendationHistoryPage() {
                             ? 'Pagar con efectivo'
                             : 'Sin opción'}
                       </span>
-                      <span className="text-xs text-slate-500">
+                      <span className="text-xs text-ink-muted">
                         {TYPE_LABELS[item.requestInput.type] ?? item.requestInput.type}
                       </span>
                     </p>
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="mt-1 text-xs text-ink-muted">
                       <MoneyDisplay cents={item.requestInput.amount} /> ·{' '}
                       {formatDateTime(item.createdAt)}
                       {item.score !== null ? ` · puntaje ${item.score}` : ''}
@@ -139,9 +139,9 @@ export function RecommendationHistoryPage() {
           {detail.data && (
             <div className="mt-4">
               <RecommendationResultView result={detail.data.result} />
-              <details className="mt-4 text-xs text-slate-500">
+              <details className="mt-4 text-xs text-ink-muted">
                 <summary className="cursor-pointer font-medium">Contexto y reglas guardadas</summary>
-                <pre className="mt-2 overflow-x-auto rounded-lg bg-slate-50 p-3">
+                <pre className="mt-2 overflow-x-auto rounded-lg bg-surface-subtle p-3">
                   {JSON.stringify(
                     {
                       request: detail.data.requestInput,

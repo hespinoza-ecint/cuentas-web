@@ -68,11 +68,11 @@ export function MoneyInput({
 
   return (
     <div>
-      <label htmlFor={inputId} className="mb-1 block text-sm font-medium text-slate-700">
+      <label htmlFor={inputId} className="mb-1 block text-sm font-medium text-ink-secondary">
         {label}
       </label>
       <div className="relative">
-        <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm text-slate-500">
+        <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm text-ink-muted">
           $
         </span>
         <input
@@ -86,16 +86,16 @@ export function MoneyInput({
           placeholder={placeholder}
           aria-invalid={message ? true : undefined}
           aria-describedby={errorId}
-          className={`w-full rounded-lg border py-2 pr-3 pl-7 text-base text-slate-900 shadow-sm outline-none transition focus:ring-2 sm:text-sm ${
+          className={`w-full rounded-lg border py-2 pr-3 pl-7 text-base text-ink shadow-sm outline-none transition focus:ring-2 sm:text-sm ${
             message
-              ? 'border-red-400 focus:border-red-500 focus:ring-red-200'
-              : 'border-slate-300 focus:border-slate-500 focus:ring-slate-200'
+              ? 'border-danger focus:border-danger focus:ring-danger/25'
+              : 'border-line-strong focus:border-focus focus:ring-focus/25'
           }`}
         />
       </div>
-      {hint && !message && <p className="mt-1 text-xs text-slate-500">{hint}</p>}
+      {hint && !message && <p className="mt-1 text-xs text-ink-muted">{hint}</p>}
       {message && (
-        <p id={errorId} role="alert" className="mt-1 text-xs text-red-600">
+        <p id={errorId} role="alert" className="mt-1 text-xs text-danger">
           {message}
         </p>
       )}

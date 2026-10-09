@@ -11,10 +11,10 @@ interface MoneyDisplayProps {
 export function MoneyDisplay({ cents, colored = false, className }: MoneyDisplayProps) {
   const tone = colored
     ? cents > 0
-      ? 'text-emerald-600'
+      ? 'text-income'
       : cents < 0
-        ? 'text-red-600'
-        : 'text-slate-900'
+        ? 'text-expense'
+        : 'text-ink'
     : ''
 
   return <span className={cn('tabular-nums', tone, className)}>{formatCents(cents)}</span>

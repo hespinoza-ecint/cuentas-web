@@ -37,7 +37,7 @@ export function QuickActions() {
         type="button"
         aria-label="Acciones rápidas"
         onClick={() => setSheetOpen(true)}
-        className="fixed right-4 bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] z-40 flex size-14 items-center justify-center rounded-full bg-slate-900 text-white shadow-lg transition active:scale-95 md:hidden"
+        className="fixed right-4 bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] z-40 flex size-14 items-center justify-center rounded-full bg-brand text-on-brand shadow-lg transition active:scale-95 md:hidden"
       >
         <Plus className="size-6" aria-hidden="true" />
       </button>
@@ -91,14 +91,14 @@ function QuickOption({
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-3 rounded-xl border border-slate-200 p-3 text-left transition hover:bg-slate-50 active:bg-slate-100"
+      className="flex w-full items-center gap-3 rounded-xl border border-line p-3 text-left transition hover:bg-surface-subtle active:bg-surface-subtle"
     >
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-700">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-surface-subtle text-ink-secondary">
         {icon}
       </span>
       <span className="min-w-0">
-        <span className="block text-sm font-medium text-slate-900">{label}</span>
-        <span className="block text-xs text-slate-500">{description}</span>
+        <span className="block text-sm font-medium text-ink">{label}</span>
+        <span className="block text-xs text-ink-muted">{description}</span>
       </span>
     </button>
   )
@@ -218,7 +218,7 @@ function QuickIncomeDialog({ onClose }: { onClose: () => void }) {
         )}
         {upcoming.isError && <ErrorAlert error={upcoming.error} className="mt-4" />}
         {upcoming.data && occurrences.length === 0 && (
-          <p className="mt-4 text-sm text-slate-500">No hay ingresos próximos por confirmar.</p>
+          <p className="mt-4 text-sm text-ink-muted">No hay ingresos próximos por confirmar.</p>
         )}
 
         {occurrences.length > 0 && (
@@ -226,13 +226,13 @@ function QuickIncomeDialog({ onClose }: { onClose: () => void }) {
             {occurrences.map((occurrence) => (
               <li
                 key={`${occurrence.incomeScheduleId}-${occurrence.expectedDate}`}
-                className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 p-3"
+                className="flex items-center justify-between gap-3 rounded-lg border border-line p-3"
               >
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-slate-900">
+                  <p className="truncate text-sm font-medium text-ink">
                     {occurrence.incomeSourceName}
                   </p>
-                  <p className="mt-0.5 text-xs text-slate-500">
+                  <p className="mt-0.5 text-xs text-ink-muted">
                     {formatLocalDate(occurrence.expectedDate)} ·{' '}
                     <MoneyDisplay cents={occurrence.expectedAmount} className="font-medium" />
                   </p>
@@ -252,7 +252,7 @@ function QuickIncomeDialog({ onClose }: { onClose: () => void }) {
           <Link
             to="/ingresos"
             onClick={onClose}
-            className="inline-flex h-10 items-center justify-center rounded-lg bg-slate-900 px-4 text-sm font-medium text-white transition hover:bg-slate-700 sm:h-9"
+            className="inline-flex h-10 items-center justify-center rounded-lg bg-brand px-4 text-sm font-medium text-on-brand transition hover:bg-brand-hover sm:h-9"
           >
             Ir a Ingresos
           </Link>
@@ -315,7 +315,7 @@ function NoticeSheet({
             <Link
               to={linkTo}
               onClick={onClose}
-              className="inline-flex h-10 items-center justify-center rounded-lg bg-slate-900 px-4 text-sm font-medium text-white transition hover:bg-slate-700 sm:h-9"
+              className="inline-flex h-10 items-center justify-center rounded-lg bg-brand px-4 text-sm font-medium text-on-brand transition hover:bg-brand-hover sm:h-9"
             >
               {linkLabel}
             </Link>

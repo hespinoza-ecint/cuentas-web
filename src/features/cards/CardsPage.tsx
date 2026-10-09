@@ -92,11 +92,11 @@ export function CardsPage() {
                 <Card className="p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="flex flex-wrap items-center gap-2 text-sm font-medium text-slate-900">
-                        {card.alias} <span className="text-slate-400">····{card.last4}</span>
+                      <p className="flex flex-wrap items-center gap-2 text-sm font-medium text-ink">
+                        {card.alias} <span className="text-ink-muted">····{card.last4}</span>
                         <StatusBadge status={card.status} />
                       </p>
-                      <p className="mt-0.5 text-xs text-slate-500">
+                      <p className="mt-0.5 text-xs text-ink-muted">
                         {card.institution} · corta el día {card.cutDay} ·{' '}
                         {card.dueDateMode === 'FIXED_DAY'
                           ? `paga el día ${card.dueDay}`
@@ -107,19 +107,19 @@ export function CardsPage() {
 
                   <div className="mt-3">
                     <div className="flex items-baseline justify-between text-sm">
-                      <span className="text-slate-500">Saldo</span>
+                      <span className="text-ink-muted">Saldo</span>
                       <MoneyDisplay cents={card.currentBalance} className="font-semibold" />
                     </div>
-                    <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                    <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-surface-strong">
                       <div
                         className={cn(
                           'h-full rounded-full',
-                          utilization <= 0.3 ? 'bg-emerald-500' : utilization <= 0.5 ? 'bg-amber-500' : 'bg-red-500',
+                          utilization <= 0.3 ? 'bg-success' : utilization <= 0.5 ? 'bg-warning' : 'bg-danger',
                         )}
                         style={{ width: `${Math.min(utilization * 100, 100)}%` }}
                       />
                     </div>
-                    <p className="mt-2 text-xs text-slate-500">
+                    <p className="mt-2 text-xs text-ink-muted">
                       Disponible <MoneyDisplay cents={card.availableCredit} className="font-medium" /> de{' '}
                       <MoneyDisplay cents={card.creditLimit} className="font-medium" /> ·{' '}
                       {(utilization * 100).toFixed(1)}%
@@ -129,7 +129,7 @@ export function CardsPage() {
                   <div className="mt-3 flex flex-wrap gap-2">
                     <Link
                       to={`/tarjetas/${card.id}`}
-                      className="inline-flex h-8 items-center rounded-lg border border-slate-300 px-3 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                      className="inline-flex h-8 items-center rounded-lg border border-line-strong px-3 text-xs font-medium text-ink-secondary hover:bg-surface-subtle"
                     >
                       Ver detalle
                     </Link>
@@ -139,7 +139,7 @@ export function CardsPage() {
                     <Button variant="secondary" size="sm" onClick={() => setResetting(card)}>
                       Reiniciar
                     </Button>
-                    <Button variant="ghost" size="sm" className="text-red-600 hover:bg-red-50" onClick={() => setDeleting(card)}>
+                    <Button variant="ghost" size="sm" className="text-danger hover:bg-danger-soft" onClick={() => setDeleting(card)}>
                       Eliminar
                     </Button>
                   </div>

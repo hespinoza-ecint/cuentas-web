@@ -96,7 +96,7 @@ function RuleCard({
     <Card className="p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="flex flex-wrap items-center gap-2 text-sm font-medium text-slate-900">
+          <p className="flex flex-wrap items-center gap-2 text-sm font-medium text-ink">
             {rule.name}
             <Badge tone={rule.kind === 'ELIMINATORY' ? 'danger' : 'info'}>
               {rule.kind === 'ELIMINATORY' ? 'Eliminatoria' : 'Puntaje'}
@@ -104,17 +104,17 @@ function RuleCard({
             {rule.isOverridden && <Badge tone="warning">Personalizada</Badge>}
           </p>
           <CardDescription>{rule.description}</CardDescription>
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-1 text-xs text-ink-muted">
             {rule.code}
             {Object.keys(rule.params).length > 0 ? ` · ${JSON.stringify(rule.params)}` : ''}
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <label className="flex items-center gap-2 text-sm text-slate-700">
+          <label className="flex items-center gap-2 text-sm text-ink-secondary">
             <input
               type="checkbox"
-              className="size-4 rounded border-slate-300"
+              className="size-4 rounded border-line-strong"
               checked={rule.isEnabled}
               disabled={pending}
               onChange={(event) => onSave({ isEnabled: event.target.checked })}
@@ -124,7 +124,7 @@ function RuleCard({
 
           {rule.kind === 'SCORING' && (
             <div className="flex items-center gap-2">
-              <label htmlFor={`weight-${rule.code}`} className="text-sm text-slate-700">
+              <label htmlFor={`weight-${rule.code}`} className="text-sm text-ink-secondary">
                 Peso
               </label>
               <input
@@ -133,7 +133,7 @@ function RuleCard({
                 value={weight}
                 disabled={pending}
                 onChange={(event) => setWeight(event.target.value)}
-                className="w-16 rounded-lg border border-slate-300 px-2 py-1 text-sm shadow-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                className="w-16 rounded-lg border border-line-strong px-2 py-1 text-sm shadow-sm outline-none focus:border-focus focus:ring-2 focus:ring-focus/25"
               />
               <Button
                 variant="secondary"

@@ -112,10 +112,10 @@ export function IncomeScheduleDialog({
           />
 
           {editing && (
-            <label className="flex items-center gap-2 text-sm text-slate-700">
+            <label className="flex items-center gap-2 text-sm text-ink-secondary">
               <input
                 type="checkbox"
-                className="size-4 rounded border-slate-300"
+                className="size-4 rounded border-line-strong"
                 {...form.register('isActive')}
               />
               Calendario activo

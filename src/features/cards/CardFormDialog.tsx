@@ -237,10 +237,10 @@ export function CardFormDialog({
               <option value="NEXT">Mover al día hábil siguiente</option>
               <option value="NONE">No ajustar</option>
             </SelectField>
-            <label className="flex items-center gap-2 text-sm text-slate-700">
+            <label className="flex items-center gap-2 text-sm text-ink-secondary">
               <input
                 type="checkbox"
-                className="size-4 rounded border-slate-300"
+                className="size-4 rounded border-line-strong"
                 {...form.register('sameDayCutIncluded')}
               />
               La compra el día del corte entra en ese corte (RN-14)

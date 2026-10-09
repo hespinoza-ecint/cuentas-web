@@ -26,13 +26,13 @@ export function HealthPage() {
   })
 
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-slate-950 p-6">
-      <section className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-        <h1 className="text-2xl font-semibold text-slate-900">Cuentas</h1>
-        <p className="mt-1 text-sm text-slate-500">Estado del backend</p>
+    <main className="flex min-h-dvh items-center justify-center bg-inverse p-6">
+      <section className="w-full max-w-md rounded-2xl bg-surface p-6 shadow-xl">
+        <h1 className="text-2xl font-semibold text-ink">Cuentas</h1>
+        <p className="mt-1 text-sm text-ink-muted">Estado del backend</p>
 
         {health.isPending && (
-          <p className="mt-6 animate-pulse text-sm text-slate-500">Conectando…</p>
+          <p className="mt-6 animate-pulse text-sm text-ink-muted">Conectando…</p>
         )}
 
         {health.isError && (
@@ -62,8 +62,8 @@ export function HealthPage() {
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between gap-4">
-      <dt className="text-slate-500">{label}</dt>
-      <dd className="font-medium text-slate-900">{value}</dd>
+      <dt className="text-ink-muted">{label}</dt>
+      <dd className="font-medium text-ink">{value}</dd>
     </div>
   )
 }
@@ -72,17 +72,17 @@ function ErrorBox({ error, onRetry }: { error: unknown; onRetry: () => void }) {
   const problem = isProblemError(error) ? (error as ProblemError).problem : undefined
 
   return (
-    <div className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4" role="alert">
-      <p className="text-sm font-medium text-red-800">
+    <div className="mt-6 rounded-xl border border-danger-line bg-danger-soft p-4" role="alert">
+      <p className="text-sm font-medium text-danger-ink">
         {problem?.detail ?? 'No se pudo conectar con el backend.'}
       </p>
       {problem?.requestId && (
-        <p className="mt-1 text-xs text-red-600">requestId: {problem.requestId}</p>
+        <p className="mt-1 text-xs text-danger">requestId: {problem.requestId}</p>
       )}
       <button
         type="button"
         onClick={onRetry}
-        className="mt-3 rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-on-accent hover:bg-red-700"
+        className="mt-3 rounded-lg bg-danger-solid px-3 py-1.5 text-sm font-medium text-on-accent hover:bg-danger-solid-hover"
       >
         Reintentar
       </button>
