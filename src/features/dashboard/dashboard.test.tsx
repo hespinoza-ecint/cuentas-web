@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react'
+import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { HttpResponse, http } from 'msw'
 import { describe, expect, it } from 'vitest'
 import { addDays, todayInTimeZone } from '../../lib/dates.ts'
@@ -81,9 +81,26 @@ const projection = {
   horizonDays: 30,
   startingBalance: 975000,
   minCashBuffer: 100000,
-  points: [],
+  points: [
+    {
+      date: '2026-10-10',
+      inflows: 100000,
+      outflows: 0,
+      balance: 1075000,
+      events: [{ type: 'INCOME', description: 'Bono', amount: 100000 }],
+    },
+    {
+      date: '2026-10-26',
+      inflows: 0,
+      outflows: 1125000,
+      balance: -50000,
+      events: [
+        { type: 'CARD_STATEMENT', description: 'Pago Oro (corte 2026-10-05)', amount: -1125000 },
+      ],
+    },
+  ],
   minimum: { date: '2026-10-26', balance: -50000 },
-  finalBalance: 100000,
+  finalBalance: -50000,
   belowBuffer: true,
 }
 
@@ -104,6 +121,8 @@ describe('dashboard', () => {
     expect((await screen.findAllByText('$9,750.00')).length).toBeGreaterThan(0)
     expect(screen.getByText('$12,000.00')).toBeInTheDocument()
     expect(screen.getByTestId('cashflow-chart')).toBeInTheDocument()
+    expect(screen.getByTestId('cashflow-day-detail')).toBeInTheDocument()
+    expect(screen.getByText('Ver como tabla')).toBeInTheDocument()
     expect(screen.getAllByText('-$500.00').length).toBeGreaterThan(0)
     expect(screen.getByText('Por debajo del colchón')).toBeInTheDocument()
     expect(screen.getByText('20.0%')).toBeInTheDocument()
@@ -134,14 +153,62 @@ describe('dashboard', () => {
     expect(requested[0].get('from')).toBe(today)
     expect(requested[0].get('to')).toBe(addDays(today, 30))
 
-    // Cambiar "Hasta" vuelve a pedir la proyeccion con el nuevo rango.
+    // Cambiar "Hasta" vuelve a pedir la proyeccion con el nuevo rango; la
+    // tarjeta sigue visible con los datos previos mientras llega la nueva.
     const until = screen.getByLabelText('Hasta')
     fireEvent.change(until, { target: { value: addDays(today, 90) } })
+    expect(screen.getByTestId('cashflow-chart')).toBeInTheDocument()
 
     await waitFor(() => {
       expect(requested.at(-1)?.get('to')).toBe(addDays(today, 90))
     })
     expect(requested.at(-1)?.get('from')).toBe(today)
+  })
+
+  it('recorre el detalle del día con el teclado', async () => {
+    server.use(refreshOk, settingsHandler, summaryHandler(), projectionHandler())
+    renderApp(['/'])
+
+    const chart = await screen.findByRole('group', { name: 'Flujo de efectivo proyectado' })
+    const detail = screen.getByTestId('cashflow-day-detail')
+
+    // Abre en el día del mínimo (26 oct) con sus movimientos.
+    expect(within(detail).getByText('26 oct 2026')).toBeInTheDocument()
+    expect(within(detail).getByText(/Pago Oro \(corte 2026-10-05\)/)).toBeInTheDocument()
+
+    // Flecha izquierda: el día anterior con movimientos (10 oct, Bono).
+    fireEvent.keyDown(chart, { key: 'ArrowLeft' })
+    expect(within(detail).getByText('10 oct 2026')).toBeInTheDocument()
+    expect(within(detail).getByText(/Ingreso · Bono/)).toBeInTheDocument()
+
+    // La tabla accesible queda disponible en "Ver como tabla".
+    expect(screen.getByTestId('cashflow-table')).toBeInTheDocument()
+  })
+
+  it('los atajos de ventana ajustan el rango desde hoy', async () => {
+    const requested: URLSearchParams[] = []
+    const today = todayInTimeZone('America/Mexico_City')
+
+    server.use(
+      refreshOk,
+      settingsHandler,
+      summaryHandler(),
+      http.get(`${API_BASE}/api/v1/cashflow/projection`, ({ request }) => {
+        requested.push(new URL(request.url).searchParams)
+        return HttpResponse.json(projection)
+      }),
+    )
+    renderApp(['/'])
+    await screen.findByTestId('cashflow-chart')
+
+    fireEvent.click(screen.getByRole('button', { name: '90 días' }))
+
+    await waitFor(() => {
+      expect(requested.at(-1)?.get('to')).toBe(addDays(today, 90))
+    })
+    expect(requested.at(-1)?.get('from')).toBe(today)
+    expect(screen.getByRole('button', { name: '90 días' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: '30 días' })).toHaveAttribute('aria-pressed', 'false')
   })
 
   it('muestra el error del resumen con opción de reintentar', async () => {

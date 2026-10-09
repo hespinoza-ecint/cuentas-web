@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -50,6 +50,9 @@ export function DashboardPage() {
   const projection = useQuery({
     queryKey: ['cashflow', 'projection', from, to],
     queryFn: () => fetchCashflowProjection({ from, to }),
+    // Al cambiar el rango, conserva la proyeccion anterior mientras llega la
+    // nueva: la tarjeta (y sus campos de fecha) no se desmonta ni parpadea.
+    placeholderData: keepPreviousData,
   })
 
   const changeRange = (next: { from: string; to: string }) => {
@@ -288,6 +291,7 @@ export function DashboardPage() {
               minDate={today}
               maxDate={addDays(from, MAX_WINDOW_DAYS)}
               onRangeChange={changeRange}
+              isStale={projection.isPlaceholderData}
             />
           )}
 

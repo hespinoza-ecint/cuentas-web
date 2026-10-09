@@ -238,6 +238,23 @@ textarea {
   animation: toast-in 180ms ease-out both;
 }
 
+/* Trazo de la grafica de flujo al aparecer (fase 21). */
+@keyframes chart-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Los segmentos usan pathLength=1: el trazo se dibuja de izquierda a derecha. */
+.chart-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: chart-draw 650ms ease-out forwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,

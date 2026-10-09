@@ -151,4 +151,5 @@ actualizaciones) está en
 - [Fase 18 — Ventana de fechas del flujo](docs/fase-18-ventana-de-fechas-del-flujo.md)
 - [Fase 19 — Sistema de color semántico (claro/oscuro)](docs/fase-19-sistema-de-color.md)
 - [Fase 20 — Rediseño móvil integral (navegación, sistema de diseño y componentes)](docs/fase-20-rediseno-movil.md)
+- [Fase 21 — Gráfica de flujo interactiva (escalones, colchón y detalle por día)](docs/fase-21-grafica-de-flujo.md)
 - [Pruebas E2E con Playwright](docs/e2e-playwright.md)
