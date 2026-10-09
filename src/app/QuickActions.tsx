@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
-import { CreditCard, Plus, Receipt, TrendingUp } from 'lucide-react'
+import { Banknote, CreditCard, Plus, Receipt, Sparkles, TrendingUp } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { ErrorAlert } from '../components/shared/ErrorAlert.tsx'
 import { MoneyDisplay } from '../components/shared/MoneyDisplay.tsx'
 import { Button } from '../components/ui/button.tsx'
@@ -19,10 +19,12 @@ import { PurchaseFormDialog } from '../features/purchases/PurchaseFormDialog.tsx
 type QuickAction = 'expense' | 'purchase' | 'income'
 
 /**
- * Botón flotante "＋" (solo móvil) para capturar rápido un gasto, una compra
- * con tarjeta o confirmar un ingreso próximo, sin navegar a cada pantalla.
+ * Botón central "＋" de la barra inferior (solo móvil): captura rápida de un
+ * gasto, una compra con tarjeta o un ingreso, o acceso directo al
+ * recomendador, sin navegar a cada pantalla.
  */
 export function QuickActions() {
+  const navigate = useNavigate()
   const [sheetOpen, setSheetOpen] = useState(false)
   const [action, setAction] = useState<QuickAction | null>(null)
 
@@ -31,13 +33,19 @@ export function QuickActions() {
     setAction(next)
   }
 
+  function go(to: string) {
+    setSheetOpen(false)
+    void navigate(to)
+  }
+
   return (
     <>
       <button
         type="button"
         aria-label="Acciones rápidas"
+        aria-haspopup="dialog"
         onClick={() => setSheetOpen(true)}
-        className="fixed right-4 bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] z-40 flex size-14 items-center justify-center rounded-full bg-brand text-on-brand shadow-lg transition active:scale-95 md:hidden"
+        className="absolute -top-4 left-1/2 flex size-14 -translate-x-1/2 items-center justify-center rounded-full bg-brand text-on-brand shadow-menu transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus active:scale-95"
       >
         <Plus className="size-6" aria-hidden="true" />
       </button>
@@ -48,10 +56,10 @@ export function QuickActions() {
           <DialogDescription>¿Qué quieres capturar?</DialogDescription>
           <div className="mt-4 space-y-2">
             <QuickOption
-              icon={<Receipt className="size-5" aria-hidden="true" />}
-              label="Gasto"
-              description="Efectivo o débito"
-              onClick={() => choose('expense')}
+              icon={<Sparkles className="size-5" aria-hidden="true" />}
+              label="¿Con qué tarjeta pago?"
+              description="Compara tus tarjetas antes de comprar"
+              onClick={() => go('/recomendador')}
             />
             <QuickOption
               icon={<CreditCard className="size-5" aria-hidden="true" />}
@@ -60,10 +68,22 @@ export function QuickActions() {
               onClick={() => choose('purchase')}
             />
             <QuickOption
+              icon={<Receipt className="size-5" aria-hidden="true" />}
+              label="Gasto"
+              description="Efectivo o débito"
+              onClick={() => choose('expense')}
+            />
+            <QuickOption
               icon={<TrendingUp className="size-5" aria-hidden="true" />}
               label="Ingreso"
               description="Confirmar un depósito próximo"
               onClick={() => choose('income')}
+            />
+            <QuickOption
+              icon={<Banknote className="size-5" aria-hidden="true" />}
+              label="Pago de tarjeta"
+              description="Registrar un pago hecho a tu banco"
+              onClick={() => go('/pagos?nuevo=1')}
             />
           </div>
         </DialogContent>
@@ -91,7 +111,7 @@ function QuickOption({
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-3 rounded-xl border border-line p-3 text-left transition hover:bg-surface-subtle active:bg-surface-subtle"
+      className="flex min-h-12 w-full items-center gap-3 rounded-xl border border-line p-3 text-left transition hover:bg-surface-subtle active:bg-surface-subtle"
     >
       <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-surface-subtle text-ink-secondary">
         {icon}

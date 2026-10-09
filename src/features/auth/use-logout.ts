@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { clearSession } from '../../lib/auth/session.ts'
+import { clearSessionByLogout } from '../../lib/auth/session.ts'
 import { logout as logoutApi } from './auth-api.ts'
 
 /** Cierra la sesión en el servidor (si se puede) y limpia el estado local. */
@@ -15,7 +15,7 @@ export function useLogout() {
     } catch {
       // Si el servidor ya no reconoce la sesión, basta con limpiar el estado local.
     }
-    clearSession()
+    clearSessionByLogout()
     void navigate('/login', { replace: true })
   }, [navigate])
 

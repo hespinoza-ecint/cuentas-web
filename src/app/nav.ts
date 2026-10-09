@@ -32,15 +32,15 @@ export interface NavItem {
 
 export const NAV_ITEMS: NavItem[] = [
   { to: '/', label: 'Inicio', icon: LayoutDashboard, end: true },
-  { to: '/recomendador', label: 'Recomendador', icon: Sparkles },
-  { to: '/cuentas', label: 'Cuentas', icon: Wallet },
   { to: '/movimientos', label: 'Movimientos', icon: ArrowLeftRight },
-  { to: '/ingresos', label: 'Ingresos', icon: TrendingUp },
   { to: '/gastos', label: 'Gastos', icon: Receipt },
+  { to: '/ingresos', label: 'Ingresos', icon: TrendingUp },
   { to: '/recurrentes', label: 'Recurrentes', icon: Repeat },
-  { to: '/compras', label: 'Compras', icon: ShoppingCart },
+  { to: '/cuentas', label: 'Cuentas', icon: Wallet },
   { to: '/tarjetas', label: 'Tarjetas', icon: CreditCard },
+  { to: '/compras', label: 'Compras', icon: ShoppingCart },
   { to: '/pagos', label: 'Pagos', icon: Banknote },
+  { to: '/recomendador', label: 'Recomendador', icon: Sparkles },
   { to: '/recomendaciones', label: 'Historial', icon: History },
   { to: '/reglas', label: 'Reglas', icon: SlidersHorizontal },
   { to: '/categorias', label: 'Categorías', icon: Tags },
@@ -53,25 +53,70 @@ export const NAV_ITEMS: NavItem[] = [
   { to: '/admin/mantenimiento', label: 'Mantenimiento', icon: Hammer, adminOnly: true },
 ]
 
-/** Pestañas fijas de la barra inferior en móvil (la quinta es "Más"). */
-export const MOBILE_TAB_PATHS = ['/', '/compras', '/tarjetas', '/recomendador'] as const
+/**
+ * Módulos con subsecciones: la barra inferior lleva a la raíz del módulo y
+ * dentro se navega con pestañas (SectionTabs). El orden de las pestañas es el
+ * de esta lista.
+ */
+export interface NavModule {
+  id: 'movimientos' | 'tarjetas'
+  /** Ruta de la raíz del módulo (también es la pestaña que se marca). */
+  root: string
+  label: string
+  /** Rutas que pertenecen al módulo (incluye la raíz). */
+  paths: string[]
+}
+
+export const MODULES: NavModule[] = [
+  {
+    id: 'movimientos',
+    root: '/movimientos',
+    label: 'Movimientos',
+    paths: ['/movimientos', '/gastos', '/ingresos', '/recurrentes', '/cuentas'],
+  },
+  {
+    id: 'tarjetas',
+    root: '/tarjetas',
+    label: 'Tarjetas',
+    paths: ['/tarjetas', '/compras', '/pagos'],
+  },
+]
+
+/** Módulo al que pertenece una ruta (las rutas de detalle cuentan como su módulo). */
+export function findModule(pathname: string): NavModule | undefined {
+  return MODULES.find((module) =>
+    module.paths.some((path) => pathname === path || pathname.startsWith(`${path}/`)),
+  )
+}
+
+/** Pestañas fijas de la barra inferior en móvil (entre ellas va el botón "+"). */
+export const MOBILE_TAB_PATHS = ['/', '/movimientos', '/tarjetas'] as const
 
 export interface NavGroup {
   label: string
   paths: string[]
 }
 
-/** Secciones de la hoja "Más" (móvil), agrupadas por tema. */
-export const MOBILE_MENU_GROUPS: NavGroup[] = [
+/** Grupos del menú lateral (escritorio) y de la hoja "Más" (móvil). */
+export const NAV_GROUPS: NavGroup[] = [
   {
     label: 'Dinero',
-    paths: ['/movimientos', '/cuentas', '/ingresos', '/gastos', '/recurrentes', '/categorias'],
+    paths: ['/movimientos', '/gastos', '/ingresos', '/recurrentes', '/cuentas'],
   },
-  { label: 'Tarjetas', paths: ['/pagos'] },
-  { label: 'Planeación', paths: ['/recomendaciones', '/reglas'] },
-  { label: 'Cuenta', paths: ['/perfil', '/configuracion', '/sesiones', '/cuenta', '/estado'] },
+  { label: 'Tarjetas', paths: ['/tarjetas', '/compras', '/pagos'] },
+  { label: 'Planeación', paths: ['/recomendador', '/recomendaciones', '/reglas', '/categorias'] },
+  { label: 'Tu cuenta', paths: ['/perfil', '/configuracion', '/sesiones', '/cuenta', '/estado'] },
   { label: 'Administración', paths: ['/admin/reglas', '/admin/mantenimiento'] },
 ]
+
+/**
+ * Secciones de la hoja "Más" (móvil): lo que no cabe en la barra inferior.
+ * Dinero y Tarjetas se alcanzan por sus módulos, así que aquí solo viven
+ * Planeación, cuenta y administración.
+ */
+export const MOBILE_MENU_GROUPS: NavGroup[] = NAV_GROUPS.filter(
+  (group) => group.label !== 'Dinero' && group.label !== 'Tarjetas',
+)
 
 /** Ítem de navegación por ruta (falla al compilar si la ruta no existe). */
 export function findNavItem(path: string): NavItem {

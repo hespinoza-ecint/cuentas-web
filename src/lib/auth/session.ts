@@ -73,6 +73,32 @@ export function clearSession(): void {
   emit()
 }
 
+export type SessionEndReason = 'expired' | 'logout' | null
+
+let sessionEndReason: SessionEndReason = null
+
+/** El usuario eligió cerrar sesión (motivo por defecto). */
+export function clearSessionByLogout(): void {
+  sessionEndReason = null
+  clearSession()
+}
+
+/** La sesión murió sin que el usuario lo pidiera: avisar en la pantalla de acceso. */
+export function clearSessionExpired(): void {
+  sessionEndReason = 'expired'
+  clearSession()
+}
+
+/**
+ * Motivo por el que terminó la última sesión. Se consume una sola vez para
+ * avisar en la pantalla de acceso ("Tu sesión expiró").
+ */
+export function consumeSessionEndReason(): SessionEndReason {
+  const reason = sessionEndReason
+  sessionEndReason = null
+  return reason
+}
+
 /** El cliente de la API registra aquí su llamada real de refresh. */
 export function configureSessionRefresh(fn: RefreshFn): void {
   performRefresh = fn
@@ -94,7 +120,7 @@ export function refreshSession(): Promise<boolean> {
       } catch {
         // Sin red (o error inesperado) la sesión queda anónima.
       }
-      clearSession()
+      clearSessionExpired()
       return false
     })().finally(() => {
       refreshInFlight = null
@@ -122,6 +148,7 @@ export function bootstrapSession(): Promise<void> {
 export function resetSessionState(): void {
   session = null
   status = 'unknown'
+  sessionEndReason = null
   refreshInFlight = null
   bootstrapInFlight = null
   emit()
