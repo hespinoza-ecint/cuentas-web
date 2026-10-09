@@ -46,10 +46,11 @@ npm.cmd run test:e2e
    - compra a 3 MSI (aparece con su próxima mensualidad),
    - recomendación (resultado visible con disclaimer),
    - cierre de sesión.
-3. **Flujo móvil** (Pixel 7): las 5 pestañas de la barra inferior, la hoja
-   "Más" para llegar a Cuentas, alta de cuenta, un gasto con el botón "＋",
-   la compra rápida sin tarjetas (invita a crearlas) y comprobaciones de
-   `scrollWidth` y botones dentro del viewport.
+3. **Flujo móvil** (Pixel 7): la barra inferior (Inicio · Movimientos · ＋ ·
+   Tarjetas · Más), las pestañas de módulo para llegar a Cuentas, alta de
+   cuenta, un gasto con el botón "＋" y su aviso de éxito, la compra rápida sin
+   tarjetas (invita a crearlas) y comprobaciones de `scrollWidth` y botones
+   dentro del viewport.
 
 ## 5. Bugs reales que encontraron las E2E
 

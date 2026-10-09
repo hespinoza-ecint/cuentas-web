@@ -150,4 +150,5 @@ actualizaciones) está en
 - [Fase 17 — Flujo de efectivo hasta la última mensualidad](docs/fase-17-flujo-hasta-ultima-mensualidad.md)
 - [Fase 18 — Ventana de fechas del flujo](docs/fase-18-ventana-de-fechas-del-flujo.md)
 - [Fase 19 — Sistema de color semántico (claro/oscuro)](docs/fase-19-sistema-de-color.md)
+- [Fase 20 — Rediseño móvil integral (navegación, sistema de diseño y componentes)](docs/fase-20-rediseno-movil.md)
 - [Pruebas E2E con Playwright](docs/e2e-playwright.md)
