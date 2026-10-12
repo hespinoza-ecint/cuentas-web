@@ -13,6 +13,7 @@ import { Card, CardDescription, CardTitle } from '../../components/ui/card.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
 import { SubmitButton } from '../../components/ui/submit-button.tsx'
+import { isValidTimeZone } from '../../lib/dates.ts'
 import { fetchSettings, updateSettings, type UserSettings } from '../users/users-api.ts'
 
 function decimalText(min: number, max: number) {
@@ -36,7 +37,12 @@ function integerText(min: number, max: number) {
 }
 
 const settingsSchema = z.object({
-  timezone: z.string().trim().min(1, 'La zona horaria es obligatoria').max(64, 'Máximo 64 caracteres'),
+  timezone: z
+    .string()
+    .trim()
+    .min(1, 'La zona horaria es obligatoria')
+    .max(64, 'Máximo 64 caracteres')
+    .refine(isValidTimeZone, 'Zona horaria no válida (ej. America/Mexico_City)'),
   holidayCalendarCode: z.enum(['MX_LABOR', 'MX_BANKING']),
   minCashBuffer: z.number({ message: 'Captura un monto' }).int().min(0),
   maxUtilizationPercent: decimalText(0, 100),

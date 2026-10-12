@@ -20,5 +20,5 @@ export function renderApp(initialEntries: string[] = ['/']) {
     </QueryClientProvider>,
   )
 
-  return { ...utils, router }
+  return { ...utils, router, queryClient }
 }

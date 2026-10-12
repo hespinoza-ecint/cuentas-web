@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import { isCacheableApiRead } from './src/lib/api-cache.ts'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -33,9 +34,9 @@ export default defineConfig({
         runtimeCaching: [
           {
             // Lecturas de la API: primero red y, si no hay, la última copia
-            // guardada (modo sin conexión de solo lectura).
-            urlPattern: ({ url, request }) =>
-              request.method === 'GET' && url.pathname.startsWith('/api/v1/'),
+            // guardada (modo sin conexión de solo lectura). No se cachean las
+            // rutas sensibles (sesión y exportación completa).
+            urlPattern: ({ url, request }) => isCacheableApiRead(url, request.method),
             handler: 'NetworkFirst',
             options: {
               cacheName: 'cuentas-api-read',

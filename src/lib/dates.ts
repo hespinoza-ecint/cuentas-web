@@ -6,11 +6,25 @@
  */
 const DATE_FORMATTERS = new Map<string, Intl.DateTimeFormat>()
 
+/** Zona horaria por defecto (la misma que usa el backend). */
+export const DEFAULT_TIME_ZONE = 'America/Mexico_City'
+
+/** Indica si el texto es una zona horaria IANA válida (por ejemplo America/Mexico_City). */
+export function isValidTimeZone(timeZone: string): boolean {
+  try {
+    new Intl.DateTimeFormat('en-CA', { timeZone })
+    return true
+  } catch {
+    return false
+  }
+}
+
 function formatterFor(timeZone: string): Intl.DateTimeFormat {
   let formatter = DATE_FORMATTERS.get(timeZone)
   if (!formatter) {
+    // Una zona guardada inválida no debe tumbar la app: se usa la de defecto.
     formatter = new Intl.DateTimeFormat('en-CA', {
-      timeZone,
+      timeZone: isValidTimeZone(timeZone) ? timeZone : DEFAULT_TIME_ZONE,
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',

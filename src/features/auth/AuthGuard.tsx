@@ -1,7 +1,9 @@
-import { Suspense, useEffect } from 'react'
+import { Suspense, useEffect, useRef } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { Navigate, Outlet, useLocation } from 'react-router'
 import { Card, CardDescription, CardTitle } from '../../components/ui/card.tsx'
 import { LoadingScreen } from '../../components/shared/LoadingScreen.tsx'
+import { purgeApiCache } from '../../lib/api-cache.ts'
 import { bootstrapSession } from '../../lib/auth/session.ts'
 import { useSessionStatus, useSessionUser } from './use-session.ts'
 
@@ -13,15 +15,40 @@ export function SessionGate() {
     void bootstrapSession()
   }, [])
 
-  if (status === 'unknown') {
-    return <LoadingScreen message="Recuperando sesión…" />
-  }
-
   return (
-    <Suspense fallback={<LoadingScreen message="Cargando…" />}>
-      <Outlet />
-    </Suspense>
+    <>
+      <SessionCacheGuard />
+      {status === 'unknown' ? (
+        <LoadingScreen message="Recuperando sesión…" />
+      ) : (
+        <Suspense fallback={<LoadingScreen message="Cargando…" />}>
+          <Outlet />
+        </Suspense>
+      )}
+    </>
   )
+}
+
+/**
+ * Al terminar la sesión (cerrar sesión, expiración o eliminación de cuenta)
+ * vacía la cache de datos y la del service worker: en un equipo compartido el
+ * siguiente usuario no debe ver nada del anterior.
+ */
+export function SessionCacheGuard(): null {
+  const queryClient = useQueryClient()
+  const status = useSessionStatus()
+  const previous = useRef(status)
+
+  useEffect(() => {
+    const was = previous.current
+    previous.current = status
+    if (status === 'anonymous' && was !== 'anonymous') {
+      queryClient.clear()
+      purgeApiCache()
+    }
+  }, [status, queryClient])
+
+  return null
 }
 
 export function RequireAuth() {

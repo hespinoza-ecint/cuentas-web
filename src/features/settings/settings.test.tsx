@@ -63,4 +63,30 @@ describe('configuración', () => {
 
     expect(await screen.findByText('Debe estar entre 0 y 100')).toBeInTheDocument()
   })
+
+  it('rechaza una zona horaria que no existe antes de guardar', async () => {
+    let patched: Record<string, unknown> | null = null
+
+    server.use(
+      refreshOk,
+      http.get(`${API_BASE}/api/v1/users/me/settings`, () => HttpResponse.json(settings)),
+      http.patch(`${API_BASE}/api/v1/users/me/settings`, async ({ request }) => {
+        patched = (await request.json()) as Record<string, unknown>
+        return HttpResponse.json(settings)
+      }),
+    )
+
+    renderApp(['/configuracion'])
+    const user = userEvent.setup()
+
+    const timezone = await screen.findByLabelText('Zona horaria')
+    await user.clear(timezone)
+    await user.type(timezone, 'America/Mexico City')
+    await user.click(screen.getByRole('button', { name: 'Guardar configuración' }))
+
+    expect(
+      await screen.findByText('Zona horaria no válida (ej. America/Mexico_City)'),
+    ).toBeInTheDocument()
+    expect(patched).toBeNull()
+  })
 })
