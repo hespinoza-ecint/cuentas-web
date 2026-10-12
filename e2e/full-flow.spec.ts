@@ -59,7 +59,7 @@ test('flujo completo: registro, verificación, finanzas y recomendación', async
 
   // Compra a meses sin intereses
   await nav.getByRole('link', { name: 'Compras' }).click()
-  await page.getByRole('button', { name: 'Registrar compra' }).click()
+  await page.getByRole('button', { name: 'Registrar compra' }).first().click()
   await dialog.getByLabel('Descripción').fill('Compra E2E')
   await dialog.getByLabel('Monto').fill('1500')
   await dialog.getByLabel('Tipo').selectOption('MSI')
