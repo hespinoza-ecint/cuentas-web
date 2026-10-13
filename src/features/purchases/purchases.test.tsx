@@ -119,6 +119,7 @@ const paidPurchase = {
   id: 'pur-2',
   description: 'Laptop a meses',
   installmentPlan: paidPlan,
+  lockedReason: 'PLAN_HAS_PAYMENTS',
 }
 
 function baseHandlers() {
@@ -232,9 +233,7 @@ describe('compras', () => {
     expect(await screen.findByText(/Compra cancelada/)).toBeInTheDocument()
   })
 
-  it('elimina una compra con mensualidades pagadas y avisa el ajuste', async () => {
-    let deleted: { id: string; body: Record<string, unknown> } | null = null
-
+  it('una compra con pagos aplicados avisa el bloqueo y oculta las acciones', async () => {
     server.use(...baseHandlers())
     server.use(
       http.get(`${API_BASE}/api/v1/purchases`, () =>
@@ -243,28 +242,39 @@ describe('compras', () => {
           meta: { limit: 20, nextCursor: null, hasMore: false },
         }),
       ),
-      http.delete(`${API_BASE}/api/v1/purchases/:id`, async ({ request, params }) => {
-        deleted = { id: params.id as string, body: (await request.json()) as Record<string, unknown> }
-        return HttpResponse.json({ deleted: true, refundedPrincipal: 60000, paidAmount: 33333 })
-      }),
+    )
+
+    renderApp(['/compras'])
+
+    const list = await screen.findByTestId('purchases-list')
+    expect(within(list).getByText(/Revierte el pago/)).toBeInTheDocument()
+    expect(
+      within(list).queryByRole('button', { name: 'Más acciones de Laptop a meses' }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('el detalle de una compra bloqueada no ofrece cancelar ni eliminar', async () => {
+    const lockedPurchase = { ...purchase, lockedReason: 'STATEMENT_PAID' }
+
+    server.use(...baseHandlers())
+    server.use(
+      http.get(`${API_BASE}/api/v1/purchases/:id`, () => HttpResponse.json(lockedPurchase)),
     )
 
     renderApp(['/compras'])
     const user = userEvent.setup()
 
     const list = await screen.findByTestId('purchases-list')
-    await user.click(within(list).getByRole('button', { name: 'Más acciones de Laptop a meses' }))
-    await user.click(await screen.findByRole('menuitem', { name: 'Eliminar' }))
+    await user.click(within(list).getByText('Telefono'))
 
     const dialog = await screen.findByRole('dialog')
-    expect(within(dialog).getByText(/Se descontarán \$600\.00/)).toBeInTheDocument()
-    await user.type(within(dialog).getByLabelText('Motivo'), 'Registrada por error')
-    await user.click(within(dialog).getByRole('button', { name: 'Eliminar compra' }))
-
-    await waitFor(() => expect(deleted).not.toBeNull())
-    expect(deleted?.id).toBe('pur-2')
-    expect(deleted?.body.reason).toBe('Registrada por error')
-    expect(await screen.findByText(/se descontaron \$600\.00/)).toBeInTheDocument()
+    expect(within(dialog).getByText(/Revierte el pago/)).toBeInTheDocument()
+    expect(
+      within(dialog).queryByRole('button', { name: 'Cancelar compra' }),
+    ).not.toBeInTheDocument()
+    expect(
+      within(dialog).queryByRole('button', { name: 'Eliminar compra' }),
+    ).not.toBeInTheDocument()
   })
 
   it('elimina una compra regular con el cargo pendiente', async () => {

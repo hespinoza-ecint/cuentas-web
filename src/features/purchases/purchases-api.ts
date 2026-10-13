@@ -60,6 +60,23 @@ export interface Purchase {
   category?: { id: string; name: string } | null
   creditCard?: { id: string; alias: string; last4: string } | null
   installmentPlan?: InstallmentPlan | null
+  /** RN-30: la API avisa que la compra no se puede cancelar ni eliminar. */
+  lockedReason?: PurchaseLockedReason | null
+}
+
+export type PurchaseLockedReason = 'STATEMENT_PAID' | 'PLAN_HAS_PAYMENTS'
+
+/** Aviso de una compra bloqueada: su corte o su plan ya tienen pagos. */
+export function purchaseLockedNote(
+  reason: PurchaseLockedReason | null | undefined,
+): string | null {
+  if (reason === 'STATEMENT_PAID') {
+    return 'El corte de esta compra ya tiene pagos. Revierte el pago para cancelarla o eliminarla.'
+  }
+  if (reason === 'PLAN_HAS_PAYMENTS') {
+    return 'La compra tiene pagos aplicados. Revierte el pago para cancelarla o eliminarla.'
+  }
+  return null
 }
 
 export interface CreatePurchaseInput {
@@ -153,7 +170,7 @@ export interface DeletePurchaseResult {
   paidAmount: number
 }
 
-/** Elimina una compra con plan (MSI o diferida) aunque ya tenga pagos. */
+/** Elimina una compra solo si su corte no tiene pagos (RN-27 y RN-30). */
 export async function deletePurchase(id: string, reason: string): Promise<DeletePurchaseResult> {
   const { data, error, response } = await api.DELETE('/api/v1/purchases/{id}', {
     params: { path: { id } },

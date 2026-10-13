@@ -22,7 +22,13 @@ import { listCards } from '../cards/cards-api.ts'
 import { listCategories } from '../categories/categories-api.ts'
 import { PurchaseDetailDialog } from './PurchaseDetailDialog.tsx'
 import { PurchaseFormDialog } from './PurchaseFormDialog.tsx'
-import { cancelPurchase, deletePurchase, listPurchases, type Purchase } from './purchases-api.ts'
+import {
+  cancelPurchase,
+  deletePurchase,
+  listPurchases,
+  purchaseLockedNote,
+  type Purchase,
+} from './purchases-api.ts'
 
 const TYPE_LABELS: Record<string, string> = {
   REGULAR: 'Regular',
@@ -161,25 +167,25 @@ export function PurchasesPage() {
             const nextInstallment = purchase.installmentPlan?.installments.find(
               (installment) => installment.status !== 'PAID',
             )
-            const hasPayments =
-              purchase.installmentPlan?.installments.some(
-                (installment) => installment.paidAmount > 0,
-              ) ?? false
-            const canCancel = purchase.status === 'ACTIVE' && !hasPayments
+            // RN-30: con el corte o el plan pagados, la API rechaza cancelar y
+            // eliminar; se ocultan las acciones y se explica el motivo.
+            const lockedNote = purchaseLockedNote(purchase.lockedReason)
             const menu = []
-            if (canCancel) {
+            if (purchase.status === 'ACTIVE' && !lockedNote) {
               menu.push({
                 label: 'Cancelar',
                 icon: Ban,
                 onSelect: () => setCancelling(purchase),
               })
             }
-            menu.push({
-              label: 'Eliminar',
-              icon: Trash2,
-              tone: 'danger' as const,
-              onSelect: () => setDeleting(purchase),
-            })
+            if (!lockedNote) {
+              menu.push({
+                label: 'Eliminar',
+                icon: Trash2,
+                tone: 'danger' as const,
+                onSelect: () => setDeleting(purchase),
+              })
+            }
             return (
               <ListRow
                 key={purchase.id}
@@ -191,17 +197,24 @@ export function PurchasesPage() {
                     <StatusBadge status={purchase.status} />
                   </span>
                 }
-                subtitle={[
-                  purchase.creditCard
-                    ? `${purchase.creditCard.alias} ····${purchase.creditCard.last4}`
-                    : undefined,
-                  formatLocalDate(purchase.purchaseDate),
-                  nextInstallment
-                    ? `próxima #${nextInstallment.number} por ${(nextInstallment.totalAmount / 100).toFixed(2)} el ${formatLocalDate(nextInstallment.dueDate)}`
-                    : undefined,
-                ]
-                  .filter(Boolean)
-                  .join(' · ')}
+                subtitle={
+                  <>
+                    <span>
+                      {[
+                        purchase.creditCard
+                          ? `${purchase.creditCard.alias} ····${purchase.creditCard.last4}`
+                          : undefined,
+                        formatLocalDate(purchase.purchaseDate),
+                        nextInstallment
+                          ? `próxima #${nextInstallment.number} por ${(nextInstallment.totalAmount / 100).toFixed(2)} el ${formatLocalDate(nextInstallment.dueDate)}`
+                          : undefined,
+                      ]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </span>
+                    {lockedNote && <span className="mt-1 block text-warning-ink">{lockedNote}</span>}
+                  </>
+                }
                 trailing={<MoneyDisplay cents={purchase.amount} className="font-semibold" />}
                 menu={menu}
                 menuLabel={`Más acciones de ${purchase.description}`}
@@ -260,7 +273,7 @@ export function PurchasesPage() {
         title="Cancelar compra"
         description={
           cancelling
-            ? `Se cancelará "${cancelling.description}" y se restaurará el crédito. Solo si ninguna mensualidad tiene pagos.`
+            ? `Se cancelará "${cancelling.description}" y se restaurará el crédito. Solo si el corte no tiene pagos aplicados.`
             : ''
         }
         confirmLabel="Cancelar compra"

@@ -23,7 +23,7 @@ import type { CashAccount } from '../accounts/accounts-api.ts'
 import { newIdempotencyKey } from '../../lib/idempotency.ts'
 import { invalidateFinancial } from '../../lib/invalidate-financial.ts'
 import { useToday } from '../users/use-settings.ts'
-import { getPurchase, prepayPlan, type Purchase } from './purchases-api.ts'
+import { getPurchase, prepayPlan, purchaseLockedNote, type Purchase } from './purchases-api.ts'
 
 interface PrepayForm {
   cashAccountId: string
@@ -56,10 +56,10 @@ export function PurchaseDetailDialog({
 
   const plan = purchase.data?.installmentPlan ?? null
   const nextInstallment = plan?.installments.find((installment) => installment.status !== 'PAID')
-  const hasPayments =
-    plan?.installments.some((installment) => installment.paidAmount > 0) ?? false
-  const canCancel = purchase.data?.status === 'ACTIVE' && !hasPayments
-  const canDelete = Boolean(onDeleteRequest)
+  // RN-30: con el corte o el plan pagados la API rechaza cancelar y eliminar.
+  const lockedNote = purchaseLockedNote(purchase.data?.lockedReason)
+  const canCancel = purchase.data?.status === 'ACTIVE' && !lockedNote
+  const canDelete = Boolean(onDeleteRequest) && !lockedNote
 
   const form = useForm<PrepayForm>({
     defaultValues: {
@@ -214,6 +214,12 @@ export function PurchaseDetailDialog({
               </>
             )}
           </div>
+        )}
+
+        {lockedNote && (
+          <p className="mt-4 rounded-lg border border-warning-line bg-warning-soft px-3 py-2 text-xs text-warning-ink">
+            {lockedNote}
+          </p>
         )}
 
         <DialogFooter>
