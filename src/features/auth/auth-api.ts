@@ -83,5 +83,6 @@ export async function resetPassword(token: string, newPassword: string): Promise
 
 export async function logout(): Promise<void> {
   // Si la sesión ya no existe en el servidor, el cierre local es suficiente.
-  await api.POST('/api/v1/auth/logout')
+  // El cuerpo vacío documenta el contrato; el servidor también acepta sin él.
+  await api.POST('/api/v1/auth/logout', { body: {} })
 }

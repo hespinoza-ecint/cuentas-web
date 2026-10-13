@@ -17,6 +17,11 @@ type RefreshFn = () => Promise<AuthSession | null>
  */
 let session: AuthSession | null = null
 let status: SessionStatus = 'unknown'
+/**
+ * `performRefresh` devuelve la sesión renovada, `null` si el servidor la
+ * rechazó (401) o lanza si el fallo es transitorio (sin red, 5xx, 429): en ese
+ * caso la sesión actual se conserva.
+ */
 let performRefresh: RefreshFn = async () => null
 let refreshInFlight: Promise<boolean> | null = null
 let bootstrapInFlight: Promise<void> | null = null
@@ -106,27 +111,51 @@ export function configureSessionRefresh(fn: RefreshFn): void {
 
 /**
  * Renueva la sesión. Varias peticiones que reciban 401 al mismo tiempo
- * comparten una sola llamada de red (single-flight).
+ * comparten una sola llamada de red (single-flight) y, entre pestañas, se
+ * serializa con `navigator.locks` cuando el navegador lo expone.
  */
 export function refreshSession(): Promise<boolean> {
   if (!refreshInFlight) {
     refreshInFlight = (async () => {
       try {
-        const next = await performRefresh()
+        const next = await performRefreshWithLock()
         if (next) {
           setSession(next)
           return true
         }
+        // null = el servidor rechazó la sesión (401): sí expiró.
+        clearSessionExpired()
+        return false
       } catch {
-        // Sin red (o error inesperado) la sesión queda anónima.
+        // Fallo transitorio (sin red, 5xx, 429): la sesión activa se conserva.
+        if (status === 'unknown') {
+          // Arranque sin red: no hay sesión que conservar ni motivo que mostrar.
+          clearSessionByLogout()
+        }
+        return false
       }
-      clearSessionExpired()
-      return false
     })().finally(() => {
       refreshInFlight = null
     })
   }
   return refreshInFlight
+}
+
+/** Lo único que se usa de `navigator.locks` (tiparlo aquí evita ambigüedades de lib.dom). */
+interface SessionRefreshLockManager {
+  request(name: string, callback: () => Promise<AuthSession | null>): Promise<AuthSession | null>
+}
+
+/** Serializa la renovación entre pestañas cuando `navigator.locks` existe. */
+function performRefreshWithLock(): Promise<AuthSession | null> {
+  const locks =
+    typeof navigator !== 'undefined'
+      ? (navigator as unknown as { locks?: SessionRefreshLockManager }).locks
+      : undefined
+  if (!locks) {
+    return performRefresh()
+  }
+  return locks.request('cuentas-session-refresh', () => performRefresh())
 }
 
 /** Intento inicial de sesión al abrir la app (una sola vez). */

@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useRef } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
@@ -13,6 +14,7 @@ import { SubmitButton } from '../../components/ui/submit-button.tsx'
 import { toast } from '../../lib/toast.ts'
 import type { Category } from '../categories/categories-api.ts'
 import type { CreditCard } from '../cards/cards-api.ts'
+import { newIdempotencyKey } from '../../lib/idempotency.ts'
 import { useToday } from '../users/use-settings.ts'
 import { createPurchase } from './purchases-api.ts'
 
@@ -91,6 +93,9 @@ export function PurchaseFormDialog({
   const type = useWatch({ control: form.control, name: 'type' })
   const commissionMode = useWatch({ control: form.control, name: 'commissionMode' })
 
+  // Llave por intento: un reintento tras perder la respuesta no duplica la compra.
+  const idempotencyKey = useRef(newIdempotencyKey())
+
   const mutation = useMutation({
     mutationFn: (values: PurchaseForm) =>
       createPurchase({
@@ -116,8 +121,9 @@ export function PurchaseFormDialog({
           ? { commissionAmount: values.commissionAmount, commissionMode: values.commissionMode }
           : {}),
         ...(initial?.recommendationId ? { recommendationId: initial.recommendationId } : {}),
-      }),
+      }, idempotencyKey.current),
     onSuccess: () => {
+      idempotencyKey.current = newIdempotencyKey()
       void queryClient.invalidateQueries({ queryKey: ['purchases'] })
       void queryClient.invalidateQueries({ queryKey: ['cards'] })
       void queryClient.invalidateQueries({ queryKey: ['ledger'] })

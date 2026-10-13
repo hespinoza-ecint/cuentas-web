@@ -1,4 +1,5 @@
 import { api } from '../../lib/api/client.ts'
+import { newIdempotencyKey } from '../../lib/idempotency.ts'
 import { problemFrom } from '../../lib/problem.ts'
 
 export interface Installment {
@@ -109,9 +110,12 @@ export async function listPurchases(params: {
   }
 }
 
-export async function createPurchase(input: CreatePurchaseInput): Promise<Purchase> {
+export async function createPurchase(
+  input: CreatePurchaseInput,
+  idempotencyKey: string = newIdempotencyKey(),
+): Promise<Purchase> {
   const { data, error, response } = await api.POST('/api/v1/purchases', {
-    headers: { 'Idempotency-Key': crypto.randomUUID() },
+    headers: { 'Idempotency-Key': idempotencyKey },
     body: input,
   })
   if (error || !data) {
@@ -164,10 +168,11 @@ export async function deletePurchase(id: string, reason: string): Promise<Delete
 export async function prepayPlan(
   planId: string,
   input: { cashAccountId: string; amount: number; paymentDate: string; notes?: string },
+  idempotencyKey: string = newIdempotencyKey(),
 ) {
   const { data, error, response } = await api.POST('/api/v1/installment-plans/{id}/prepay', {
     params: { path: { id: planId } },
-    headers: { 'Idempotency-Key': crypto.randomUUID() },
+    headers: { 'Idempotency-Key': idempotencyKey },
     body: input,
   })
   if (error || !data) {

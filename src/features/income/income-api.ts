@@ -1,4 +1,5 @@
 import { api } from '../../lib/api/client.ts'
+import { newIdempotencyKey } from '../../lib/idempotency.ts'
 import { problemFrom } from '../../lib/problem.ts'
 
 export interface IncomeSchedule {
@@ -213,16 +214,19 @@ export async function listTransactions(params: { status?: string; incomeSourceId
   }
 }
 
-export async function confirmIncome(input: {
-  incomeSourceId: string
-  incomeScheduleId: string
-  expectedDate: string
-  actualAmount?: number
-  actualDate?: string
-  notes?: string
-}) {
+export async function confirmIncome(
+  input: {
+    incomeSourceId: string
+    incomeScheduleId: string
+    expectedDate: string
+    actualAmount?: number
+    actualDate?: string
+    notes?: string
+  },
+  idempotencyKey: string = newIdempotencyKey(),
+) {
   const { data, error, response } = await api.POST('/api/v1/income/transactions/confirm', {
-    headers: { 'Idempotency-Key': crypto.randomUUID() },
+    headers: { 'Idempotency-Key': idempotencyKey },
     body: input,
   })
   if (error) {

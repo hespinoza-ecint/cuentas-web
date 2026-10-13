@@ -1,4 +1,5 @@
 import { api } from '../../lib/api/client.ts'
+import { newIdempotencyKey } from '../../lib/idempotency.ts'
 import { problemFrom } from '../../lib/problem.ts'
 
 export interface PaymentAllocation {
@@ -49,15 +50,18 @@ export async function listPayments(params: { creditCardId?: string; limit?: numb
   }
 }
 
-export async function createPayment(input: {
-  creditCardId: string
-  cashAccountId: string
-  amount: number
-  paymentDate: string
-  notes?: string
-}) {
+export async function createPayment(
+  input: {
+    creditCardId: string
+    cashAccountId: string
+    amount: number
+    paymentDate: string
+    notes?: string
+  },
+  idempotencyKey: string = newIdempotencyKey(),
+) {
   const { data, error, response } = await api.POST('/api/v1/card-payments', {
-    headers: { 'Idempotency-Key': crypto.randomUUID() },
+    headers: { 'Idempotency-Key': idempotencyKey },
     body: input,
   })
   if (error || !data) {

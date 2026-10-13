@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useRef } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
@@ -13,6 +14,7 @@ import { FormDialog } from '../../components/ui/form-dialog.tsx'
 import { SubmitButton } from '../../components/ui/submit-button.tsx'
 import type { CashAccount } from '../accounts/accounts-api.ts'
 import type { CreditCard } from '../cards/cards-api.ts'
+import { newIdempotencyKey } from '../../lib/idempotency.ts'
 import { useToday } from '../users/use-settings.ts'
 import { createPayment, type PaymentAllocation } from './card-payments-api.ts'
 
@@ -59,16 +61,23 @@ export function PaymentFormDialog({
   const watchedCardId = useWatch({ control: form.control, name: 'creditCardId' })
   const watchedCard = cards.find((card) => card.id === watchedCardId)
 
+  // Llave por intento: un reintento tras perder la respuesta no duplica el pago.
+  const idempotencyKey = useRef(newIdempotencyKey())
+
   const mutation = useMutation({
     mutationFn: (values: PaymentForm) =>
-      createPayment({
-        creditCardId: values.creditCardId,
-        cashAccountId: values.cashAccountId,
-        amount: values.amount,
-        paymentDate: values.paymentDate,
-        ...(values.notes ? { notes: values.notes } : {}),
-      }),
+      createPayment(
+        {
+          creditCardId: values.creditCardId,
+          cashAccountId: values.cashAccountId,
+          amount: values.amount,
+          paymentDate: values.paymentDate,
+          ...(values.notes ? { notes: values.notes } : {}),
+        },
+        idempotencyKey.current,
+      ),
     onSuccess: (result) => {
+      idempotencyKey.current = newIdempotencyKey()
       void queryClient.invalidateQueries({ queryKey: ['payments'] })
       void queryClient.invalidateQueries({ queryKey: ['cards'] })
       void queryClient.invalidateQueries({ queryKey: ['card'] })

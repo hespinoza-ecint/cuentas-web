@@ -1,4 +1,5 @@
 import { api } from '../../lib/api/client.ts'
+import { newIdempotencyKey } from '../../lib/idempotency.ts'
 import { problemFrom } from '../../lib/problem.ts'
 
 export interface CashMovement {
@@ -68,9 +69,12 @@ export async function listMovements(params: ListMovementsParams): Promise<Moveme
   return data as MovementPage
 }
 
-export async function createAdjustment(input: AdjustmentInput): Promise<CashMovement> {
+export async function createAdjustment(
+  input: AdjustmentInput,
+  idempotencyKey: string = newIdempotencyKey(),
+): Promise<CashMovement> {
   const { data, error, response } = await api.POST('/api/v1/cash-movements/adjustments', {
-    headers: { 'Idempotency-Key': crypto.randomUUID() },
+    headers: { 'Idempotency-Key': idempotencyKey },
     body: input,
   })
   if (error || !data) {

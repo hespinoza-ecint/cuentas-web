@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useRef } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -11,6 +12,7 @@ import { FormDialog } from '../../components/ui/form-dialog.tsx'
 import { SubmitButton } from '../../components/ui/submit-button.tsx'
 import { toast } from '../../lib/toast.ts'
 import { formatLocalDate } from '../../lib/dates.ts'
+import { newIdempotencyKey } from '../../lib/idempotency.ts'
 import { useToday } from '../users/use-settings.ts'
 import { confirmIncome, type UpcomingIncomeItem } from './income-api.ts'
 
@@ -43,6 +45,9 @@ export function ConfirmIncomeDialog({
     },
   })
 
+  // Llave por intento: un reintento tras perder la respuesta no duplica el ingreso.
+  const idempotencyKey = useRef(newIdempotencyKey())
+
   const mutation = useMutation({
     mutationFn: (values: ConfirmForm) =>
       confirmIncome({
@@ -52,8 +57,9 @@ export function ConfirmIncomeDialog({
         actualAmount: values.actualAmount,
         actualDate: values.actualDate,
         ...(values.notes ? { notes: values.notes } : {}),
-      }),
+      }, idempotencyKey.current),
     onSuccess: () => {
+      idempotencyKey.current = newIdempotencyKey()
       void queryClient.invalidateQueries({ queryKey: ['income-upcoming'] })
       void queryClient.invalidateQueries({ queryKey: ['income-transactions'] })
       void queryClient.invalidateQueries({ queryKey: ['accounts'] })

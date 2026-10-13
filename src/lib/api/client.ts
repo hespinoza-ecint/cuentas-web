@@ -32,11 +32,17 @@ export const rawApi = createClient<paths>({
 
 configureSessionRefresh(async (): Promise<AuthSession | null> => {
   // En web el refresh viaja en la cookie httpOnly; el cuerpo va vacío.
-  const { data, error } = await rawApi.POST('/api/v1/auth/refresh', { body: {} })
-  if (error || !data) {
+  const { data, response } = await rawApi.POST('/api/v1/auth/refresh', { body: {} })
+  if (data) {
+    return { accessToken: data.accessToken, user: data.user }
+  }
+  const status = response?.status
+  if (status === 401) {
+    // El servidor rechazó la sesión: de verdad expiró.
     return null
   }
-  return { accessToken: data.accessToken, user: data.user }
+  // Error transitorio (red, 5xx, 429): la sesión no debe destruirse.
+  throw new Error(`No se pudo renovar la sesión (${status ?? 'sin respuesta'})`)
 })
 
 /** Cuerpos de petición guardados para poder reintentar tras renovar el token. */

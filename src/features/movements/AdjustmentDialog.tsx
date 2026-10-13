@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useRef } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -11,6 +12,7 @@ import { DialogDescription, DialogFooter, DialogTitle } from '../../components/u
 import { FormDialog } from '../../components/ui/form-dialog.tsx'
 import { SubmitButton } from '../../components/ui/submit-button.tsx'
 import { toast } from '../../lib/toast.ts'
+import { newIdempotencyKey } from '../../lib/idempotency.ts'
 import { useToday } from '../users/use-settings.ts'
 import type { CashAccount } from '../accounts/accounts-api.ts'
 import { createAdjustment } from './movements-api.ts'
@@ -51,9 +53,13 @@ export function AdjustmentDialog({
     },
   })
 
+  // Llave por intento: un reintento tras perder la respuesta no duplica el ajuste.
+  const idempotencyKey = useRef(newIdempotencyKey())
+
   const mutation = useMutation({
-    mutationFn: createAdjustment,
+    mutationFn: (values: AdjustmentForm) => createAdjustment(values, idempotencyKey.current),
     onSuccess: () => {
+      idempotencyKey.current = newIdempotencyKey()
       void queryClient.invalidateQueries({ queryKey: ['movements'] })
       void queryClient.invalidateQueries({ queryKey: ['accounts'] })
       toast('Ajuste registrado.')

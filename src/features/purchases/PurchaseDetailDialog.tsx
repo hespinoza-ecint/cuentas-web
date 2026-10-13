@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Controller, useForm } from 'react-hook-form'
 import { MoneyDisplay } from '../../components/shared/MoneyDisplay.tsx'
@@ -19,6 +20,7 @@ import { SubmitButton } from '../../components/ui/submit-button.tsx'
 import { toast } from '../../lib/toast.ts'
 import { formatLocalDate } from '../../lib/dates.ts'
 import type { CashAccount } from '../accounts/accounts-api.ts'
+import { newIdempotencyKey } from '../../lib/idempotency.ts'
 import { useToday } from '../users/use-settings.ts'
 import { getPurchase, prepayPlan, type Purchase } from './purchases-api.ts'
 
@@ -66,14 +68,18 @@ export function PurchaseDetailDialog({
     },
   })
 
+  // Llave por intento: un reintento tras perder la respuesta no duplica el anticipo.
+  const idempotencyKey = useRef(newIdempotencyKey())
+
   const prepay = useMutation({
     mutationFn: (values: PrepayForm) =>
       prepayPlan(plan?.id as string, {
         cashAccountId: values.cashAccountId,
         amount: values.amount as number,
         paymentDate: values.paymentDate,
-      }),
+      }, idempotencyKey.current),
     onSuccess: (result) => {
+      idempotencyKey.current = newIdempotencyKey()
       void queryClient.invalidateQueries({ queryKey: ['purchase', purchaseId] })
       void queryClient.invalidateQueries({ queryKey: ['purchases'] })
       void queryClient.invalidateQueries({ queryKey: ['cards'] })

@@ -1187,6 +1187,9 @@ export interface components {
         RefreshDto: {
             refreshToken?: string;
         };
+        LogoutDto: {
+            refreshToken?: string;
+        };
         SessionResponseDto: {
             id: string;
             clientType: string;
@@ -1651,7 +1654,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LogoutDto"];
+            };
+        };
         responses: {
             204: {
                 headers: {
