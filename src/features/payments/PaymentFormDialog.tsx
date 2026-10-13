@@ -15,6 +15,7 @@ import { SubmitButton } from '../../components/ui/submit-button.tsx'
 import type { CashAccount } from '../accounts/accounts-api.ts'
 import type { CreditCard } from '../cards/cards-api.ts'
 import { newIdempotencyKey } from '../../lib/idempotency.ts'
+import { invalidateFinancial } from '../../lib/invalidate-financial.ts'
 import { useToday } from '../users/use-settings.ts'
 import { createPayment, type PaymentAllocation } from './card-payments-api.ts'
 
@@ -78,6 +79,7 @@ export function PaymentFormDialog({
       ),
     onSuccess: (result) => {
       idempotencyKey.current = newIdempotencyKey()
+      invalidateFinancial(queryClient)
       void queryClient.invalidateQueries({ queryKey: ['payments'] })
       void queryClient.invalidateQueries({ queryKey: ['cards'] })
       void queryClient.invalidateQueries({ queryKey: ['card'] })

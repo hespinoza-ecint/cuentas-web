@@ -11,6 +11,7 @@ import { DialogDescription, DialogFooter, DialogTitle } from '../../components/u
 import { FormDialog } from '../../components/ui/form-dialog.tsx'
 import { SubmitButton } from '../../components/ui/submit-button.tsx'
 import { toast } from '../../lib/toast.ts'
+import { invalidateFinancial } from '../../lib/invalidate-financial.ts'
 import type { CashAccount } from '../accounts/accounts-api.ts'
 import type { Category } from '../categories/categories-api.ts'
 import { useToday } from '../users/use-settings.ts'
@@ -64,6 +65,7 @@ export function ExpenseFormDialog({
         ...(values.notes ? { notes: values.notes } : {}),
       }),
     onSuccess: () => {
+      invalidateFinancial(queryClient)
       void queryClient.invalidateQueries({ queryKey: ['expenses'] })
       void queryClient.invalidateQueries({ queryKey: ['accounts'] })
       toast('Gasto registrado.')

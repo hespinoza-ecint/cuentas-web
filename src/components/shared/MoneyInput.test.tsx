@@ -30,4 +30,20 @@ describe('MoneyInput', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent('monto válido')
   })
+
+  it('limpia el monto del formulario cuando el texto deja de ser válido', async () => {
+    const onCentsChange = vi.fn()
+    const user = userEvent.setup()
+
+    render(<MoneyInput label="Monto" valueCents={undefined} onCentsChange={onCentsChange} />)
+    const input = screen.getByLabelText('Monto')
+
+    await user.type(input, '99')
+    expect(onCentsChange).toHaveBeenLastCalledWith(9900)
+
+    await user.type(input, 'x')
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('monto válido')
+    expect(onCentsChange).toHaveBeenLastCalledWith(undefined)
+  })
 })

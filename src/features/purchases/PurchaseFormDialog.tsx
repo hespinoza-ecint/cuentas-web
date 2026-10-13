@@ -12,6 +12,7 @@ import { DialogDescription, DialogFooter, DialogTitle } from '../../components/u
 import { FormDialog } from '../../components/ui/form-dialog.tsx'
 import { SubmitButton } from '../../components/ui/submit-button.tsx'
 import { toast } from '../../lib/toast.ts'
+import { invalidateFinancial } from '../../lib/invalidate-financial.ts'
 import type { Category } from '../categories/categories-api.ts'
 import type { CreditCard } from '../cards/cards-api.ts'
 import { newIdempotencyKey } from '../../lib/idempotency.ts'
@@ -124,6 +125,7 @@ export function PurchaseFormDialog({
       }, idempotencyKey.current),
     onSuccess: () => {
       idempotencyKey.current = newIdempotencyKey()
+      invalidateFinancial(queryClient)
       void queryClient.invalidateQueries({ queryKey: ['purchases'] })
       void queryClient.invalidateQueries({ queryKey: ['cards'] })
       void queryClient.invalidateQueries({ queryKey: ['ledger'] })

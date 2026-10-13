@@ -21,6 +21,7 @@ import { toast } from '../../lib/toast.ts'
 import { formatLocalDate } from '../../lib/dates.ts'
 import type { CashAccount } from '../accounts/accounts-api.ts'
 import { newIdempotencyKey } from '../../lib/idempotency.ts'
+import { invalidateFinancial } from '../../lib/invalidate-financial.ts'
 import { useToday } from '../users/use-settings.ts'
 import { getPurchase, prepayPlan, type Purchase } from './purchases-api.ts'
 
@@ -80,6 +81,7 @@ export function PurchaseDetailDialog({
       }, idempotencyKey.current),
     onSuccess: (result) => {
       idempotencyKey.current = newIdempotencyKey()
+      invalidateFinancial(queryClient)
       void queryClient.invalidateQueries({ queryKey: ['purchase', purchaseId] })
       void queryClient.invalidateQueries({ queryKey: ['purchases'] })
       void queryClient.invalidateQueries({ queryKey: ['cards'] })

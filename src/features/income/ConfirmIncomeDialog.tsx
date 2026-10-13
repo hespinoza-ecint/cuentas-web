@@ -13,6 +13,7 @@ import { SubmitButton } from '../../components/ui/submit-button.tsx'
 import { toast } from '../../lib/toast.ts'
 import { formatLocalDate } from '../../lib/dates.ts'
 import { newIdempotencyKey } from '../../lib/idempotency.ts'
+import { invalidateFinancial } from '../../lib/invalidate-financial.ts'
 import { useToday } from '../users/use-settings.ts'
 import { confirmIncome, type UpcomingIncomeItem } from './income-api.ts'
 
@@ -60,6 +61,7 @@ export function ConfirmIncomeDialog({
       }, idempotencyKey.current),
     onSuccess: () => {
       idempotencyKey.current = newIdempotencyKey()
+      invalidateFinancial(queryClient)
       void queryClient.invalidateQueries({ queryKey: ['income-upcoming'] })
       void queryClient.invalidateQueries({ queryKey: ['income-transactions'] })
       void queryClient.invalidateQueries({ queryKey: ['accounts'] })

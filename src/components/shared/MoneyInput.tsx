@@ -58,6 +58,9 @@ export function MoneyInput({
     const cents = parsePesosToCents(next)
     if (cents === null) {
       setLocalError('Escribe un monto válido, por ejemplo 1,234.56')
+      // El formulario no debe conservar el último monto válido: el aviso del
+      // campo y el valor enviado quedarian desalineados.
+      onCentsChange(undefined)
       return
     }
     setLocalError(null)

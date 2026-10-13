@@ -20,7 +20,7 @@ import { Skeleton } from '../../components/ui/skeleton.tsx'
 import { addDays, formatLocalDate, formatMonth } from '../../lib/dates.ts'
 import { cn } from '../../lib/utils.ts'
 import { useSessionUser } from '../auth/use-session.ts'
-import { useToday } from '../users/use-settings.ts'
+import { useSettings, useToday } from '../users/use-settings.ts'
 import { CashflowChart } from './CashflowChart.tsx'
 import { fetchCashflowProjection, fetchDashboardSummary } from './dashboard-api.ts'
 
@@ -39,6 +39,8 @@ const MAX_WINDOW_DAYS = 1825
 export function DashboardPage() {
   const user = useSessionUser()
   const today = useToday()
+  // La utilización máxima del usuario define las bandas del semáforo.
+  const maxUtilizationBps = useSettings().data?.maxUtilizationBps ?? 3000
   const [range, setRange] = useState<{ from: string; to: string } | null>(null)
   const from = range?.from ?? today
   const to = range?.to ?? addDays(today, DEFAULT_WINDOW_DAYS)
@@ -239,9 +241,9 @@ export function DashboardPage() {
               <ul className="mt-4 grid gap-3 sm:grid-cols-2" data-testid="dashboard-cards">
                 {summary.data.cards.items.map((card) => {
                   const level =
-                    card.utilizationBps <= 3000
+                    card.utilizationBps <= maxUtilizationBps
                       ? { label: 'Uso bajo', tone: 'bg-success' }
-                      : card.utilizationBps <= 5000
+                      : card.utilizationBps <= Math.round((maxUtilizationBps * 5) / 3)
                         ? { label: 'Uso medio', tone: 'bg-warning' }
                         : { label: 'Uso alto', tone: 'bg-danger' }
                   return (

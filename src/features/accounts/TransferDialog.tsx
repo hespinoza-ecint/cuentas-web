@@ -11,6 +11,7 @@ import { DialogDescription, DialogFooter, DialogTitle } from '../../components/u
 import { FormDialog } from '../../components/ui/form-dialog.tsx'
 import { SubmitButton } from '../../components/ui/submit-button.tsx'
 import { toast } from '../../lib/toast.ts'
+import { invalidateFinancial } from '../../lib/invalidate-financial.ts'
 import { useToday } from '../users/use-settings.ts'
 import { transfer, type CashAccount } from './accounts-api.ts'
 
@@ -55,6 +56,7 @@ export function TransferDialog({
   const mutation = useMutation({
     mutationFn: transfer,
     onSuccess: () => {
+      invalidateFinancial(queryClient)
       void queryClient.invalidateQueries({ queryKey: ['accounts'] })
       void queryClient.invalidateQueries({ queryKey: ['movements'] })
       toast('Transferencia registrada.')

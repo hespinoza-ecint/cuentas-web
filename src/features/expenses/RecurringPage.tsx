@@ -14,6 +14,7 @@ import { ListRow } from '../../components/ui/list-row.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
 import { toast } from '../../lib/toast.ts'
+import { invalidateFinancial } from '../../lib/invalidate-financial.ts'
 import { formatLocalDate } from '../../lib/dates.ts'
 import { listAccounts } from '../accounts/accounts-api.ts'
 import { listCards } from '../cards/cards-api.ts'
@@ -86,6 +87,7 @@ export function RecurringPage() {
           : 'Ocurrencia confirmada: se registró el gasto y su movimiento.',
       )
       setConfirmingId(null)
+      invalidateFinancial(queryClient)
       void queryClient.invalidateQueries({ queryKey: ['recurring-upcoming'] })
       void queryClient.invalidateQueries({ queryKey: ['expenses'] })
       void queryClient.invalidateQueries({ queryKey: ['accounts'] })
@@ -101,6 +103,7 @@ export function RecurringPage() {
     onSuccess: () => {
       toast('Ocurrencia omitida: ya no se proyecta.')
       setSkipping(null)
+      invalidateFinancial(queryClient)
       void queryClient.invalidateQueries({ queryKey: ['recurring-upcoming'] })
       void queryClient.invalidateQueries({ queryKey: ['dashboard'] })
     },

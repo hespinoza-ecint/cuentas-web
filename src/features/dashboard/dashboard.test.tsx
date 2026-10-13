@@ -2,7 +2,7 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { HttpResponse, http } from 'msw'
 import { describe, expect, it } from 'vitest'
 import { addDays, todayInTimeZone } from '../../lib/dates.ts'
-import { API_BASE, problem, refreshOk, settingsHandler } from '../../test/fixtures.ts'
+import { API_BASE, problem, refreshOk, settingsHandler, userSettingsFixture } from '../../test/fixtures.ts'
 import { server } from '../../test/msw/server.ts'
 import { renderApp } from '../../test/render-app.tsx'
 
@@ -130,6 +130,30 @@ describe('dashboard', () => {
     expect(screen.getByText('Bono')).toBeInTheDocument()
     expect(screen.getByText('Pago Oro (corte 2026-10-05)')).toBeInTheDocument()
     expect(screen.getByText('Supermercado')).toBeInTheDocument()
+  })
+
+  it('usa la utilización máxima del usuario para el nivel de uso de cada tarjeta', async () => {
+    server.use(
+      refreshOk,
+      http.get(`${API_BASE}/api/v1/users/me/settings`, () =>
+        HttpResponse.json({ ...userSettingsFixture, maxUtilizationBps: 1000 }),
+      ),
+      http.get(`${API_BASE}/api/v1/dashboard/summary`, () =>
+        HttpResponse.json({
+          ...summary,
+          cards: {
+            ...summary.cards,
+            items: [{ ...summary.cards.items[0], utilizationBps: 1500 }],
+          },
+        }),
+      ),
+      projectionHandler(),
+    )
+    renderApp(['/'])
+
+    expect(await screen.findByText('Hola, Ana')).toBeInTheDocument()
+    // 15% supera el máximo del usuario (10%) y queda debajo del doble: uso medio.
+    expect(await screen.findByText(/Uso medio/)).toBeInTheDocument()
   })
 
   it('permite elegir el rango de fechas de la proyeccion (default 30 dias)', async () => {

@@ -12,6 +12,7 @@ import { DialogDescription, DialogFooter, DialogTitle } from '../../components/u
 import { FormDialog } from '../../components/ui/form-dialog.tsx'
 import { SubmitButton } from '../../components/ui/submit-button.tsx'
 import { toast } from '../../lib/toast.ts'
+import { invalidateFinancial } from '../../lib/invalidate-financial.ts'
 import { newIdempotencyKey } from '../../lib/idempotency.ts'
 import { useToday } from '../users/use-settings.ts'
 import type { CashAccount } from '../accounts/accounts-api.ts'
@@ -60,6 +61,7 @@ export function AdjustmentDialog({
     mutationFn: (values: AdjustmentForm) => createAdjustment(values, idempotencyKey.current),
     onSuccess: () => {
       idempotencyKey.current = newIdempotencyKey()
+      invalidateFinancial(queryClient)
       void queryClient.invalidateQueries({ queryKey: ['movements'] })
       void queryClient.invalidateQueries({ queryKey: ['accounts'] })
       toast('Ajuste registrado.')
