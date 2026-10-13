@@ -66,12 +66,32 @@ const payment = {
   updatedAt: '2026-10-05T00:00:00.000Z',
 }
 
+const statement = {
+  id: 'st-1',
+  userId: 'user-1',
+  creditCardId: 'card-1',
+  periodStart: '2026-09-16',
+  cutDate: '2026-10-15',
+  dueDate: '2026-11-04',
+  statementBalance: 255000,
+  cycleCharges: 200000,
+  noInterestPaymentCalc: 200000,
+  noInterestPaymentReported: null,
+  minimumPaymentReported: null,
+  minimumPaymentEstimated: 30000,
+  paidAmount: 20000,
+  status: 'CLOSED',
+  createdAt: '2026-10-15T00:00:00.000Z',
+  updatedAt: '2026-10-15T00:00:00.000Z',
+}
+
 function baseHandlers() {
   return [
     refreshOk,
     settingsHandler,
     http.get(`${API_BASE}/api/v1/cards`, () => HttpResponse.json([card])),
     http.get(`${API_BASE}/api/v1/cash-accounts`, () => HttpResponse.json([account])),
+    http.get(`${API_BASE}/api/v1/cards/:id/statements`, () => HttpResponse.json([statement])),
     http.get(`${API_BASE}/api/v1/card-payments`, () =>
       HttpResponse.json({ data: [payment], meta: { limit: 20, nextCursor: null, hasMore: false } }),
     ),
@@ -120,6 +140,62 @@ describe('pagos de tarjeta', () => {
     expect(created?.amount).toBe(50000)
     expect(created?.paymentDate).toBe(todayInTimeZone(userSettingsFixture.timezone))
     expect(await screen.findByText('Pago aplicado a: Corte.')).toBeInTheDocument()
+  })
+
+  it('sugiere el total del corte y lo captura con un toque', async () => {
+    let created: Record<string, unknown> | null = null
+
+    server.use(
+      ...baseHandlers(),
+      http.post(`${API_BASE}/api/v1/card-payments`, async ({ request }) => {
+        created = (await request.json()) as Record<string, unknown>
+        return HttpResponse.json(
+          {
+            payment,
+            allocations: [{ id: 'a-1', targetType: 'STATEMENT', amount: 180000 }],
+          },
+          { status: 201 },
+        )
+      }),
+    )
+
+    renderApp(['/pagos'])
+    const user = userEvent.setup()
+
+    await user.click(await screen.findByRole('button', { name: 'Registrar pago' }))
+    const dialog = await screen.findByRole('dialog')
+
+    // El corte elegido es el unico pendiente: $2,000.00 - $200.00 pagados.
+    expect(await within(dialog).findByText('Corte 15 oct 2026 · vence 4 nov 2026')).toBeInTheDocument()
+    const statementButton = within(dialog).getByRole('button', { name: /Total del corte/ })
+    expect(within(dialog).getByRole('button', { name: /Pago mínimo/ })).toBeInTheDocument()
+
+    await user.click(statementButton)
+    expect(within(dialog).getByLabelText('Monto')).toHaveValue('1800.00')
+    expect(statementButton).toHaveAttribute('aria-pressed', 'true')
+
+    await user.click(within(dialog).getByRole('button', { name: 'Registrar pago' }))
+
+    await waitFor(() => expect(created).not.toBeNull())
+    expect(created?.amount).toBe(180000)
+  })
+
+  it('sin corte pendiente solo ofrece el saldo total', async () => {
+    server.use(...baseHandlers())
+    // El override va en una llamada aparte: en el mismo spread no gana.
+    server.use(http.get(`${API_BASE}/api/v1/cards/:id/statements`, () => HttpResponse.json([])))
+
+    renderApp(['/pagos'])
+    const user = userEvent.setup()
+
+    await user.click(await screen.findByRole('button', { name: 'Registrar pago' }))
+    const dialog = await screen.findByRole('dialog')
+
+    expect(await within(dialog).findByText('Sin corte pendiente')).toBeInTheDocument()
+    expect(within(dialog).getByRole('button', { name: /Saldo total/ })).toBeInTheDocument()
+    expect(
+      within(dialog).queryByRole('button', { name: /Total del corte/ }),
+    ).not.toBeInTheDocument()
   })
 
   it('revierte un pago con motivo', async () => {

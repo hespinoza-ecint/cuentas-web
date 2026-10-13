@@ -153,4 +153,5 @@ actualizaciones) está en
 - [Fase 20 — Rediseño móvil integral (navegación, sistema de diseño y componentes)](docs/fase-20-rediseno-movil.md)
 - [Fase 21 — Gráfica de flujo interactiva (escalones, colchón y detalle por día)](docs/fase-21-grafica-de-flujo.md)
 - [Fase 22 — Limpieza de caché al cerrar sesión y zona horaria segura](docs/fase-22-cache-de-sesion-y-zona-horaria.md)
+- [Fase 29 — Montos sugeridos al registrar un pago](docs/fase-29-montos-sugeridos-de-pago.md)
 - [Pruebas E2E con Playwright](docs/e2e-playwright.md)

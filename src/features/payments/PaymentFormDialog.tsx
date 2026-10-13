@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRef } from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
 import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
@@ -13,11 +13,13 @@ import { DialogDescription, DialogFooter, DialogTitle } from '../../components/u
 import { FormDialog } from '../../components/ui/form-dialog.tsx'
 import { SubmitButton } from '../../components/ui/submit-button.tsx'
 import type { CashAccount } from '../accounts/accounts-api.ts'
-import type { CreditCard } from '../cards/cards-api.ts'
+import { listStatements, type CreditCard } from '../cards/cards-api.ts'
 import { newIdempotencyKey } from '../../lib/idempotency.ts'
 import { invalidateFinancial } from '../../lib/invalidate-financial.ts'
+import { formatLocalDate } from '../../lib/dates.ts'
 import { useToday } from '../users/use-settings.ts'
 import { createPayment, type PaymentAllocation } from './card-payments-api.ts'
+import { paymentSuggestions } from './payment-suggestions.ts'
 
 const paymentSchema = z.object({
   creditCardId: z.string().min(1, 'Elige la tarjeta'),
@@ -61,6 +63,16 @@ export function PaymentFormDialog({
 
   const watchedCardId = useWatch({ control: form.control, name: 'creditCardId' })
   const watchedCard = cards.find((card) => card.id === watchedCardId)
+
+  // Los montos sugeridos salen del ultimo corte pendiente de la tarjeta.
+  const statements = useQuery({
+    queryKey: ['statements', watchedCardId],
+    queryFn: () => listStatements(watchedCardId),
+    enabled: watchedCardId !== '',
+  })
+  const watchedAmount = useWatch({ control: form.control, name: 'amount' })
+  const suggestions =
+    statements.data && watchedCard ? paymentSuggestions(statements.data, watchedCard) : null
 
   // Llave por intento: un reintento tras perder la respuesta no duplica el pago.
   const idempotencyKey = useRef(newIdempotencyKey())
@@ -120,6 +132,38 @@ export function PaymentFormDialog({
                 </option>
               ))}
             </SelectField>
+            {suggestions && (suggestions.pending || suggestions.options.length > 0) && (
+              <div className="space-y-2">
+                <p className="text-xs text-ink-muted">
+                  {suggestions.pending
+                    ? `Corte ${formatLocalDate(suggestions.pending.cutDate)} · vence ${formatLocalDate(suggestions.pending.dueDate)}`
+                    : 'Sin corte pendiente'}
+                </p>
+                <div className="flex flex-wrap gap-2" role="group" aria-label="Montos sugeridos">
+                  {suggestions.options.map((option) => {
+                    const selected = watchedAmount === option.amount
+                    return (
+                      <Button
+                        key={option.key}
+                        variant="secondary"
+                        size="sm"
+                        aria-pressed={selected}
+                        className={selected ? 'bg-brand-soft text-brand-ink' : undefined}
+                        onClick={() =>
+                          form.setValue('amount', option.amount, {
+                            shouldDirty: true,
+                            shouldValidate: true,
+                          })
+                        }
+                      >
+                        {option.label}{' '}
+                        <MoneyDisplay cents={option.amount} className="font-semibold" />
+                      </Button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
             <Controller
               name="amount"
               control={form.control}
