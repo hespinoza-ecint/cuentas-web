@@ -1,4 +1,5 @@
 import { api } from '../../lib/api/client.ts'
+import { newIdempotencyKey } from '../../lib/idempotency.ts'
 import { problemFrom } from '../../lib/problem.ts'
 
 export interface RecurringExpense {
@@ -152,4 +153,21 @@ export async function confirmRecurring(
     throw problemFrom(error, response)
   }
   return data as { expenseId?: string; movementId?: string; purchaseId?: string }
+}
+
+/** Omite una ocurrencia: deja de proyectarse sin crear gasto. */
+export async function skipRecurring(
+  id: string,
+  input: { occurrenceDate: string; reason?: string },
+  idempotencyKey: string = newIdempotencyKey(),
+) {
+  const { data, error, response } = await api.POST('/api/v1/recurring-expenses/{id}/skip', {
+    params: { path: { id } },
+    headers: { 'Idempotency-Key': idempotencyKey },
+    body: input,
+  })
+  if (error || !data) {
+    throw problemFrom(error, response)
+  }
+  return data as { skipped: boolean }
 }

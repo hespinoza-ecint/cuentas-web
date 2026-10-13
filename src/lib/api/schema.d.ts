@@ -868,6 +868,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/recurring-expenses/{id}/skip": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["RecurringExpensesController_skip"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/purchases": {
         parameters: {
             query?: never;
@@ -1498,6 +1514,10 @@ export interface components {
             actualAmount?: number;
             actualDate?: string;
             notes?: string;
+        };
+        SkipRecurringExpenseDto: {
+            occurrenceDate: string;
+            reason?: string;
         };
         CreatePurchaseDto: {
             /** Format: uuid */
@@ -3151,6 +3171,29 @@ export interface operations {
                 content: {
                     "application/json": Record<string, never>;
                 };
+            };
+        };
+    };
+    RecurringExpensesController_skip: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SkipRecurringExpenseDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

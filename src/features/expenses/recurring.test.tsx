@@ -253,4 +253,33 @@ describe('gastos recurrentes', () => {
 
     expect(await screen.findByText(/se registró la compra en la tarjeta/)).toBeInTheDocument()
   })
+
+  it('omite una ocurrencia próxima', async () => {
+    let skipped: { id: string; body: Record<string, unknown> } | null = null
+
+    server.use(
+      ...baseHandlers(),
+      http.post(`${API_BASE}/api/v1/recurring-expenses/:id/skip`, async ({ request, params }) => {
+        skipped = {
+          id: params.id as string,
+          body: (await request.json()) as Record<string, unknown>,
+        }
+        return HttpResponse.json({ skipped: true }, { status: 201 })
+      }),
+    )
+
+    renderApp(['/recurrentes'])
+    const user = userEvent.setup()
+
+    const upcoming = await screen.findByTestId('upcoming-occurrences')
+    await user.click(within(upcoming).getByRole('button', { name: 'Omitir' }))
+
+    const dialog = await screen.findByRole('dialog')
+    await user.click(within(dialog).getByRole('button', { name: 'Omitir' }))
+
+    await waitFor(() => expect(skipped).not.toBeNull())
+    expect(skipped?.id).toBe('rec-1')
+    expect(skipped?.body.occurrenceDate).toBe('2026-11-01')
+    expect(await screen.findByText(/Ocurrencia omitida/)).toBeInTheDocument()
+  })
 })

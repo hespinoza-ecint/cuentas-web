@@ -22,6 +22,7 @@ import {
   confirmRecurring,
   listRecurring,
   removeRecurring,
+  skipRecurring,
   upcomingRecurring,
   type RecurringExpense,
 } from './recurring-expenses-api.ts'
@@ -52,6 +53,11 @@ export function RecurringPage() {
   const [editing, setEditing] = useState<RecurringExpense | null>(null)
   const [deleting, setDeleting] = useState<RecurringExpense | null>(null)
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
+  const [skipping, setSkipping] = useState<{
+    id: string
+    occurrenceDate: string
+    name: string
+  } | null>(null)
 
   const accounts = useQuery({ queryKey: ['accounts'], queryFn: listAccounts })
   const cards = useQuery({ queryKey: ['cards'], queryFn: listCards })
@@ -87,6 +93,18 @@ export function RecurringPage() {
       void queryClient.invalidateQueries({ queryKey: ['purchases'] })
     },
     onError: () => setConfirmingId(null),
+  })
+
+  const skip = useMutation({
+    mutationFn: ({ id, occurrenceDate }: { id: string; occurrenceDate: string }) =>
+      skipRecurring(id, { occurrenceDate }),
+    onSuccess: () => {
+      toast('Ocurrencia omitida: ya no se proyecta.')
+      setSkipping(null)
+      void queryClient.invalidateQueries({ queryKey: ['recurring-upcoming'] })
+      void queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+    },
+    onError: () => setSkipping(null),
   })
 
   const remove = useMutation({
@@ -168,6 +186,20 @@ export function RecurringPage() {
                   >
                     <Check className="size-3.5" aria-hidden="true" />
                     Confirmar
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    loading={skip.isPending && skipping?.id === occurrence.recurringExpenseId}
+                    onClick={() => {
+                      setSkipping({
+                        id: occurrence.recurringExpenseId,
+                        occurrenceDate: occurrence.expectedDate,
+                        name: occurrence.name,
+                      })
+                    }}
+                  >
+                    Omitir
                   </Button>
                 </div>
               </li>
@@ -288,6 +320,28 @@ export function RecurringPage() {
         onConfirm={async () => {
           if (deleting) {
             await remove.mutateAsync(deleting.id)
+          }
+        }}
+      />
+
+      <ConfirmDialog
+        open={skipping !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSkipping(null)
+          }
+        }}
+        title="Omitir ocurrencia"
+        description={
+          skipping
+            ? `Se omitirá "${skipping.name}" del ${formatLocalDate(skipping.occurrenceDate)} y dejará de proyectarse.`
+            : ''
+        }
+        confirmLabel="Omitir"
+        tone="primary"
+        onConfirm={async () => {
+          if (skipping) {
+            await skip.mutateAsync({ id: skipping.id, occurrenceDate: skipping.occurrenceDate })
           }
         }}
       />
