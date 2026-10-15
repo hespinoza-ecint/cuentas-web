@@ -154,6 +154,6 @@ actualizaciones) está en
 - [Fase 21 — Gráfica de flujo interactiva (escalones, colchón y detalle por día)](docs/fase-21-grafica-de-flujo.md)
 - [Fase 22 — Limpieza de caché al cerrar sesión y zona horaria segura](docs/fase-22-cache-de-sesion-y-zona-horaria.md)
 - [Fase 29 — Montos sugeridos al registrar un pago](docs/fase-29-montos-sugeridos-de-pago.md)
-- [Fase 30 - Compras bloqueadas por corte pagado (RN-30)](docs/fase-30-bloqueo-compras-corte-pagado.md)
-- [Fase 31 - Importar compras desde Excel (RN-31)](docs/fase-31-importar-compras.md)
+- [Fase 30 — Compras bloqueadas por corte pagado (RN-30)](docs/fase-30-bloqueo-compras-corte-pagado.md)
+- [Fase 31 — Importar compras desde Excel (RN-31)](docs/fase-31-importar-compras.md)
 - [Pruebas E2E con Playwright](docs/e2e-playwright.md)
