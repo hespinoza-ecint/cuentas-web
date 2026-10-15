@@ -194,6 +194,57 @@ describe('importar compras desde Excel', () => {
     )
   })
 
+  it('no permite importar con una descripcion vacia', async () => {
+    const capturedBodies: unknown[] = []
+    server.use(...baseHandlers())
+    server.use(
+      http.post(`${API_BASE}/api/v1/purchases/import/preview`, () =>
+        HttpResponse.json({
+          data: [
+            { index: 0, duplicateOfId: null, statementPaid: false, dateIssue: null },
+            { index: 1, duplicateOfId: null, statementPaid: false, dateIssue: null },
+          ],
+        }),
+      ),
+      http.post(`${API_BASE}/api/v1/purchases/import`, async ({ request }) => {
+        capturedBodies.push(await request.json())
+        return HttpResponse.json({ createdCount: 1, purchaseIds: ['p1'] }, { status: 201 })
+      }),
+    )
+
+    const user = await openImportDialog()
+    await user.click(await screen.findByRole('button', { name: 'Marcar todas' }))
+    await user.click(screen.getByRole('button', { name: 'Revisar una por una' }))
+    await user.clear(screen.getByLabelText('Descripción'))
+    await user.click(screen.getByRole('button', { name: 'Volver a la tabla' }))
+
+    await expect(await screen.findByText(/Completa la descripci/)).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Importar 2 compras' })).toBeDisabled()
+    expect(capturedBodies).toHaveLength(0)
+  })
+
+  it('la descripcion vacia bloquea Incluir en la revision', async () => {
+    server.use(...baseHandlers())
+    server.use(
+      http.post(`${API_BASE}/api/v1/purchases/import/preview`, () =>
+        HttpResponse.json({
+          data: [
+            { index: 0, duplicateOfId: null, statementPaid: false, dateIssue: null },
+            { index: 1, duplicateOfId: null, statementPaid: false, dateIssue: null },
+          ],
+        }),
+      ),
+    )
+
+    const user = await openImportDialog()
+    await user.click(await screen.findByRole('button', { name: 'Revisar una por una' }))
+    await user.clear(screen.getByLabelText('Descripción'))
+    await user.click(screen.getByRole('button', { name: 'Incluir' }))
+
+    expect(await screen.findByText('La descripcion es obligatoria.')).toBeVisible()
+    expect(screen.getByTestId('import-review')).toHaveTextContent(/Compra 1 de 2/)
+  })
+
   it('la revision paso a paso permite editar, incluir y omitir', async () => {
     const previewBodies: { rows: { description: string }[] }[] = []
     let importedBody: { creditCardId: string; rows: { description: string }[] } | null = null

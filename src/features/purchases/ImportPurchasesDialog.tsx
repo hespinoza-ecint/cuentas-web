@@ -61,6 +61,8 @@ export function ImportPurchasesDialog({
     .map(({ index }) => index)
   const selected = (rows ?? []).filter((row) => row.included && !isBlocked(row))
   const selectedTotal = selected.reduce((total, row) => total + (row.parsed.amount ?? 0), 0)
+  /** Una descripcion vacia no puede viajar a la API (RN-31): se bloquea aqui. */
+  const blankDescription = selected.some((row) => row.description.trim() === '')
   const reviewing = reviewPosition !== null
   const currentIndex = reviewing ? importableIndexes[reviewPosition] : null
   const current = currentIndex !== null && rows ? rows[currentIndex] : null
@@ -119,6 +121,7 @@ export function ImportPurchasesDialog({
     setFileName(file.name)
     setFileError(null)
     setPreviewError(null)
+    importMutation.reset()
     setDescriptionError(null)
     setReviewPosition(null)
     const parsed = await readPurchasesFile(file)
@@ -234,7 +237,7 @@ export function ImportPurchasesDialog({
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (selected.length > 0 && !previewing) {
+    if (selected.length > 0 && !previewing && !blankDescription) {
       importMutation.mutate()
     }
   }
@@ -270,7 +273,16 @@ export function ImportPurchasesDialog({
 
           {fileName && <p className="text-xs text-ink-muted">Archivo: {fileName}</p>}
 
-          <ErrorAlert error={fileError ?? previewError ?? importMutation.error} />
+          <ErrorAlert
+            error={
+              fileError ??
+              previewError ??
+              (blankDescription
+                ? 'Completa la descripción de las compras marcadas antes de importar.'
+                : null) ??
+              importMutation.error
+            }
+          />
 
           {rows && !reviewing && (
             <div data-testid="import-preview">
@@ -400,7 +412,7 @@ export function ImportPurchasesDialog({
           </Button>
           <SubmitButton
             pending={importMutation.isPending}
-            disabled={selected.length === 0 || previewing}
+            disabled={selected.length === 0 || previewing || blankDescription}
           >
             {selected.length === 1 ? 'Importar 1 compra' : `Importar ${selected.length} compras`}
           </SubmitButton>
