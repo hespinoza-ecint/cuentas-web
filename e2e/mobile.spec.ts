@@ -86,6 +86,7 @@ test('flujo móvil: navegación, acciones rápidas y diálogos utilizables', asy
   const cardsTabs = page.getByRole('navigation', { name: 'Secciones de Tarjetas' })
   await cardsTabs.getByRole('link', { name: 'Compras' }).click()
   await expect(page).toHaveURL(/\/compras$/)
+  await expect(page.getByRole('button', { name: 'Importar Excel' })).toBeHidden()
   await expectNoHorizontalScroll(page)
 
   await page.getByRole('button', { name: 'Acciones rápidas' }).click()
