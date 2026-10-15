@@ -202,3 +202,51 @@ export async function prepayPlan(
     settled: boolean
   }
 }
+
+export interface ImportPurchaseRowInput {
+  purchaseDate: string
+  description: string
+  amount: number
+}
+
+/** RN-31: avisos de una fila antes de importar. */
+export interface ImportPreviewRow {
+  index: number
+  duplicateOfId: string | null
+  statementPaid: boolean
+  dateIssue: 'FUTURE_DATE_NOT_ALLOWED' | 'BACKDATE_LIMIT_EXCEEDED' | null
+}
+
+export interface ImportPurchasesResult {
+  createdCount: number
+  purchaseIds: string[]
+}
+
+/** RN-31: vista previa de la importacion; no crea nada. */
+export async function previewPurchaseImport(input: {
+  creditCardId: string
+  rows: ImportPurchaseRowInput[]
+}): Promise<ImportPreviewRow[]> {
+  const { data, error, response } = await api.POST('/api/v1/purchases/import/preview', {
+    body: input,
+  })
+  if (error || !data) {
+    throw problemFrom(error, response)
+  }
+  return (data as { data: ImportPreviewRow[] }).data
+}
+
+/** RN-31: importa las filas marcadas en una sola transaccion. */
+export async function importPurchases(
+  input: { creditCardId: string; rows: ImportPurchaseRowInput[] },
+  idempotencyKey: string = newIdempotencyKey(),
+): Promise<ImportPurchasesResult> {
+  const { data, error, response } = await api.POST('/api/v1/purchases/import', {
+    headers: { 'Idempotency-Key': idempotencyKey },
+    body: input,
+  })
+  if (error || !data) {
+    throw problemFrom(error, response)
+  }
+  return data as ImportPurchasesResult
+}

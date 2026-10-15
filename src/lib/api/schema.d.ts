@@ -900,6 +900,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/purchases/import/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["PurchasesController_previewImport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/purchases/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["PurchasesController_importPurchases"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/purchases/{id}": {
         parameters: {
             query?: never;
@@ -1538,6 +1570,16 @@ export interface components {
             notes?: string;
             /** Format: uuid */
             recommendationId?: string;
+        };
+        ImportPurchaseRowDto: {
+            purchaseDate: string;
+            description: string;
+            amount: number;
+        };
+        ImportPurchasesDto: {
+            /** Format: uuid */
+            creditCardId: string;
+            rows: components["schemas"]["ImportPurchaseRowDto"][];
         };
         CancelPurchaseDto: {
             reason: string;
@@ -3234,6 +3276,50 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["CreatePurchaseDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    PurchasesController_previewImport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImportPurchasesDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PurchasesController_importPurchases: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImportPurchasesDto"];
             };
         };
         responses: {
