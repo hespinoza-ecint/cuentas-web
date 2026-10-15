@@ -172,6 +172,28 @@ describe('importar compras desde Excel', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(/fecha futura/)
   })
 
+  it('muestra el error de lectura del archivo', async () => {
+    server.use(...baseHandlers())
+
+    const user = userEvent.setup()
+    renderApp(['/compras'])
+    await user.click(await screen.findByRole('button', { name: 'Importar Excel' }))
+    readMock.mockResolvedValueOnce({
+      rows: [],
+      error: 'El archivo debe ser un Excel (.xlsx).',
+    })
+    await user.upload(
+      screen.getByLabelText('Archivo Excel'),
+      new File(['x'], 'compras.xlsx', {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      }),
+    )
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'El archivo debe ser un Excel (.xlsx).',
+    )
+  })
+
   it('la revision paso a paso permite editar, incluir y omitir', async () => {
     const previewBodies: { rows: { description: string }[] }[] = []
     let importedBody: { creditCardId: string; rows: { description: string }[] } | null = null
@@ -181,7 +203,7 @@ describe('importar compras desde Excel', () => {
         const body = (await request.json()) as { rows: { description: string }[] }
         previewBodies.push(body)
         return HttpResponse.json({
-          data: body.rows.map((row, index) => ({
+          data: body.rows.map((_row, index) => ({
             index,
             duplicateOfId: null,
             statementPaid: false,

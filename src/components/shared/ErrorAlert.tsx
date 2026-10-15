@@ -17,9 +17,12 @@ export function ErrorAlert({ error, className = '' }: ErrorAlertProps) {
 
   const problem = isProblemError(error) ? error.problem : undefined
   const offline = !online && !problem
-  const message = offline
-    ? 'Parece que no hay conexión. Vuelve a intentarlo cuando te reconectes.'
-    : (problem?.detail ?? problem?.title ?? 'Ocurrió un error inesperado. Intenta de nuevo.')
+  const message =
+    typeof error === 'string'
+      ? error
+      : offline
+        ? 'Parece que no hay conexión. Vuelve a intentarlo cuando te reconectes.'
+        : (problem?.detail ?? problem?.title ?? 'Ocurrió un error inesperado. Intenta de nuevo.')
 
   return (
     <div
