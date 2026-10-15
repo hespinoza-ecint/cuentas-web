@@ -19,9 +19,9 @@ export async function readPurchasesFile(file: File): Promise<ParsedPurchaseFile>
 
   let parsed: ParsedPurchaseFile
   try {
-    const { default: readXlsxFile } = await import('read-excel-file/browser')
-    const matrix = await readXlsxFile(file)
-    parsed = parsePurchaseRows(matrix as unknown as unknown[][])
+    const { readSheet } = await import('read-excel-file/browser')
+    const matrix = await readSheet(file)
+    parsed = parsePurchaseRows(matrix)
   } catch {
     return { rows: [], error: 'No se pudo leer el archivo. Revisa que no este danado.' }
   }

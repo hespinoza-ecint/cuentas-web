@@ -1,5 +1,11 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { readPurchasesFile } from './read-purchases-file.ts'
+
+const { readSheetMock } = vi.hoisted(() => ({ readSheetMock: vi.fn() }))
+
+vi.mock('read-excel-file/browser', () => ({
+  readSheet: readSheetMock,
+}))
 
 describe('readPurchasesFile', () => {
   it('rechaza archivos que no son .xlsx', async () => {
@@ -15,5 +21,20 @@ describe('readPurchasesFile', () => {
 
     expect(result.rows).toEqual([])
     expect(result.error).toBe('El archivo supera el limite de 2 MB.')
+  })
+
+  it('lee la primera hoja y la convierte en filas', async () => {
+    readSheetMock.mockResolvedValueOnce([
+      ['Fecha', 'Descripción', 'Compras'],
+      ['04 Oct 2026', 'Uber', '$ 89.97'],
+      ['', '', ''],
+    ])
+
+    const result = await readPurchasesFile(new File(['x'], 'compras.xlsx'))
+
+    expect(result.error).toBeNull()
+    expect(result.rows).toEqual([
+      { line: 2, purchaseDate: '2026-10-04', description: 'Uber', amount: 8997 },
+    ])
   })
 })
