@@ -171,4 +171,64 @@ describe('importar compras desde Excel', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent(/fecha futura/)
   })
+
+  it('la revision paso a paso permite editar, incluir y omitir', async () => {
+    const previewBodies: { rows: { description: string }[] }[] = []
+    let importedBody: { creditCardId: string; rows: { description: string }[] } | null = null
+    server.use(...baseHandlers())
+    server.use(
+      http.post(`${API_BASE}/api/v1/purchases/import/preview`, async ({ request }) => {
+        const body = (await request.json()) as { rows: { description: string }[] }
+        previewBodies.push(body)
+        return HttpResponse.json({
+          data: body.rows.map((row, index) => ({
+            index,
+            duplicateOfId: null,
+            statementPaid: false,
+            dateIssue: null,
+          })),
+        })
+      }),
+      http.post(`${API_BASE}/api/v1/purchases/import`, async ({ request }) => {
+        importedBody = (await request.json()) as {
+          creditCardId: string
+          rows: { description: string }[]
+        }
+        return HttpResponse.json({ createdCount: 1, purchaseIds: ['pur-new'] }, { status: 201 })
+      }),
+    )
+
+    const user = await openImportDialog()
+
+    await user.click(await screen.findByRole('button', { name: 'Revisar una por una' }))
+    expect(screen.getByTestId('import-review')).toHaveTextContent('Compra 1 de 2')
+
+    await user.clear(screen.getByLabelText('Descripción'))
+    await user.type(screen.getByLabelText('Descripción'), 'Uber editado')
+    await user.click(screen.getByRole('button', { name: 'Incluir' }))
+
+    // Segunda fila revisable: se omite.
+    expect(await screen.findByText(/Compra 2 de 2/)).toBeVisible()
+    await user.click(screen.getByRole('button', { name: 'Omitir' }))
+
+    // Vuelve a la tabla con la decision tomada y el aviso ya refrescado.
+    expect(await screen.findByText('1 compra · total $89.97')).toBeVisible()
+    await waitFor(() =>
+      expect(previewBodies.some((body) => body.rows[0]?.description === 'Uber editado')).toBe(true),
+    )
+
+    // Anterior regresa dentro de la revision (se reabre y se navega).
+    await user.click(screen.getByRole('button', { name: 'Revisar una por una' }))
+    await user.click(screen.getByRole('button', { name: 'Omitir' }))
+    expect(await screen.findByText(/Compra 2 de 2/)).toBeVisible()
+    await user.click(screen.getByRole('button', { name: 'Anterior' }))
+    expect(await screen.findByText(/Compra 1 de 2/)).toBeVisible()
+    await user.click(screen.getByRole('button', { name: 'Incluir' }))
+
+    await user.click(screen.getByRole('button', { name: 'Importar 1 compra' }))
+    await waitFor(() => expect(importedBody).not.toBeNull())
+    expect(importedBody!.rows).toEqual([
+      { purchaseDate: '2026-10-04', description: 'Uber editado', amount: 8997 },
+    ])
+  })
 })
