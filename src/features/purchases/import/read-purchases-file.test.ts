@@ -37,4 +37,19 @@ describe('readPurchasesFile', () => {
       { line: 2, purchaseDate: '2026-10-04', description: 'Uber', amount: 8997 },
     ])
   })
+
+  it('rechaza archivos con mas de 500 filas', async () => {
+    const rows: unknown[][] = [['Fecha', 'Descripción', 'Compras']]
+    for (let index = 0; index < 501; index++) {
+      rows.push(['01 Oct 2026', `Compra ${index}`, '$ 1.00'])
+    }
+    readSheetMock.mockResolvedValueOnce(rows)
+
+    const result = await readPurchasesFile(new File(['x'], 'compras.xlsx'))
+
+    expect(result.rows).toEqual([])
+    expect(result.error).toBe(
+      'El archivo tiene 501 filas; el maximo es 500. Divide el estado de cuenta.',
+    )
+  })
 })
