@@ -20,6 +20,7 @@ import { formatCents } from '../../lib/money.ts'
 import { listAccounts } from '../accounts/accounts-api.ts'
 import { listCards } from '../cards/cards-api.ts'
 import { listCategories } from '../categories/categories-api.ts'
+import { ImportPurchasesDialog } from './ImportPurchasesDialog.tsx'
 import { PurchaseDetailDialog } from './PurchaseDetailDialog.tsx'
 import { PurchaseFormDialog } from './PurchaseFormDialog.tsx'
 import {
@@ -49,6 +50,7 @@ export function PurchasesPage() {
   const [typeFilter, setTypeFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [createOpen, setCreateOpen] = useState(false)
+  const [importOpen, setImportOpen] = useState(false)
   const [detailId, setDetailId] = useState<string | null>(null)
   const [cancelling, setCancelling] = useState<Purchase | null>(null)
   const [deleting, setDeleting] = useState<Purchase | null>(null)
@@ -96,6 +98,7 @@ export function PurchasesPage() {
 
   const items = purchases.data?.pages.flatMap((page) => page.data) ?? []
   const hasCards = (cards.data ?? []).length > 0
+  const activeCards = (cards.data ?? []).filter((card) => card.status === 'ACTIVE')
 
   return (
     <div data-testid="purchases-page">
@@ -103,9 +106,20 @@ export function PurchasesPage() {
         title="Compras"
         description="Regulares, meses sin intereses y diferidas"
         actions={
-          <Button size="sm" onClick={() => setCreateOpen(true)} disabled={!hasCards}>
-            Registrar compra
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              className="hidden md:inline-flex"
+              size="sm"
+              variant="secondary"
+              onClick={() => setImportOpen(true)}
+              disabled={activeCards.length === 0}
+            >
+              Importar Excel
+            </Button>
+            <Button size="sm" onClick={() => setCreateOpen(true)} disabled={!hasCards}>
+              Registrar compra
+            </Button>
+          </div>
         }
       />
 
@@ -244,6 +258,10 @@ export function PurchasesPage() {
           open
           onOpenChange={setCreateOpen}
         />
+      )}
+
+      {importOpen && (
+        <ImportPurchasesDialog cards={activeCards} open onOpenChange={setImportOpen} />
       )}
 
       {detailId && (
