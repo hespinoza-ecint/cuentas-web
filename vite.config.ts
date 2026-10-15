@@ -31,6 +31,10 @@ export default defineConfig({
         navigateFallback: '/index.html',
         // La fuente y los iconos entran al precache (funcionan sin conexion).
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+        // El chunk de read-excel-file (browser-*.js) queda fuera del precache:
+        // la importacion es de escritorio y necesita la API, asi que sin
+        // conexion no sirve y solo pesaria en el telefono.
+        globIgnores: ['**/browser-*.js'],
         runtimeCaching: [
           {
             // Lecturas de la API: primero red y, si no hay, la última copia
