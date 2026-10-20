@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test'
 import { API_DIR, E2E_DATABASE_URL, E2E_JWT_SECRET } from './e2e/config.ts'
 
 /**
- * E2E contra el backend real y una base SQLite exclusiva de pruebas.
+ * E2E contra el backend real y la base MySQL de pruebas Cuentas_Test.
  *
  * Antes de correr: `npx playwright install chromium` (una sola vez).
  * Los servidores se levantan solos; si ya tienes uno en los puertos 3000 o
