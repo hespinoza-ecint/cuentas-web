@@ -105,12 +105,19 @@ describe('navegación móvil', () => {
 
     await user.click(screen.getByRole('button', { name: 'Acciones rápidas' }))
     const sheet = await screen.findByRole('dialog')
+    // Las capturas van por frecuencia; el recomendador (no registra) queda al final.
+    const options = within(sheet)
+      .getAllByRole('button')
+      .map((button) => button.textContent ?? '')
+      .filter((text) => text !== '')
+    expect(options[0]).toMatch(/^Gasto/)
+    expect(options.at(-1)).toMatch(/^¿Con qué tarjeta pago\?/)
     await user.click(within(sheet).getByRole('button', { name: /Gasto/ }))
 
-    // El formulario de gasto reutilizado se abre sobre el inicio.
+    // El formulario de gasto reutilizado se abre sobre el inicio, con el foco en el monto.
     const form = await screen.findByRole('dialog', { name: 'Registrar gasto' })
     expect(within(form).getByLabelText('Descripción')).toBeInTheDocument()
-    expect(within(form).getByLabelText('Monto')).toBeInTheDocument()
+    expect(within(form).getByLabelText('Monto')).toHaveFocus()
   })
 
   it('sin tarjetas, la compra rápida invita a registrar una', async () => {

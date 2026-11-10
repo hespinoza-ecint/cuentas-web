@@ -94,6 +94,10 @@ export function CardFormDialog({
   })
 
   const dueDateMode = useWatch({ control: form.control, name: 'dueDateMode' })
+  const openingBalance = useWatch({ control: form.control, name: 'openingBalance' })
+  const hasFoldedErrors = Boolean(
+    form.formState.errors.annualRatePercent ?? form.formState.errors.annualFee,
+  )
 
   const mutation = useMutation({
     mutationFn: (values: CardForm) => {
@@ -149,7 +153,7 @@ export function CardFormDialog({
                 {...form.register('institution')}
               />
             </div>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-2 items-start gap-4">
               <Field
                 label="Últimos 4 dígitos"
                 maxLength={4}
@@ -171,74 +175,35 @@ export function CardFormDialog({
                 )}
               />
             </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field
-                label="Tasa anual (%)"
-                inputMode="decimal"
-                error={form.formState.errors.annualRatePercent?.message}
-                {...form.register('annualRatePercent')}
-              />
-              <div>
-                <Controller
-                  name="annualFee"
-                  control={form.control}
-                  render={({ field }) => (
-                    <MoneyInput
-                      id="annualFee"
-                      label="Anualidad (opcional)"
-                      valueCents={field.value}
-                      onCentsChange={field.onChange}
-                      error={form.formState.errors.annualFee?.message}
-                    />
-                  )}
-                />
-              </div>
-            </div>
-            <SelectField label="Mes de la anualidad (opcional)" {...form.register('annualFeeMonth')}>
-              <option value="">Sin anualidad</option>
-              {Array.from({ length: 12 }, (_, index) => index + 1).map((month) => (
-                <option key={month} value={String(month)}>
-                  {month}
-                </option>
-              ))}
-            </SelectField>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            {/* Corte y fecha limite quedan a la vista: definen en que corte cae cada compra. */}
+            <SelectField label="Fecha límite" {...form.register('dueDateMode')}>
+              <option value="DAYS_AFTER_CUT">Días después del corte</option>
+              <option value="FIXED_DAY">Día fijo del mes</option>
+            </SelectField>
+            <div className="grid grid-cols-2 items-start gap-4">
               <Field
                 label="Día de corte"
                 inputMode="numeric"
                 error={form.formState.errors.cutDay?.message}
                 {...form.register('cutDay')}
               />
-              <SelectField label="Fecha límite" {...form.register('dueDateMode')}>
-                <option value="DAYS_AFTER_CUT">Días después del corte</option>
-                <option value="FIXED_DAY">Día fijo del mes</option>
-              </SelectField>
+              {dueDateMode === 'FIXED_DAY' ? (
+                <Field
+                  label="Día de pago"
+                  inputMode="numeric"
+                  error={form.formState.errors.dueDay?.message}
+                  {...form.register('dueDay')}
+                />
+              ) : (
+                <Field
+                  label="Días después del corte"
+                  inputMode="numeric"
+                  error={form.formState.errors.dueDaysAfterCut?.message}
+                  {...form.register('dueDaysAfterCut')}
+                />
+              )}
             </div>
-            {dueDateMode === 'FIXED_DAY' ? (
-              <Field
-                label="Día de pago"
-                inputMode="numeric"
-                error={form.formState.errors.dueDay?.message}
-                {...form.register('dueDay')}
-              />
-            ) : (
-              <Field
-                label="Días después del corte"
-                inputMode="numeric"
-                error={form.formState.errors.dueDaysAfterCut?.message}
-                {...form.register('dueDaysAfterCut')}
-              />
-            )}
-            <SelectField label="Si la fecha límite cae en día inhábil" {...form.register('dueNonBusinessDayRule')}>
-              <option value="PREVIOUS">Mover al día hábil anterior</option>
-              <option value="NEXT">Mover al día hábil siguiente</option>
-              <option value="NONE">No ajustar</option>
-            </SelectField>
-            <Checkbox
-              label="Una compra el día del corte entra en ese corte"
-              {...form.register('sameDayCutIncluded')}
-            />
 
             {editing ? (
               <SelectField label="Estado" {...form.register('status')}>
@@ -260,14 +225,67 @@ export function CardFormDialog({
                     />
                   )}
                 />
-                <Field
-                  label="Fecha del saldo inicial"
-                  type="date"
-                  max={today}
-                  {...form.register('openingDate')}
-                />
+                {/* La fecha solo importa si hay saldo inicial. */}
+                {openingBalance !== undefined && (
+                  <Field
+                    label="Fecha del saldo inicial"
+                    type="date"
+                    max={today}
+                    {...form.register('openingDate')}
+                  />
+                )}
               </>
             )}
+
+            {/* Valores con un default razonable: plegados; se abren solos si tienen un error. */}
+            <details open={hasFoldedErrors || undefined}>
+              <summary className="w-fit cursor-pointer rounded py-2 text-sm font-medium text-ink-muted hover:text-ink-secondary">
+                Tasa, anualidad y días inhábiles
+              </summary>
+              <div className="mt-2 space-y-4">
+                <div className="grid grid-cols-2 items-start gap-4">
+                  <Field
+                    label="Tasa anual (%)"
+                    inputMode="decimal"
+                    error={form.formState.errors.annualRatePercent?.message}
+                    {...form.register('annualRatePercent')}
+                  />
+                  <Controller
+                    name="annualFee"
+                    control={form.control}
+                    render={({ field }) => (
+                      <MoneyInput
+                        id="annualFee"
+                        label="Anualidad (opcional)"
+                        valueCents={field.value}
+                        onCentsChange={field.onChange}
+                        error={form.formState.errors.annualFee?.message}
+                      />
+                    )}
+                  />
+                </div>
+                <SelectField label="Mes de la anualidad (opcional)" {...form.register('annualFeeMonth')}>
+                  <option value="">Sin anualidad</option>
+                  {Array.from({ length: 12 }, (_, index) => index + 1).map((month) => (
+                    <option key={month} value={String(month)}>
+                      {month}
+                    </option>
+                  ))}
+                </SelectField>
+                <SelectField
+                  label="Si la fecha límite cae en día inhábil"
+                  {...form.register('dueNonBusinessDayRule')}
+                >
+                  <option value="PREVIOUS">Mover al día hábil anterior</option>
+                  <option value="NEXT">Mover al día hábil siguiente</option>
+                  <option value="NONE">No ajustar</option>
+                </SelectField>
+                <Checkbox
+                  label="Una compra el día del corte entra en ese corte"
+                  {...form.register('sameDayCutIncluded')}
+                />
+              </div>
+            </details>
           </div>
 
           <ErrorAlert error={mutation.error} className="mt-4" />

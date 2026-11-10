@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
 import { Field } from '../../components/shared/Field.tsx'
 import { MoneyInput } from '../../components/shared/MoneyInput.tsx'
+import { SegmentedField } from '../../components/shared/SegmentedField.tsx'
 import { SelectField } from '../../components/shared/SelectField.tsx'
 import { Button } from '../../components/ui/button.tsx'
 import { DialogDescription, DialogFooter, DialogTitle } from '../../components/ui/dialog.tsx'
@@ -144,40 +145,33 @@ export function PurchaseFormDialog({
           </DialogDescription>
 
           <div className="mt-4 space-y-4">
-            <SelectField label="Tarjeta" {...form.register('creditCardId')}>
-              {cards.map((card) => (
-                <option key={card.id} value={card.id}>
-                  {card.alias} ····{card.last4}
-                </option>
-              ))}
-            </SelectField>
-            <SelectField label="Categoría (opcional)" {...form.register('categoryId')}>
-              <option value="">Sin categoría</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </SelectField>
+            {/* El monto va primero: es el primer campo enfocable y recibe el foco al abrir. */}
+            <Controller
+              name="amount"
+              control={form.control}
+              render={({ field }) => (
+                <MoneyInput
+                  id="purchaseAmount"
+                  label="Monto"
+                  valueCents={field.value}
+                  onCentsChange={field.onChange}
+                  error={form.formState.errors.amount?.message}
+                />
+              )}
+            />
             <Field
               label="Descripción"
               error={form.formState.errors.description?.message}
               {...form.register('description')}
             />
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Controller
-                name="amount"
-                control={form.control}
-                render={({ field }) => (
-                  <MoneyInput
-                    id="purchaseAmount"
-                    label="Monto"
-                    valueCents={field.value}
-                    onCentsChange={field.onChange}
-                    error={form.formState.errors.amount?.message}
-                  />
-                )}
-              />
+            <div className="grid grid-cols-2 items-start gap-4">
+              <SelectField label="Tarjeta" className="min-w-0" {...form.register('creditCardId')}>
+                {cards.map((card) => (
+                  <option key={card.id} value={card.id}>
+                    {card.alias} ····{card.last4}
+                  </option>
+                ))}
+              </SelectField>
               <Field
                 label="Fecha de compra"
                 type="date"
@@ -186,15 +180,27 @@ export function PurchaseFormDialog({
                 {...form.register('purchaseDate')}
               />
             </div>
-            <SelectField label="Tipo" {...form.register('type')}>
-              <option value="REGULAR">Regular (una exhibición)</option>
-              <option value="MSI">Meses sin intereses</option>
-              <option value="DEFERRED_INTEREST">Diferida con intereses</option>
+            <SelectField label="Categoría (opcional)" {...form.register('categoryId')}>
+              <option value="">Sin categoría</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
             </SelectField>
+            <SegmentedField
+              label="Tipo"
+              options={[
+                { value: 'REGULAR', label: 'Regular' },
+                { value: 'MSI', label: 'MSI' },
+                { value: 'DEFERRED_INTEREST', label: 'Diferida' },
+              ]}
+              {...form.register('type')}
+            />
 
             {type !== 'REGULAR' && (
               <div className="space-y-4">
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-2 items-start gap-4">
                   <Field
                     label="Meses"
                     inputMode="numeric"
@@ -227,27 +233,33 @@ export function PurchaseFormDialog({
               </div>
             )}
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <SelectField label="Comisión" {...form.register('commissionMode')}>
-                <option value="NONE">Sin comisión</option>
-                <option value="UPFRONT">Al inicio</option>
-                <option value="PRORATED">Prorrateada</option>
-              </SelectField>
-              {commissionMode !== 'NONE' && (
-                <Controller
-                  name="commissionAmount"
-                  control={form.control}
-                  render={({ field }) => (
-                    <MoneyInput
-                      id="commissionAmount"
-                      label="Monto de comisión"
-                      valueCents={field.value}
-                      onCentsChange={field.onChange}
-                    />
-                  )}
-                />
-              )}
-            </div>
+            {/* La comision es poco frecuente: plegada, se abre sola si ya tiene valor. */}
+            <details open={commissionMode !== 'NONE' || undefined}>
+              <summary className="w-fit cursor-pointer rounded py-2 text-sm font-medium text-ink-muted hover:text-ink-secondary">
+                Agregar comisión
+              </summary>
+              <div className="mt-2 grid grid-cols-2 items-start gap-4">
+                <SelectField label="Comisión" className="min-w-0" {...form.register('commissionMode')}>
+                  <option value="NONE">Sin comisión</option>
+                  <option value="UPFRONT">Al inicio</option>
+                  <option value="PRORATED">Prorrateada</option>
+                </SelectField>
+                {commissionMode !== 'NONE' && (
+                  <Controller
+                    name="commissionAmount"
+                    control={form.control}
+                    render={({ field }) => (
+                      <MoneyInput
+                        id="commissionAmount"
+                        label="Monto de comisión"
+                        valueCents={field.value}
+                        onCentsChange={field.onChange}
+                      />
+                    )}
+                  />
+                )}
+              </div>
+            </details>
           </div>
 
           <ErrorAlert error={mutation.error} className="mt-4" />

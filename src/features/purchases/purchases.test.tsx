@@ -162,9 +162,11 @@ describe('compras', () => {
 
     await user.click(await screen.findByRole('button', { name: 'Registrar compra' }))
     const dialog = await screen.findByRole('dialog')
+    // El monto es el primer campo y recibe el foco al abrir la hoja.
+    expect(within(dialog).getByLabelText('Monto')).toHaveFocus()
     await user.type(within(dialog).getByLabelText('Descripción'), 'Laptop')
     await user.type(within(dialog).getByLabelText('Monto'), '12000')
-    await user.selectOptions(within(dialog).getByLabelText('Tipo'), 'MSI')
+    await user.click(within(dialog).getByLabelText('MSI'))
     await user.click(within(dialog).getByRole('button', { name: 'Registrar compra' }))
 
     await waitFor(() => expect(created).not.toBeNull())
@@ -194,7 +196,7 @@ describe('compras', () => {
     const dialog = await screen.findByRole('dialog')
     await user.type(within(dialog).getByLabelText('Descripción'), 'Telefono viejo')
     await user.type(within(dialog).getByLabelText('Monto'), '6000')
-    await user.selectOptions(within(dialog).getByLabelText('Tipo'), 'MSI')
+    await user.click(within(dialog).getByLabelText('MSI'))
     fireEvent.change(within(dialog).getByLabelText('Mes del primer corte'), {
       target: { value: '2026-05' },
     })

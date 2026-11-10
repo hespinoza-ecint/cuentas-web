@@ -84,30 +84,7 @@ export function ExpenseFormDialog({
           <DialogDescription>El gasto se descuenta del saldo de la cuenta elegida.</DialogDescription>
 
           <div className="mt-4 space-y-4">
-            <SelectField
-              label="Cuenta"
-              error={form.formState.errors.cashAccountId?.message}
-              {...form.register('cashAccountId')}
-            >
-              {accounts.map((account) => (
-                <option key={account.id} value={account.id}>
-                  {account.name}
-                </option>
-              ))}
-            </SelectField>
-            <SelectField label="Categoría (opcional)" {...form.register('categoryId')}>
-              <option value="">Sin categoría</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </SelectField>
-            <Field
-              label="Descripción"
-              error={form.formState.errors.description?.message}
-              {...form.register('description')}
-            />
+            {/* El monto va primero: es el primer campo enfocable y recibe el foco al abrir. */}
             <Controller
               name="amount"
               control={form.control}
@@ -122,12 +99,39 @@ export function ExpenseFormDialog({
               )}
             />
             <Field
-              label="Fecha"
-              type="date"
-              max={today}
-              error={form.formState.errors.expenseDate?.message}
-              {...form.register('expenseDate')}
+              label="Descripción"
+              error={form.formState.errors.description?.message}
+              {...form.register('description')}
             />
+            <div className="grid grid-cols-2 items-start gap-4">
+              <SelectField
+                label="Cuenta"
+                className="min-w-0"
+                error={form.formState.errors.cashAccountId?.message}
+                {...form.register('cashAccountId')}
+              >
+                {accounts.map((account) => (
+                  <option key={account.id} value={account.id}>
+                    {account.name}
+                  </option>
+                ))}
+              </SelectField>
+              <Field
+                label="Fecha"
+                type="date"
+                max={today}
+                error={form.formState.errors.expenseDate?.message}
+                {...form.register('expenseDate')}
+              />
+            </div>
+            <SelectField label="Categoría (opcional)" {...form.register('categoryId')}>
+              <option value="">Sin categoría</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </SelectField>
             <Field
               label="Notas (opcional)"
               error={form.formState.errors.notes?.message}

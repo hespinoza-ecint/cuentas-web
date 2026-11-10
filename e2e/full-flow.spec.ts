@@ -62,7 +62,8 @@ test('flujo completo: registro, verificación, finanzas y recomendación', async
   await page.getByRole('button', { name: 'Registrar compra' }).first().click()
   await dialog.getByLabel('Descripción').fill('Compra E2E')
   await dialog.getByLabel('Monto').fill('1500')
-  await dialog.getByLabel('Tipo').selectOption('MSI')
+  // "Tipo" es un control segmentado (radios): se elige tocando la opcion.
+  await dialog.getByText('MSI', { exact: true }).click()
   await dialog.getByRole('button', { name: 'Registrar compra' }).click()
   await expect(page.getByText('Compra E2E')).toBeVisible()
   await expect(page.getByText(/próxima #1/)).toBeVisible()

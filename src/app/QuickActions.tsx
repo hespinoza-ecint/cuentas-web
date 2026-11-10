@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { Banknote, CreditCard, Plus, Receipt, Sparkles, TrendingUp } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
-import { Link, useNavigate } from 'react-router'
+import { useNavigate } from 'react-router'
 import { ErrorAlert } from '../components/shared/ErrorAlert.tsx'
 import { MoneyDisplay } from '../components/shared/MoneyDisplay.tsx'
 import { Button } from '../components/ui/button.tsx'
+import { ButtonLink } from '../components/ui/button-link.tsx'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '../components/ui/dialog.tsx'
 import { Skeleton } from '../components/ui/skeleton.tsx'
 import { formatLocalDate } from '../lib/dates.ts'
@@ -20,8 +21,8 @@ type QuickAction = 'expense' | 'purchase' | 'income'
 
 /**
  * Botón central "＋" de la barra inferior (solo móvil): captura rápida de un
- * gasto, una compra con tarjeta o un ingreso, o acceso directo al
- * recomendador, sin navegar a cada pantalla.
+ * gasto, una compra con tarjeta, un ingreso o un pago (en orden de
+ * frecuencia) y, aparte, acceso directo al recomendador.
  */
 export function QuickActions() {
   const navigate = useNavigate()
@@ -56,22 +57,16 @@ export function QuickActions() {
           <DialogDescription>¿Qué quieres capturar?</DialogDescription>
           <div className="mt-4 space-y-2">
             <QuickOption
-              icon={<Sparkles className="size-5" aria-hidden="true" />}
-              label="¿Con qué tarjeta pago?"
-              description="Compara tus tarjetas antes de comprar"
-              onClick={() => go('/recomendador')}
+              icon={<Receipt className="size-5" aria-hidden="true" />}
+              label="Gasto"
+              description="Efectivo o débito"
+              onClick={() => choose('expense')}
             />
             <QuickOption
               icon={<CreditCard className="size-5" aria-hidden="true" />}
               label="Compra con tarjeta"
               description="Regular, MSI o diferida"
               onClick={() => choose('purchase')}
-            />
-            <QuickOption
-              icon={<Receipt className="size-5" aria-hidden="true" />}
-              label="Gasto"
-              description="Efectivo o débito"
-              onClick={() => choose('expense')}
             />
             <QuickOption
               icon={<TrendingUp className="size-5" aria-hidden="true" />}
@@ -85,6 +80,15 @@ export function QuickActions() {
               description="Registrar un pago hecho a tu banco"
               onClick={() => go('/pagos?nuevo=1')}
             />
+            {/* No registra nada: va aparte, despues de las capturas. */}
+            <div className="border-t border-line pt-2">
+              <QuickOption
+                icon={<Sparkles className="size-5" aria-hidden="true" />}
+                label="¿Con qué tarjeta pago?"
+                description="Compara tus tarjetas antes de comprar"
+                onClick={() => go('/recomendador')}
+              />
+            </div>
           </div>
         </DialogContent>
       </Dialog>
@@ -269,13 +273,9 @@ function QuickIncomeDialog({ onClose }: { onClose: () => void }) {
           <Button variant="secondary" onClick={onClose}>
             Cerrar
           </Button>
-          <Link
-            to="/ingresos"
-            onClick={onClose}
-            className="inline-flex h-10 items-center justify-center rounded-lg bg-brand px-4 text-sm font-medium text-on-brand transition hover:bg-brand-hover sm:h-9"
-          >
+          <ButtonLink to="/ingresos" onClick={onClose}>
             Ir a Ingresos
-          </Link>
+          </ButtonLink>
         </div>
       </DialogContent>
     </Dialog>
@@ -332,13 +332,9 @@ function NoticeSheet({
             Cerrar
           </Button>
           {linkTo && linkLabel && (
-            <Link
-              to={linkTo}
-              onClick={onClose}
-              className="inline-flex h-10 items-center justify-center rounded-lg bg-brand px-4 text-sm font-medium text-on-brand transition hover:bg-brand-hover sm:h-9"
-            >
+            <ButtonLink to={linkTo} onClick={onClose}>
               {linkLabel}
-            </Link>
+            </ButtonLink>
           )}
         </div>
       </DialogContent>
