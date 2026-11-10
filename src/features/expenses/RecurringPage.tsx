@@ -251,9 +251,7 @@ export function RecurringPage() {
               title={
                 <span className="flex flex-wrap items-center gap-2">
                   {item.name}
-                  <Badge tone={item.isActive ? 'success' : 'neutral'}>
-                    {item.isActive ? 'Activo' : 'Inactivo'}
-                  </Badge>
+                  {!item.isActive && <Badge tone="neutral">Inactivo</Badge>}
                   <Badge tone="neutral">
                     {FREQUENCY_LABELS[item.frequency] ?? item.frequency}
                   </Badge>

@@ -90,7 +90,7 @@ export function StatementDetailDialog({
             {statement.estimatedInterest !== undefined && statement.estimatedInterest > 0 && (
               <Row
                 label={`Interés estimado (${statement.estimatedInterestDays ?? 0} días)`}
-                value={<MoneyDisplay cents={statement.estimatedInterest} colored className="font-medium" />}
+                value={<MoneyDisplay cents={statement.estimatedInterest} className="font-medium" />}
               />
             )}
           </dl>

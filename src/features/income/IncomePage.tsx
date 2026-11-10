@@ -214,9 +214,7 @@ export function IncomePage() {
                   >
                     <span className="flex flex-wrap items-center gap-2 text-sm text-ink">
                       <span className="font-medium">{source.name}</span>
-                      <Badge tone={source.isActive ? 'success' : 'neutral'}>
-                        {source.isActive ? 'Activa' : 'Inactiva'}
-                      </Badge>
+                      {!source.isActive && <Badge tone="neutral">Inactiva</Badge>}
                       <Badge tone="neutral">
                         {source.amountType === 'VARIABLE' ? 'Variable' : 'Fijo'}
                       </Badge>

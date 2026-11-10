@@ -2,6 +2,7 @@ import { ArrowDownRight, ArrowUpRight } from 'lucide-react'
 import { MoneyDisplay } from '../../components/shared/MoneyDisplay.tsx'
 import { Badge } from '../../components/ui/badge.tsx'
 import { formatLocalDate } from '../../lib/dates.ts'
+import { cn } from '../../lib/utils.ts'
 import type { ChartDay } from './cashflow-chart-model.ts'
 
 const EVENT_TYPES: Record<string, string> = {
@@ -43,8 +44,7 @@ export function CashflowDayDetail({
           Saldo al cierre{' '}
           <MoneyDisplay
             cents={day.balance}
-            colored={day.balance < 0}
-            className="font-semibold"
+            className={cn('font-semibold', day.balance < 0 && 'text-danger')}
           />
         </p>
       </div>

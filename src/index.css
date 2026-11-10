@@ -65,7 +65,7 @@
   --color-overlay: #131210; /* velo de dialogos; usar con opacidad (bg-overlay/60) */
 
   /* Bordes */
-  --color-line: #e6e4dd; /* divisores y bordes de tarjeta */
+  --color-line: #dedbd1; /* divisores y bordes de tarjeta */
   --color-line-strong: #8b8779; /* inputs y checkboxes (3:1 sobre surface) */
 
   /* Texto (tinta) */
@@ -109,9 +109,10 @@
   --color-info-line: #bcd8ea;
   --color-info-ink: #0c4c78;
 
-  /* Dominio: hoy espejan exito y peligro; se pueden desacoplar sin tocar componentes */
+  /* Dominio: el ingreso espeja exito; el gasto va en tinta (un gasto no es un error:
+     el rojo se reserva para vencido, bajo el colchon y errores) */
   --color-income: #0e7a52;
-  --color-expense: #b3261e;
+  --color-expense: #211f1c;
 
   /* Graficas */
   --color-chart-line: #1e46c8;
@@ -175,7 +176,7 @@
   --color-info-ink: #9ed3f7;
 
   --color-income: #3ddc97;
-  --color-expense: #f28b84;
+  --color-expense: #e9edf4;
 
   --color-chart-line: #8fa8ff;
   --color-chart-area: #26315a;

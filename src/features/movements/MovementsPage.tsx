@@ -178,7 +178,7 @@ export function MovementsPage() {
               onOpen={() => setDetail(movement)}
               title={
                 <span className="flex flex-wrap items-center gap-2">
-                  <Badge tone={movement.amount >= 0 ? 'success' : 'neutral'}>
+                  <Badge tone="neutral">
                     {TYPE_LABELS[movement.type] ?? movement.type}
                   </Badge>
                   {movement.description}

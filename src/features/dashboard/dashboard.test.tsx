@@ -125,6 +125,10 @@ describe('dashboard', () => {
     expect(screen.getByText('Ver como tabla')).toBeInTheDocument()
     expect(screen.getAllByText('-$500.00').length).toBeGreaterThan(0)
     expect(screen.getByText('Por debajo del colchón')).toBeInTheDocument()
+    // El color del minimo lo decide el colchon (rojo si queda debajo), no el signo.
+    const minimums = screen.getAllByText('-$500.00')
+    expect(minimums.some((el) => el.classList.contains('text-danger'))).toBe(true)
+    expect(minimums.some((el) => el.classList.contains('text-income'))).toBe(false)
     expect(screen.getByText('20.0%')).toBeInTheDocument()
     expect(screen.getByText('Oro ····4321')).toBeInTheDocument()
     expect(screen.getByText('Bono')).toBeInTheDocument()

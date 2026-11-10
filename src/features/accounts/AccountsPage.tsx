@@ -14,6 +14,7 @@ import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
 import { toast } from '../../lib/toast.ts'
 import { formatCents } from '../../lib/money.ts'
+import { cn } from '../../lib/utils.ts'
 import { AccountEditDialog } from './AccountEditDialog.tsx'
 import { AccountFormDialog } from './AccountFormDialog.tsx'
 import { OpeningBalanceDialog } from './OpeningBalanceDialog.tsx'
@@ -119,15 +120,17 @@ export function AccountsPage() {
                   {account.name}
                   {account.isDefault && <Badge tone="info">Predeterminada</Badge>}
                   {!account.isSpendable && <Badge tone="neutral">No gastable</Badge>}
-                  <StatusBadge status={account.status} />
+                  {account.status !== 'ACTIVE' && <StatusBadge status={account.status} />}
                 </span>
               }
               subtitle={`${TYPE_LABELS[account.type] ?? account.type} · ${account.currency}`}
               trailing={
                 <MoneyDisplay
                   cents={account.currentBalance}
-                  colored
-                  className="text-base font-semibold"
+                  className={cn(
+                    'text-base font-semibold',
+                    account.currentBalance < 0 && 'text-danger',
+                  )}
                 />
               }
               menu={[

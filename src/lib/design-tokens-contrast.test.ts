@@ -91,6 +91,8 @@ const PAIRS: Pair[] = [
   { fg: 'info', bg: 'surface', min: TEXT, label: 'info sobre tarjetas' },
   { fg: 'income', bg: 'surface', min: TEXT, label: 'montos de ingreso' },
   { fg: 'expense', bg: 'surface', min: TEXT, label: 'montos de gasto' },
+  // WCAG exime a los controles deshabilitados; aqui se exige 3:1 para que se lean.
+  { fg: 'ink-muted', bg: 'surface-strong', min: UI, label: 'texto de boton deshabilitado' },
   { fg: 'success-ink', bg: 'success-soft', min: TEXT, label: 'alerta de exito' },
   { fg: 'danger-ink', bg: 'danger-soft', min: TEXT, label: 'alerta de error' },
   { fg: 'warning-ink', bg: 'warning-soft', min: TEXT, label: 'alerta de aviso' },

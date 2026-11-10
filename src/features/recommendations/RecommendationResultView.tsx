@@ -57,7 +57,7 @@ export function RecommendationResultView({
             <Metric label="Días de financiamiento" value={String(result.recommended.financingDays)} />
             <Metric
               label="Costo de intereses"
-              value={<MoneyDisplay cents={result.recommended.interestCost} colored />}
+              value={<MoneyDisplay cents={result.recommended.interestCost} />}
             />
             {result.recommended.utilizationBpsAfter !== undefined && (
               <Metric
@@ -67,7 +67,12 @@ export function RecommendationResultView({
             )}
             <Metric
               label="Flujo mínimo"
-              value={<MoneyDisplay cents={result.recommended.minimumProjectedBalance} colored />}
+              value={
+                <MoneyDisplay
+                  cents={result.recommended.minimumProjectedBalance}
+                  className={result.recommended.minimumProjectedBalance < 0 ? 'text-danger' : undefined}
+                />
+              }
               hint={formatLocalDate(result.recommended.minimumProjectedDate)}
             />
             {result.recommended.cutDate && (

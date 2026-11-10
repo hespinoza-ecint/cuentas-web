@@ -288,7 +288,10 @@ export function CashflowChart({
           <div>
             <dt className="text-2xs text-ink-muted sm:text-xs">Mínimo proyectado</dt>
             <dd className="text-sm font-semibold tabular-nums sm:text-base">
-              <MoneyDisplay cents={projection.minimum.balance} colored />
+              <MoneyDisplay
+                cents={projection.minimum.balance}
+                className={projection.belowBuffer ? 'text-danger' : 'text-ink'}
+              />
             </dd>
             <p className="text-2xs text-ink-muted">{formatLocalDate(projection.minimum.date)}</p>
           </div>
@@ -605,7 +608,7 @@ export function CashflowChart({
                     <td
                       className={cn(
                         'py-1 text-right font-medium tabular-nums',
-                        day.balance < 0 ? 'text-expense' : 'text-ink',
+                        day.balance < 0 ? 'text-danger' : 'text-ink',
                       )}
                     >
                       {formatCents(day.balance)}

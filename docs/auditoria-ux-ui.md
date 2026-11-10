@@ -663,7 +663,7 @@ Respetan las reglas del repo: colores solo en `src/index.css`, sin clases `dark:
 | Fase | Contenido | Riesgo | Pruebas que se mueven |
 |---|---|---|---|
 | A. Correcciones — **hecha**, ver [fase 33](fase-33-correcciones-ux.md) | UX-1, UX-2, UX-4, UX-8, UX-18, A3, A4 | bajo | `dashboard.test.tsx`, `ui-primitives.test.tsx`, `e2e/mobile.spec.ts` (etiqueta "Secciones de …") |
-| B. Color | UI-1, UI-2, UI-3, UI-10, UI-12, UI-13, UI-14, UI-20 | bajo | `design-tokens-contrast.test.ts` (pares de `expense`) |
+| B. Color — **hecha**, ver [fase 34](fase-34-color-con-significado.md) | UI-1, UI-2, UI-3, UI-10, UI-12, UI-13, UI-14, UI-20 | bajo | `design-tokens-contrast.test.ts` (pares de `expense`) |
 | C. Captura | UX-5, UX-6, UX-9, UX-13, UX-14 + `SegmentedControl` | medio | pruebas de formularios, `e2e/mobile.spec.ts` (orden de campos) |
 | D. Inicio | UX-3, UX-7, UX-10, UX-15, UX-17 + `StatTile`, `Meter` | medio | `dashboard.test.tsx`, E2E del tablero |
 | E. Listas y cromo | UI-5, UX-11, UX-12, UX-16, UX-19 + `ListGroup` | medio | todas las suites de listas (`data-testid` de `ul`) |

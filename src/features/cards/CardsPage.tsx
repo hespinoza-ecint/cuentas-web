@@ -104,7 +104,7 @@ export function CardsPage() {
                     <p className="flex min-w-0 flex-wrap items-center gap-2 pt-1 text-sm font-medium text-ink">
                       <span className="truncate">{card.alias}</span>
                       <span className="text-ink-muted">····{card.last4}</span>
-                      <StatusBadge status={card.status} />
+                      {card.status !== 'ACTIVE' && <StatusBadge status={card.status} />}
                     </p>
                     <ActionMenu
                       label={`Más acciones de ${card.alias}`}

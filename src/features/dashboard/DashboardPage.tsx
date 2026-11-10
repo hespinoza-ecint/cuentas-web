@@ -117,7 +117,10 @@ export function DashboardPage() {
               {projection.data && (
                 <>
                   <p className="mt-3 text-3xl font-semibold tracking-tight tabular-nums">
-                    <MoneyDisplay cents={projection.data.minimum.balance} colored />
+                    <MoneyDisplay
+                      cents={projection.data.minimum.balance}
+                      className={projection.data.belowBuffer ? 'text-danger' : 'text-ink'}
+                    />
                   </p>
                   <p className="mt-1 text-xs text-ink-muted">
                     el {formatLocalDate(projection.data.minimum.date)} · colchón{' '}
@@ -153,7 +156,7 @@ export function DashboardPage() {
                 </CardDescription>
                 {summary.data.lastRecommendation && (
                   <p className="mt-2 flex flex-wrap items-center gap-2 text-lg font-semibold text-ink">
-                    <Sparkles className="size-4 text-warning" aria-hidden="true" />
+                    <Sparkles className="size-4 text-brand-ink" aria-hidden="true" />
                     {summary.data.lastRecommendation.cardAlias
                       ? `${summary.data.lastRecommendation.cardAlias} ····${summary.data.lastRecommendation.last4}`
                       : summary.data.lastRecommendation.outcome === 'CASH'
@@ -374,7 +377,7 @@ function DeltaBadge({ current, previous }: { current: number; previous: number }
     <span
       className={cn(
         'inline-flex items-center gap-1 text-xs font-medium',
-        up ? 'text-expense' : 'text-income',
+        up ? 'text-danger' : 'text-income',
       )}
     >
       {up ? (

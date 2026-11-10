@@ -2,14 +2,18 @@ import { cva, type VariantProps } from 'class-variance-authority'
 
 /** Variantes del botón en su propio módulo (Button y ButtonLink las comparten). */
 export const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-[background-color,border-color,color,transform] select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus active:scale-[0.98] disabled:pointer-events-none disabled:opacity-55',
+  'inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-[background-color,border-color,color,transform] select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus active:scale-[0.98] disabled:pointer-events-none',
   {
     variants: {
       variant: {
-        primary: 'bg-brand text-on-brand hover:bg-brand-hover',
-        secondary: 'border border-line-strong bg-surface text-ink-secondary hover:bg-surface-subtle',
-        ghost: 'text-ink-secondary hover:bg-surface-subtle',
-        danger: 'bg-danger-solid text-on-accent hover:bg-danger-solid-hover',
+        // Deshabilitado con tokens (no con opacidad): el texto se sigue leyendo.
+        primary:
+          'bg-brand text-on-brand hover:bg-brand-hover disabled:bg-surface-strong disabled:text-ink-muted',
+        secondary:
+          'border border-line-strong bg-surface text-ink-secondary hover:bg-surface-subtle disabled:border-line disabled:text-ink-muted',
+        ghost: 'text-ink-secondary hover:bg-surface-subtle disabled:text-ink-muted',
+        danger:
+          'bg-danger-solid text-on-accent hover:bg-danger-solid-hover disabled:bg-surface-strong disabled:text-ink-muted',
       },
       size: {
         // En movil los objetivos tactiles son mas altos (40-44px); desde sm

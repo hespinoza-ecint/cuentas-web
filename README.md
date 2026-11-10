@@ -157,5 +157,6 @@ actualizaciones) está en
 - [Fase 30 — Compras bloqueadas por corte pagado (RN-30)](docs/fase-30-bloqueo-compras-corte-pagado.md)
 - [Fase 31 — Importar compras desde Excel (RN-31)](docs/fase-31-importar-compras.md)
 - [Fase 33 — Correcciones de UX (bloque A de la auditoría)](docs/fase-33-correcciones-ux.md)
+- [Fase 34 — Color con significado (bloque B de la auditoría)](docs/fase-34-color-con-significado.md)
 - [Pruebas E2E con Playwright](docs/e2e-playwright.md)
 - [Auditoría UX/UI y de diseño visual (noviembre 2026)](docs/auditoria-ux-ui.md)
