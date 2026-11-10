@@ -75,11 +75,11 @@ Descripción → Registrar; el monto ya tiene el foco).
 | `npm.cmd run lint` | sin hallazgos |
 | `npm.cmd run build` | correcto |
 | `npm.cmd run test` | 38 archivos, 171 pruebas, todas pasan |
-| `npm.cmd run test:e2e` | **no se corrió** (el reset de `Cuentas_Test` requiere consentimiento explícito) |
+| `npm.cmd run test:e2e` | 4 pruebas pasan en 6.4 min: credenciales inválidas, flujo completo, importar Excel (escritorio) y flujo móvil |
 
-**El E2E es el riesgo abierto de esta fase.** `e2e/full-flow.spec.ts` se editó
-sin poder correrlo: la línea que elegía "Tipo" con `selectOption('MSI')` ahora
-toca el texto "MSI". Hay que correrlo antes de dar la fase por cerrada.
+El flujo completo cubre el cambio de `e2e/full-flow.spec.ts`: la compra a MSI se
+registra tocando "MSI" en el control segmentado y aparece con su primera
+mensualidad.
 
 Validación en pantalla (API local contra `Cuentas_Test`, 375 × 812, tema claro):
 

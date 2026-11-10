@@ -67,10 +67,8 @@ los siete cambios se revisaron con un usuario de prueba.
 | `npm.cmd run lint` | sin hallazgos |
 | `npm.cmd run build` | correcto |
 | `npm.cmd run test` | 38 archivos, 171 pruebas, todas pasan |
-| `npm.cmd run test:e2e` | **no se corrió** |
+| `npm.cmd run test:e2e` | 4 pruebas pasan (corrido con las fases 33 a 35 ya aplicadas) |
 
-El E2E quedó pendiente: su arranque resetea `Cuentas_Test` con
-`prisma db push --force-reset` y Prisma bloquea ese comando cuando lo ejecuta un
-agente de IA sin consentimiento explícito del usuario. Hay que correrlo a mano
-antes de dar la fase por cerrada; el cambio con más probabilidad de afectarlo es
-el botón "Cerrar" de los diálogos (un botón más por hoja).
+Nota para quien lo corra con un agente de IA: el arranque del E2E resetea
+`Cuentas_Test` con `prisma db push --force-reset` y Prisma bloquea ese comando
+hasta que el usuario da su consentimiento explícito.

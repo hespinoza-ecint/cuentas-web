@@ -81,7 +81,7 @@ por ser positivo; ahora va en tinta.
 | `npm.cmd run lint` | sin hallazgos |
 | `npm.cmd run build` | correcto |
 | `npm.cmd run test` | 38 archivos, 171 pruebas, todas pasan |
-| `npm.cmd run test:e2e` | **no se corrió** (mismo motivo que en la fase 33: el reset de `Cuentas_Test` requiere consentimiento explícito) |
+| `npm.cmd run test:e2e` | 4 pruebas pasan (corrido con las fases 33 a 35 ya aplicadas) |
 
 Validación en pantalla (API local contra `Cuentas_Test`, 375 × 812): Inicio,
 gráfica, Movimientos y Cuentas en claro; Inicio y Movimientos en oscuro. No se
