@@ -12,6 +12,7 @@ export function Field({ label, error, hint, id, name, ref, className, ...rest }:
   const generatedId = useId()
   const inputId = id ?? name ?? generatedId
   const errorId = error ? `${inputId}-error` : undefined
+  const hintId = hint && !error ? `${inputId}-hint` : undefined
 
   return (
     <div className="min-w-0">
@@ -23,11 +24,15 @@ export function Field({ label, error, hint, id, name, ref, className, ...rest }:
         name={name}
         ref={ref}
         aria-invalid={error ? true : undefined}
-        aria-describedby={errorId}
+        aria-describedby={errorId ?? hintId}
         className={controlClass({ error: Boolean(error), className })}
         {...rest}
       />
-      {hint && !error && <p className="mt-1 text-xs text-ink-muted">{hint}</p>}
+      {hintId && (
+        <p id={hintId} className="mt-1 text-xs text-ink-muted">
+          {hint}
+        </p>
+      )}
       {error && (
         <p id={errorId} role="alert" className="mt-1 text-xs font-medium text-danger">
           {error}

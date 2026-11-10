@@ -69,6 +69,7 @@ export function MoneyInput({
 
   const message = error ?? localError ?? undefined
   const errorId = message ? `${inputId}-error` : undefined
+  const hintId = hint && !message ? `${inputId}-hint` : undefined
 
   return (
     <div className="min-w-0">
@@ -90,14 +91,18 @@ export function MoneyInput({
           autoComplete="off"
           placeholder={placeholder}
           aria-invalid={message ? true : undefined}
-          aria-describedby={errorId}
+          aria-describedby={errorId ?? hintId}
           className={controlClass({
             error: Boolean(message),
             className: 'pr-3 pl-7 tabular-nums',
           })}
         />
       </div>
-      {hint && !message && <p className="mt-1 text-xs text-ink-muted">{hint}</p>}
+      {hintId && (
+        <p id={hintId} className="mt-1 text-xs text-ink-muted">
+          {hint}
+        </p>
+      )}
       {message && (
         <p id={errorId} role="alert" className="mt-1 text-xs font-medium text-danger">
           {message}

@@ -192,12 +192,13 @@ export function DashboardPage() {
                     key={`${payment.type}-${payment.description}-${payment.date}`}
                     className="flex items-center justify-between gap-3 py-2 text-sm"
                   >
-                    <span className="min-w-0 truncate text-ink-secondary">
-                      <Badge tone="neutral" className="mr-2">
-                        {PAYMENT_TYPES[payment.type] ?? payment.type}
-                      </Badge>
-                      {payment.description}
-                      <span className="ml-2 text-xs text-ink-muted">
+                    {/* Dos lineas: la fecha de pago nunca se recorta con la descripcion. */}
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-ink-secondary">
+                        {payment.description}
+                      </span>
+                      <span className="block text-xs text-ink-muted">
+                        {PAYMENT_TYPES[payment.type] ?? payment.type} ·{' '}
                         {formatLocalDate(payment.date)}
                       </span>
                     </span>

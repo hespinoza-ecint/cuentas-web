@@ -251,8 +251,8 @@ export function CashflowChart({
               })}
             </div>
 
-            <div className="flex flex-wrap items-end gap-2">
-              <label className="flex flex-col gap-0.5 text-2xs font-medium text-ink-muted sm:text-xs">
+            <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:items-end">
+              <label className="flex min-w-0 flex-col gap-0.5 text-2xs font-medium text-ink-muted sm:text-xs">
                 Desde
                 <input
                   type="date"
@@ -260,10 +260,10 @@ export function CashflowChart({
                   min={minDate}
                   max={to}
                   onChange={(event) => onRangeChange({ from: event.target.value, to })}
-                  className={controlClass({ className: 'w-auto px-2 py-1 text-xs' })}
+                  className={controlClass({ className: 'sm:w-auto' })}
                 />
               </label>
-              <label className="flex flex-col gap-0.5 text-2xs font-medium text-ink-muted sm:text-xs">
+              <label className="flex min-w-0 flex-col gap-0.5 text-2xs font-medium text-ink-muted sm:text-xs">
                 Hasta
                 <input
                   type="date"
@@ -271,7 +271,7 @@ export function CashflowChart({
                   min={from}
                   max={maxDate}
                   onChange={(event) => onRangeChange({ from, to: event.target.value })}
-                  className={controlClass({ className: 'w-auto px-2 py-1 text-xs' })}
+                  className={controlClass({ className: 'sm:w-auto' })}
                 />
               </label>
             </div>

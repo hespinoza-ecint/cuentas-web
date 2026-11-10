@@ -41,6 +41,12 @@ describe('navegación móvil', () => {
     const user = userEvent.setup()
     await screen.findByText('Hola, Ana')
 
+    expect(screen.getByRole('link', { name: 'Saltar al contenido' })).toHaveAttribute(
+      'href',
+      '#contenido',
+    )
+    expect(screen.getByRole('main')).toHaveAttribute('id', 'contenido')
+
     await user.click(screen.getByRole('button', { name: 'Más' }))
     const sheet = await screen.findByRole('dialog')
 

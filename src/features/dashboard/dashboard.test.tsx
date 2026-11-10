@@ -129,6 +129,10 @@ describe('dashboard', () => {
     expect(screen.getByText('Oro ····4321')).toBeInTheDocument()
     expect(screen.getByText('Bono')).toBeInTheDocument()
     expect(screen.getByText('Pago Oro (corte 2026-10-05)')).toBeInTheDocument()
+    // La fecha de pago va en su propia linea: no se recorta con la descripcion.
+    expect(screen.getByText('Corte · 26 oct 2026')).not.toHaveClass('truncate')
+    // Los campos de fecha conservan los 16px de control.ts (sin zoom en iOS).
+    expect(screen.getByLabelText('Hasta')).not.toHaveClass('text-xs')
     expect(screen.getByText('Supermercado')).toBeInTheDocument()
   })
 

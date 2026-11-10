@@ -1,4 +1,5 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { X } from 'lucide-react'
 import type { ComponentProps, ReactNode } from 'react'
 import { cn } from '../../lib/utils.ts'
 
@@ -30,6 +31,13 @@ export function DialogContent({
           className="mx-auto mb-2 h-1.5 w-10 rounded-full bg-surface-strong sm:hidden"
         />
         {children}
+        {/* Va despues del contenido: el foco inicial sigue cayendo en el primer campo. */}
+        <DialogPrimitive.Close
+          aria-label="Cerrar"
+          className="absolute top-2 right-2 flex size-11 items-center justify-center rounded-lg text-ink-muted transition hover:bg-surface-subtle hover:text-ink"
+        >
+          <X className="size-5" aria-hidden="true" />
+        </DialogPrimitive.Close>
       </DialogPrimitive.Content>
     </DialogPrimitive.Portal>
   )
@@ -38,7 +46,7 @@ export function DialogContent({
 export function DialogTitle({ className, ...props }: ComponentProps<typeof DialogPrimitive.Title>) {
   return (
     <DialogPrimitive.Title
-      className={cn('text-base font-semibold text-ink', className)}
+      className={cn('pr-10 text-base font-semibold text-ink', className)}
       {...props}
     />
   )
@@ -64,8 +72,11 @@ export function DialogFooter({ children }: { children: ReactNode }) {
         // (el principal queda arriba, al alcance del pulgar).
         'sticky bottom-0 z-10 mt-5 -mx-5 -mb-5 flex flex-col-reverse gap-2 border-t border-line bg-surface px-5 pt-3',
         '[padding-bottom:calc(0.75rem+env(safe-area-inset-bottom,0px))]',
+        // El pie pegado se detiene antes del relleno inferior de la hoja (1.25rem):
+        // la sombra solida tapa esa franja para que no asome el contenido.
+        'shadow-[0_1.25rem_0_var(--color-surface)]',
         // Escritorio: fila alineada a la derecha, como antes.
-        'sm:static sm:mx-0 sm:mb-0 sm:flex-row sm:justify-end sm:border-0 sm:bg-transparent sm:px-0 sm:pt-0 sm:pb-0',
+        'sm:static sm:mx-0 sm:mb-0 sm:flex-row sm:justify-end sm:border-0 sm:bg-transparent sm:px-0 sm:pt-0 sm:pb-0 sm:shadow-none',
       )}
     >
       {children}

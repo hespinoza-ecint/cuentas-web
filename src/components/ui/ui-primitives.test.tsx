@@ -1,10 +1,13 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Pencil, Trash2 } from 'lucide-react'
+import { MemoryRouter } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
+import { Field } from '../shared/Field.tsx'
 import { ActionMenu } from './action-menu.tsx'
 import { FormDialog } from './form-dialog.tsx'
 import { ListRow } from './list-row.tsx'
+import { SectionTabs } from './section-tabs.tsx'
 import { Toaster } from './toast.tsx'
 import { dismissToast, toast } from '../../lib/toast.ts'
 
@@ -87,6 +90,22 @@ describe('FormDialog', () => {
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
 
+  it('tiene un boton "Cerrar" y el foco inicial sigue en el primer campo', async () => {
+    const user = userEvent.setup()
+    const onOpenChange = vi.fn()
+
+    render(
+      <FormDialog open onOpenChange={onOpenChange}>
+        <h2>Formulario</h2>
+        <input aria-label="Campo" />
+      </FormDialog>,
+    )
+
+    expect(await screen.findByLabelText('Campo')).toHaveFocus()
+    await user.click(screen.getByRole('button', { name: 'Cerrar' }))
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
+
   it('sin cambios cierra directo', async () => {
     const user = userEvent.setup()
     const onOpenChange = vi.fn()
@@ -99,6 +118,39 @@ describe('FormDialog', () => {
 
     await user.keyboard('{Escape}')
     expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
+})
+
+describe('Field', () => {
+  it('asocia el texto de ayuda al campo', () => {
+    render(<Field label="Meses" hint="Entre 2 y 48" />)
+
+    expect(screen.getByLabelText('Meses')).toHaveAccessibleDescription('Entre 2 y 48')
+  })
+})
+
+describe('SectionTabs', () => {
+  it('centra la pestaña activa cuando queda fuera de pantalla', () => {
+    // jsdom no calcula layout: se simulan las medidas de un telefono de 375px.
+    vi.spyOn(HTMLElement.prototype, 'offsetLeft', 'get').mockReturnValue(381)
+    vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(80)
+    vi.spyOn(Element.prototype, 'clientWidth', 'get').mockReturnValue(375)
+
+    render(
+      <MemoryRouter initialEntries={['/cuentas']}>
+        <SectionTabs
+          label="Secciones de Movimientos"
+          tabs={[
+            { to: '/movimientos', label: 'Movimientos' },
+            { to: '/cuentas', label: 'Cuentas' },
+          ]}
+        />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('link', { name: 'Cuentas' })).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByRole('navigation').scrollLeft).toBe(381 - (375 - 80) / 2)
+    vi.restoreAllMocks()
   })
 })
 

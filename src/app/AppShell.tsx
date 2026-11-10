@@ -74,6 +74,12 @@ export function AppShell() {
 
   return (
     <div className="min-h-dvh bg-canvas">
+      <a
+        href="#contenido"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[80] focus:rounded-lg focus:bg-surface focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-brand-ink focus:shadow-menu"
+      >
+        Saltar al contenido
+      </a>
       <header className="safe-t sticky top-0 z-40 border-b border-line bg-surface">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4">
           <Link to="/" className="flex items-center gap-2 text-base font-semibold text-ink">
@@ -196,7 +202,7 @@ export function AppShell() {
           </nav>
         </aside>
 
-        <main className="min-w-0 flex-1 pb-28 md:pb-8">
+        <main id="contenido" tabIndex={-1} className="min-w-0 flex-1 pb-28 outline-none md:pb-8">
           {module && (
             <SectionTabs
               label={`Secciones de ${module.label}`}

@@ -21,6 +21,7 @@ export function TextareaField({
   const generatedId = useId()
   const textareaId = id ?? name ?? generatedId
   const errorId = error ? `${textareaId}-error` : undefined
+  const hintId = hint && !error ? `${textareaId}-hint` : undefined
 
   return (
     <div className="min-w-0">
@@ -32,11 +33,15 @@ export function TextareaField({
         name={name}
         ref={ref}
         aria-invalid={error ? true : undefined}
-        aria-describedby={errorId}
+        aria-describedby={errorId ?? hintId}
         className={controlClass({ error: Boolean(error), className })}
         {...rest}
       />
-      {hint && !error && <p className="mt-1 text-xs text-ink-muted">{hint}</p>}
+      {hintId && (
+        <p id={hintId} className="mt-1 text-xs text-ink-muted">
+          {hint}
+        </p>
+      )}
       {error && (
         <p id={errorId} role="alert" className="mt-1 text-xs font-medium text-danger">
           {error}
