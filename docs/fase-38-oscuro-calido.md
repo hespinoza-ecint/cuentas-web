@@ -77,7 +77,7 @@ Ratios contra la superficie nueva `#1c1b18`, salvo que se indique.
 | `npm.cmd run build` | correcto |
 | `npm.cmd run test` | 38 archivos, 173 pruebas, todas pasan en una sola corrida |
 | `design-tokens-contrast.test.ts` | los pares declarados pasan AA con la paleta nueva en ambos temas |
-| `npm.cmd run test:e2e` | **no se corrió** en esta fase (requiere volver a resetear `Cuentas_Test`); el E2E no depende de colores |
+| `npm.cmd run test:e2e` | 4 pruebas pasan en 5.3 min (segundo intento: en el primero el `webServer` agotó los 300 s durante el reset y seed de `Cuentas_Test`, como advierte AGENTS.md) |
 
 Validación en pantalla (API local contra `Cuentas_Test`, 375 × 812):
 
