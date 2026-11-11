@@ -161,5 +161,6 @@ actualizaciones) está en
 - [Fase 35 — Captura rápida (bloque C de la auditoría)](docs/fase-35-captura-rapida.md)
 - [Fase 36 — Inicio reordenado (bloque D de la auditoría)](docs/fase-36-inicio-reordenado.md)
 - [Fase 37 — Listas y cabecera (bloque E de la auditoría)](docs/fase-37-listas-y-cabecera.md)
+- [Fase 38 — Oscuro cálido (bloque F de la auditoría)](docs/fase-38-oscuro-calido.md)
 - [Pruebas E2E con Playwright](docs/e2e-playwright.md)
 - [Auditoría UX/UI y de diseño visual (noviembre 2026)](docs/auditoria-ux-ui.md)

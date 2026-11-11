@@ -57,8 +57,8 @@ export default defineConfig({
         description: 'Asistente financiero personal: efectivo, ingresos, gastos y tarjetas.',
         lang: 'es-MX',
         // Azul medianoche de arranque (equivale al canvas oscuro de src/index.css).
-        theme_color: '#0f141d',
-        background_color: '#0f141d',
+        theme_color: '#141311',
+        background_color: '#141311',
         display: 'standalone',
         start_url: '/',
         icons: [

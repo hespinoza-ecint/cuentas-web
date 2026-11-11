@@ -126,61 +126,63 @@
 }
 
 /*
- * Modo oscuro: los mismos tokens en azul medianoche, sin negro ni blanco
- * puros para reducir la fatiga visual. `inverse`, `overlay`, `on-accent` y
- * `on-inverse-muted` no se redefinen: las pantallas oscuras son iguales en
- * ambos temas.
+ * Modo oscuro: los mismos tokens en carbon calido (fase 38), de la misma
+ * familia que el papel del modo claro y que `inverse` (acceso, 404). Sin negro
+ * ni blanco puros para reducir la fatiga visual. `inverse`, `overlay`,
+ * `on-accent` y `on-inverse-muted` no se redefinen: las pantallas oscuras son
+ * iguales en ambos temas. Los acentos (marca, exito, peligro, aviso, info) no
+ * cambian; sus fondos suaves se entibiaron para no chocar con la superficie.
  */
 .dark {
   color-scheme: dark;
 
-  --color-canvas: #0f141d;
-  --color-surface: #161d2a;
-  --color-surface-subtle: #1e2737;
-  --color-surface-strong: #29344a;
+  --color-canvas: #141311;
+  --color-surface: #1c1b18;
+  --color-surface-subtle: #262521;
+  --color-surface-strong: #33312c;
 
-  --color-line: #273349;
-  --color-line-strong: #6b7d99;
+  --color-line: #2f2d28;
+  --color-line-strong: #7f7b6f;
 
-  --color-ink: #e9edf4;
-  --color-ink-secondary: #b6bfcd;
-  --color-ink-muted: #96a2b5;
+  --color-ink: #eceae4;
+  --color-ink-secondary: #bdb9ae;
+  --color-ink-muted: #9d998d;
 
   --color-brand: #8fa8ff;
   --color-brand-hover: #a9bcff;
-  --color-brand-soft: #1d2745;
+  --color-brand-soft: #1f2640;
   --color-brand-ink: #a3b6ff;
-  --color-on-brand: #0f141d;
+  --color-on-brand: #141311;
   --color-focus: #a3b6ff;
 
   --color-success: #3ddc97;
-  --color-success-soft: #0d2b22;
+  --color-success-soft: #10291f;
   --color-success-line: #17603f;
   --color-success-ink: #7ce7b4;
 
   --color-danger: #f28b84;
-  --color-danger-soft: #33161a;
+  --color-danger-soft: #33181a;
   --color-danger-line: #7f2622;
   --color-danger-ink: #f7a9a3;
   --color-danger-solid: #cc3a31;
   --color-danger-solid-hover: #b02f27;
 
   --color-warning: #e5b13a;
-  --color-warning-soft: #29220d;
+  --color-warning-soft: #2a220e;
   --color-warning-line: #6d5316;
   --color-warning-ink: #f2cd7a;
 
   --color-info: #67b8ef;
-  --color-info-soft: #0c2132;
+  --color-info-soft: #10222f;
   --color-info-line: #17527d;
   --color-info-ink: #9ed3f7;
 
   --color-income: #3ddc97;
-  --color-expense: #e9edf4;
+  --color-expense: #eceae4;
 
   --color-chart-line: #8fa8ff;
-  --color-chart-area: #26315a;
-  --color-chart-grid: #33405a;
+  --color-chart-area: #2a315a;
+  --color-chart-grid: #45423b;
 }
 
 html,
