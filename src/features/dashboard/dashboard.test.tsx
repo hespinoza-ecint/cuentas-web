@@ -2,7 +2,14 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { HttpResponse, http } from 'msw'
 import { describe, expect, it } from 'vitest'
 import { addDays, todayInTimeZone } from '../../lib/dates.ts'
-import { API_BASE, problem, refreshOk, settingsHandler, userSettingsFixture } from '../../test/fixtures.ts'
+import {
+  API_BASE,
+  emptyDashboardHandlers,
+  problem,
+  refreshOk,
+  settingsHandler,
+  userSettingsFixture,
+} from '../../test/fixtures.ts'
 import { server } from '../../test/msw/server.ts'
 import { renderApp } from '../../test/render-app.tsx'
 
@@ -134,10 +141,63 @@ describe('dashboard', () => {
     expect(screen.getByText('Bono')).toBeInTheDocument()
     expect(screen.getByText('Pago Oro (corte 2026-10-05)')).toBeInTheDocument()
     // La fecha de pago va en su propia linea: no se recorta con la descripcion.
-    expect(screen.getByText('Corte · 26 oct 2026')).not.toHaveClass('truncate')
+    expect(screen.getByText('Corte · 26 oct 2026 · en 21 días')).not.toHaveClass('truncate')
+    // Tarjeta con pago pendiente: dice cuanto y para cuando.
+    expect(screen.getByText(/antes del 26 oct 2026 · en 21 días/)).toBeInTheDocument()
+    expect(screen.getByRole('meter', { name: 'Utilización de Oro' })).toHaveAttribute(
+      'aria-valuenow',
+      '20',
+    )
     // Los campos de fecha conservan los 16px de control.ts (sin zoom en iOS).
     expect(screen.getByLabelText('Hasta')).not.toHaveClass('text-xs')
     expect(screen.getByText('Supermercado')).toBeInTheDocument()
+  })
+
+  it('sin cuentas ni tarjetas muestra por donde empezar en lugar de un tablero en ceros', async () => {
+    server.use(refreshOk, settingsHandler, ...emptyDashboardHandlers)
+    renderApp(['/'])
+
+    expect(await screen.findByText('Empieza por aquí')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Crea una cuenta de efectivo/ })).toHaveAttribute(
+      'href',
+      '/cuentas',
+    )
+    expect(screen.queryByText('Efectivo disponible')).not.toBeInTheDocument()
+  })
+
+  it('muestra los primeros pagos por fecha y el resto al pedirlo', async () => {
+    const items = [6, 5, 4, 3, 2, 1].map((day) => ({
+      type: 'RECURRING_EXPENSE',
+      description: `Servicio ${day}`,
+      date: `2026-10-${String(day + 4).padStart(2, '0')}`,
+      amount: 10000,
+      cardAlias: null,
+    }))
+    server.use(
+      refreshOk,
+      settingsHandler,
+      http.get(`${API_BASE}/api/v1/dashboard/summary`, () =>
+        HttpResponse.json({
+          ...summary,
+          upcomingPayments: { horizonDays: 30, total: 60000, items },
+        }),
+      ),
+      projectionHandler(),
+    )
+    renderApp(['/'])
+
+    const list = await screen.findByTestId('dashboard-payments')
+    // Llegan desordenados: se muestran los 4 mas proximos, el primero es "hoy".
+    expect(within(list).getAllByRole('listitem').map((li) => li.textContent)).toEqual([
+      expect.stringContaining('Servicio 1'),
+      expect.stringContaining('Servicio 2'),
+      expect.stringContaining('Servicio 3'),
+      expect.stringContaining('Servicio 4'),
+    ])
+    expect(within(list).getByText(/5 oct 2026 · hoy/)).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Ver los 6 pagos' }))
+    expect(within(list).getAllByRole('listitem')).toHaveLength(6)
   })
 
   it('usa la utilización máxima del usuario para el nivel de uso de cada tarjeta', async () => {
