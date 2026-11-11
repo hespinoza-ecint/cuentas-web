@@ -74,7 +74,7 @@ Pagos, Historial de recomendaciones y Categorías.
 | `npm.cmd run lint` | sin hallazgos |
 | `npm.cmd run build` | correcto |
 | `npm.cmd run test` | 38 archivos, 173 pruebas, todas pasan (entre dos corridas: los archivos que no arrancaron por "Failed to start threads worker" pasaron al repetirlos) |
-| `npm.cmd run test:e2e` | **no se corrió** en esta fase (requiere volver a resetear `Cuentas_Test`) |
+| `npm.cmd run test:e2e` | 4 pruebas pasan en 6.4 min: credenciales inválidas, flujo completo, importar Excel (escritorio) y flujo móvil |
 
 La primera corrida completa dio dos fallas reales, ya corregidas:
 
@@ -84,9 +84,8 @@ La primera corrida completa dio dos fallas reales, ya corregidas:
 - La prueba nueva de la cabecera buscaba "el" `banner` y la página tiene dos
   elementos `<header>`.
 
-**Riesgo abierto para el E2E:** el `h1` queda como `sr-only` en móvil y
-`e2e/mobile.spec.ts` espera que "Hola, Móvil" sea visible. Playwright considera
-visible un elemento de 1 × 1 px, así que debería pasar, pero no está comprobado.
+El flujo móvil confirma el punto que quedaba en duda: el `h1` con `sr-only` en
+móvil sigue contando como visible para Playwright ("Hola, Móvil").
 
 Validación en pantalla (API local contra `Cuentas_Test`, 375 × 812, tema claro),
 en Movimientos con dos movimientos:
