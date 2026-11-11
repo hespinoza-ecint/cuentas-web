@@ -52,6 +52,8 @@ export function ActionMenu({ items, label = 'Más acciones', className }: Action
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={label}
+        // Movil: objetivo tactil de 44px (va pegado a una fila que tambien es boton).
+        className="size-11 sm:size-8"
         onClick={() => setOpen((value) => !value)}
       >
         <MoreHorizontal className="size-4" aria-hidden="true" />
@@ -59,15 +61,24 @@ export function ActionMenu({ items, label = 'Más acciones', className }: Action
 
       {open && (
         <>
+          {/*
+           * Movil: el menu se ancla abajo como hoja de acciones (con velo), para
+           * que el de las ultimas filas no quede bajo la barra inferior.
+           * Escritorio: desplegable junto al boton, como siempre.
+           */}
           <div
-            className="fixed inset-0 z-40"
+            className="fixed inset-0 z-40 max-sm:z-50 max-sm:bg-overlay/60"
             aria-hidden="true"
             onClick={() => setOpen(false)}
           />
           <div
             role="menu"
             aria-label={label}
-            className="absolute right-0 z-50 mt-1 w-48 overflow-hidden rounded-xl border border-line bg-surface py-1 shadow-menu"
+            className={cn(
+              'absolute right-0 z-50 mt-1 w-48 overflow-hidden rounded-xl border border-line bg-surface py-1 shadow-menu',
+              'max-sm:fixed max-sm:inset-x-0 max-sm:bottom-0 max-sm:mt-0 max-sm:w-auto max-sm:rounded-t-2xl max-sm:rounded-b-none max-sm:px-2 max-sm:pt-2 max-sm:shadow-sheet',
+              'max-sm:[padding-bottom:calc(0.5rem+env(safe-area-inset-bottom,0px))]',
+            )}
           >
             {items.map((item, index) => (
               <button
@@ -81,7 +92,7 @@ export function ActionMenu({ items, label = 'Más acciones', className }: Action
                   item.onSelect()
                 }}
                 className={cn(
-                  'flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm transition hover:bg-surface-subtle disabled:opacity-55',
+                  'flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm transition hover:bg-surface-subtle disabled:opacity-55 max-sm:min-h-12 max-sm:rounded-lg max-sm:text-base',
                   item.tone === 'danger' ? 'text-danger' : 'text-ink-secondary',
                 )}
               >

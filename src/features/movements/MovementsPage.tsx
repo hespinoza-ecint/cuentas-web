@@ -12,7 +12,7 @@ import { Button } from '../../components/ui/button.tsx'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from '../../components/ui/dialog.tsx'
 import { EmptyState } from '../../components/ui/empty-state.tsx'
 import { FiltersCard } from '../../components/ui/filters-card.tsx'
-import { ListRow } from '../../components/ui/list-row.tsx'
+import { ListGroup, ListRow } from '../../components/ui/list-row.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
 import { toast } from '../../lib/toast.ts'
@@ -95,7 +95,9 @@ export function MovementsPage() {
         title="Movimientos"
         description="Entradas y salidas de tus cuentas de efectivo"
         actions={
+          // Secundario: el ajuste manual es la operacion menos frecuente de la pantalla.
           <Button
+            variant="secondary"
             size="sm"
             onClick={() => setAdjustOpen(true)}
             disabled={(accounts.data ?? []).length === 0}
@@ -171,7 +173,7 @@ export function MovementsPage() {
       )}
 
       {items.length > 0 && (
-        <ul className="space-y-2" data-testid="movements-list">
+        <ListGroup data-testid="movements-list">
           {items.map((movement) => (
             <ListRow
               key={movement.id}
@@ -208,7 +210,7 @@ export function MovementsPage() {
               menuLabel={`Más acciones de ${movement.description}`}
             />
           ))}
-        </ul>
+        </ListGroup>
       )}
 
       {movements.hasNextPage && (

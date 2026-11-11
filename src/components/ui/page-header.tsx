@@ -1,6 +1,7 @@
 import { ArrowLeft } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Link } from 'react-router'
+import { cn } from '../../lib/utils.ts'
 
 interface PageHeaderProps {
   title: string
@@ -24,7 +25,19 @@ export function PageHeader({ title, description, actions, back }: PageHeaderProp
       )}
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <h1 className="text-xl font-semibold tracking-tight text-ink sm:text-2xl">{title}</h1>
+          {/*
+           * Movil: la cabecera de la app ya nombra la pantalla (ver AppShell), asi
+           * que el titulo queda solo para lectores de pantalla. Las pantallas de
+           * detalle (con "volver") lo conservan: su titulo no esta en la cabecera.
+           */}
+          <h1
+            className={cn(
+              'text-xl font-semibold tracking-tight text-ink sm:text-2xl',
+              !back && 'max-md:sr-only',
+            )}
+          >
+            {title}
+          </h1>
           {description && <p className="mt-0.5 text-sm text-ink-muted">{description}</p>}
         </div>
         {actions && (

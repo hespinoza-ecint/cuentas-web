@@ -11,7 +11,7 @@ import { Badge } from '../../components/ui/badge.tsx'
 import { Button } from '../../components/ui/button.tsx'
 import { EmptyState } from '../../components/ui/empty-state.tsx'
 import { FiltersCard } from '../../components/ui/filters-card.tsx'
-import { ListRow } from '../../components/ui/list-row.tsx'
+import { ListGroup, ListRow } from '../../components/ui/list-row.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
 import { toast } from '../../lib/toast.ts'
@@ -176,7 +176,7 @@ export function PurchasesPage() {
       )}
 
       {items.length > 0 && (
-        <ul className="space-y-2" data-testid="purchases-list">
+        <ListGroup data-testid="purchases-list">
           {items.map((purchase) => {
             const nextInstallment = purchase.installmentPlan?.installments.find(
               (installment) => installment.status !== 'PAID',
@@ -235,7 +235,7 @@ export function PurchasesPage() {
               />
             )
           })}
-        </ul>
+        </ListGroup>
       )}
 
       {purchases.hasNextPage && (

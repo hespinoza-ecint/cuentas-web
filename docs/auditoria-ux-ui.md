@@ -666,7 +666,7 @@ Respetan las reglas del repo: colores solo en `src/index.css`, sin clases `dark:
 | B. Color — **hecha**, ver [fase 34](fase-34-color-con-significado.md) | UI-1, UI-2, UI-3, UI-10, UI-12, UI-13, UI-14, UI-20 | bajo | `design-tokens-contrast.test.ts` (pares de `expense`) |
 | C. Captura — **hecha en parte**, ver [fase 35](fase-35-captura-rapida.md) (UX-14 requiere backend) | UX-5, UX-6, UX-9, UX-13, UX-14 + `SegmentedControl` | medio | pruebas de formularios, `e2e/mobile.spec.ts` (orden de campos) |
 | D. Inicio — **hecha**, ver [fase 36](fase-36-inicio-reordenado.md) | UX-3, UX-7, UX-10, UX-15, UX-17 + `StatTile`, `Meter` | medio | `dashboard.test.tsx`, E2E del tablero |
-| E. Listas y cromo | UI-5, UX-11, UX-12, UX-16, UX-19 + `ListGroup` | medio | todas las suites de listas (`data-testid` de `ul`) |
+| E. Listas y cromo — **hecha en parte**, ver [fase 37](fase-37-listas-y-cabecera.md) (sin chips de filtros) | UI-5, UX-11, UX-12, UX-16, UX-19 + `ListGroup` | medio | todas las suites de listas (`data-testid` de `ul`) |
 | F. Oscuro cálido | UI-19, UI-18 | bajo | contraste; `index.html` (`theme-color`) |
 
 **Piezas concretas:**

@@ -23,7 +23,8 @@ export function FiltersCard({ activeCount, children }: FiltersCardProps) {
         type="button"
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
-        className="flex w-full items-center justify-between gap-2 text-sm font-medium text-ink-secondary sm:hidden"
+        // Los margenes negativos hacen tocable toda la cabecera de la tarjeta (52px), no solo el texto.
+        className="-m-4 flex w-[calc(100%+2rem)] items-center justify-between gap-2 rounded-xl p-4 text-sm font-medium text-ink-secondary sm:hidden"
       >
         <span className="flex items-center gap-2">
           <SlidersHorizontal className="size-4" aria-hidden="true" />
@@ -35,7 +36,8 @@ export function FiltersCard({ activeCount, children }: FiltersCardProps) {
           aria-hidden="true"
         />
       </button>
-      <div className={cn(open ? 'mt-3 sm:mt-0' : 'hidden sm:block')}>{children}</div>
+      {/* mt-7 = 1rem que compensa el margen negativo del boton + 0.75rem de aire. */}
+      <div className={cn(open ? 'mt-7 sm:mt-0' : 'hidden sm:block')}>{children}</div>
     </Card>
   )
 }

@@ -272,7 +272,12 @@ describe('gastos recurrentes', () => {
     const user = userEvent.setup()
 
     const upcoming = await screen.findByTestId('upcoming-occurrences')
-    await user.click(within(upcoming).getByRole('button', { name: 'Omitir' }))
+    // "Omitir" vive en el menu de la fila: la accion directa es "Confirmar".
+    expect(within(upcoming).queryByRole('button', { name: 'Omitir' })).not.toBeInTheDocument()
+    await user.click(
+      within(upcoming).getByRole('button', { name: /^Acciones de la ocurrencia de/ }),
+    )
+    await user.click(await screen.findByRole('menuitem', { name: 'Omitir' }))
 
     const dialog = await screen.findByRole('dialog')
     await user.click(within(dialog).getByRole('button', { name: 'Omitir' }))

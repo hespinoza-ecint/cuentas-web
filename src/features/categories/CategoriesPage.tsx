@@ -87,7 +87,7 @@ export function CategoriesPage() {
                 />
               </div>
             ) : (
-              <ul className="mt-3 space-y-2" data-testid="own-categories">
+              <ul className="mt-3 divide-y divide-line" data-testid="own-categories">
                 {own.map((category) => (
                   <ListRow
                     key={category.id}

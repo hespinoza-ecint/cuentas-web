@@ -1,16 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Check, Pencil, Trash2 } from 'lucide-react'
+import { Check, Pencil, SkipForward, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { MoneyDisplay } from '../../components/shared/MoneyDisplay.tsx'
 import { ErrorAlert } from '../../components/shared/ErrorAlert.tsx'
 import { ErrorState } from '../../components/shared/ErrorState.tsx'
+import { ActionMenu } from '../../components/ui/action-menu.tsx'
 import { Badge } from '../../components/ui/badge.tsx'
 import { Button } from '../../components/ui/button.tsx'
 import { Card, CardDescription, CardTitle } from '../../components/ui/card.tsx'
 import { Checkbox } from '../../components/ui/checkbox.tsx'
 import { ConfirmDialog } from '../../components/ui/confirm-dialog.tsx'
 import { EmptyState } from '../../components/ui/empty-state.tsx'
-import { ListRow } from '../../components/ui/list-row.tsx'
+import { ListGroup, ListRow } from '../../components/ui/list-row.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
 import { toast } from '../../lib/toast.ts'
@@ -190,20 +191,24 @@ export function RecurringPage() {
                     <Check className="size-3.5" aria-hidden="true" />
                     Confirmar
                   </Button>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    loading={skip.isPending && skipping?.id === occurrence.recurringExpenseId}
-                    onClick={() => {
-                      setSkipping({
-                        id: occurrence.recurringExpenseId,
-                        occurrenceDate: occurrence.expectedDate,
-                        name: occurrence.name,
-                      })
-                    }}
-                  >
-                    Omitir
-                  </Button>
+                  {/* Una decision por fila: confirmar. Omitir es la excepcion y va al menu. */}
+                  <ActionMenu
+                    // Nombre distinto al del menu de la fila del mismo recurrente (mas abajo).
+                    label={`Acciones de la ocurrencia de ${occurrence.name}`}
+                    items={[
+                      {
+                        label: 'Omitir',
+                        icon: SkipForward,
+                        disabled: skip.isPending,
+                        onSelect: () =>
+                          setSkipping({
+                            id: occurrence.recurringExpenseId,
+                            occurrenceDate: occurrence.expectedDate,
+                            name: occurrence.name,
+                          }),
+                      },
+                    ]}
+                  />
                 </div>
               </li>
             ))}
@@ -243,7 +248,7 @@ export function RecurringPage() {
       )}
 
       {list.length > 0 && (
-        <ul className="space-y-2" data-testid="recurring-list">
+        <ListGroup data-testid="recurring-list">
           {list.map((item) => (
             <ListRow
               key={item.id}
@@ -277,7 +282,7 @@ export function RecurringPage() {
               menuLabel={`Más acciones de ${item.name}`}
             />
           ))}
-        </ul>
+        </ListGroup>
       )}
 
       {createOpen && (

@@ -58,6 +58,9 @@ export function AppShell() {
   const isPathActive = (path: string) =>
     location.pathname === path || location.pathname.startsWith(`${path}/`)
   const moreActive = MOBILE_MENU_GROUPS.flatMap((group) => group.paths).some(isPathActive)
+  const screenTitle =
+    NAV_ITEMS.find((item) => (item.to === '/' ? location.pathname === '/' : isPathActive(item.to)))
+      ?.label ?? 'Cuentas'
 
   useEffect(() => {
     if (!menuOpen) {
@@ -82,12 +85,18 @@ export function AppShell() {
       </a>
       <header className="safe-t sticky top-0 z-40 border-b border-line bg-surface">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4">
-          <Link to="/" className="flex items-center gap-2 text-base font-semibold text-ink">
-            <span className="flex size-7 items-center justify-center rounded-lg bg-brand text-on-brand">
-              <Wallet className="size-4" aria-hidden="true" />
+          <div className="flex min-w-0 items-center gap-2 text-base font-semibold text-ink">
+            <Link to="/" className="flex shrink-0 items-center gap-2">
+              <span className="flex size-7 items-center justify-center rounded-lg bg-brand text-on-brand">
+                <Wallet className="size-4" aria-hidden="true" />
+              </span>
+              <span className="max-md:sr-only">Cuentas</span>
+            </Link>
+            {/* Movil: la cabecera nombra la pantalla; el h1 de la pagina queda para lectores. */}
+            <span aria-hidden="true" className="truncate md:hidden">
+              {screenTitle}
             </span>
-            Cuentas
-          </Link>
+          </div>
 
           <div className="flex items-center gap-1">
             <ThemeToggle />

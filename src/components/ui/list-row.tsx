@@ -1,6 +1,22 @@
-import type { ReactNode } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 import { cn } from '../../lib/utils.ts'
 import { ActionMenu, type ActionMenuItem } from './action-menu.tsx'
+
+/**
+ * Contenedor de filas: una sola tarjeta con divisores, no una tarjeta por fila.
+ * Sin `overflow-hidden`: recortaria el menu "⋯" de las filas.
+ */
+export function ListGroup({ className, ...props }: ComponentProps<'ul'>) {
+  return (
+    <ul
+      className={cn(
+        'divide-y divide-line rounded-xl border border-line bg-surface shadow-card',
+        className,
+      )}
+      {...props}
+    />
+  )
+}
 
 interface ListRowProps {
   /** Tocar la fila abre el detalle. Sin esto la fila es solo informativa. */
@@ -17,7 +33,7 @@ interface ListRowProps {
 /**
  * Fila de lista tocable: el dedo va a la fila completa, no a un botón
  * pequeño. Las acciones secundarias (editar, eliminar…) viven en el menú "⋯".
- * Debe usarse como hijo directo de <ul>.
+ * Debe usarse como hijo directo de <ListGroup> (o de un <ul> con divisores).
  */
 export function ListRow({
   onOpen,
@@ -29,12 +45,7 @@ export function ListRow({
   className,
 }: ListRowProps) {
   return (
-    <li
-      className={cn(
-        'flex items-stretch rounded-xl border border-line bg-surface shadow-card',
-        className,
-      )}
-    >
+    <li className={cn('flex items-stretch', className)}>
       <button
         type="button"
         onClick={onOpen}
@@ -56,7 +67,7 @@ export function ListRow({
       </button>
 
       {menu && menu.length > 0 && (
-        <div className="flex items-center pr-2">
+        <div className="flex items-center pr-1">
           <ActionMenu items={menu} label={menuLabel ?? 'Más acciones'} />
         </div>
       )}

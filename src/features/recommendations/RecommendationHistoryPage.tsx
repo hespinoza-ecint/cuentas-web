@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from '../../components/ui/dialog.tsx'
 import { EmptyState } from '../../components/ui/empty-state.tsx'
-import { ListRow } from '../../components/ui/list-row.tsx'
+import { ListGroup, ListRow } from '../../components/ui/list-row.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
 import { formatDateTime } from '../../lib/dates.ts'
@@ -72,7 +72,7 @@ export function RecommendationHistoryPage() {
       )}
 
       {items.length > 0 && (
-        <ul className="space-y-2" data-testid="recommendations-list">
+        <ListGroup data-testid="recommendations-list">
           {items.map((item) => {
             const outcome = OUTCOME_LABELS[item.outcome] ?? { label: item.outcome, tone: 'info' as const }
             return (
@@ -100,7 +100,7 @@ export function RecommendationHistoryPage() {
               />
             )
           })}
-        </ul>
+        </ListGroup>
       )}
 
       {history.hasNextPage && (

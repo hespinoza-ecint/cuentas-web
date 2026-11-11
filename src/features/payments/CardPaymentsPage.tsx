@@ -13,7 +13,7 @@ import { Button } from '../../components/ui/button.tsx'
 import { Card } from '../../components/ui/card.tsx'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from '../../components/ui/dialog.tsx'
 import { EmptyState } from '../../components/ui/empty-state.tsx'
-import { ListRow } from '../../components/ui/list-row.tsx'
+import { ListGroup, ListRow } from '../../components/ui/list-row.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
 import { toast } from '../../lib/toast.ts'
@@ -147,7 +147,7 @@ export function CardPaymentsPage() {
       )}
 
       {items.length > 0 && (
-        <ul className="space-y-2" data-testid="payments-list">
+        <ListGroup data-testid="payments-list">
           {items.map((payment) => (
             <ListRow
               key={payment.id}
@@ -181,7 +181,7 @@ export function CardPaymentsPage() {
               menuLabel={`Más acciones del pago del ${formatLocalDate(payment.paymentDate)}`}
             />
           ))}
-        </ul>
+        </ListGroup>
       )}
 
       {payments.hasNextPage && (

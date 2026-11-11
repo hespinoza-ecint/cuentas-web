@@ -11,7 +11,7 @@ import { Badge } from '../../components/ui/badge.tsx'
 import { Button } from '../../components/ui/button.tsx'
 import { EmptyState } from '../../components/ui/empty-state.tsx'
 import { FiltersCard } from '../../components/ui/filters-card.tsx'
-import { ListRow } from '../../components/ui/list-row.tsx'
+import { ListGroup, ListRow } from '../../components/ui/list-row.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
 import { toast } from '../../lib/toast.ts'
@@ -145,7 +145,7 @@ export function ExpensesPage() {
       )}
 
       {items.length > 0 && (
-        <ul className="space-y-2" data-testid="expenses-list">
+        <ListGroup data-testid="expenses-list">
           {items.map((expense) => (
             <ListRow
               key={expense.id}
@@ -177,7 +177,7 @@ export function ExpensesPage() {
               menuLabel={`Más acciones de ${expense.description}`}
             />
           ))}
-        </ul>
+        </ListGroup>
       )}
 
       {expenses.hasNextPage && (

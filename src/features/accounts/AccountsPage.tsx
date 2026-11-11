@@ -9,7 +9,7 @@ import { Badge } from '../../components/ui/badge.tsx'
 import { Button } from '../../components/ui/button.tsx'
 import { ConfirmDialog } from '../../components/ui/confirm-dialog.tsx'
 import { EmptyState } from '../../components/ui/empty-state.tsx'
-import { ListRow } from '../../components/ui/list-row.tsx'
+import { ListGroup, ListRow } from '../../components/ui/list-row.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
 import { toast } from '../../lib/toast.ts'
@@ -110,7 +110,7 @@ export function AccountsPage() {
       )}
 
       {list.length > 0 && (
-        <ul className="space-y-2" data-testid="accounts-list">
+        <ListGroup data-testid="accounts-list">
           {list.map((account) => (
             <ListRow
               key={account.id}
@@ -160,7 +160,7 @@ export function AccountsPage() {
               menuLabel={`Más acciones de ${account.name}`}
             />
           ))}
-        </ul>
+        </ListGroup>
       )}
 
       {createOpen && <AccountFormDialog open onOpenChange={setCreateOpen} />}

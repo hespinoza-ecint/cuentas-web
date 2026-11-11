@@ -46,6 +46,12 @@ describe('navegación móvil', () => {
       '#contenido',
     )
     expect(screen.getByRole('main')).toHaveAttribute('id', 'contenido')
+    // En movil la cabecera nombra la pantalla; el h1 de la pagina sigue para lectores.
+    // (el primer "banner" es la cabecera de la app; el de la pagina va dentro de main)
+    expect(within(screen.getAllByRole('banner')[0]).getByText('Inicio')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Hola, Ana' })).toHaveClass(
+      'max-md:sr-only',
+    )
 
     await user.click(screen.getByRole('button', { name: 'Más' }))
     const sheet = await screen.findByRole('dialog')
