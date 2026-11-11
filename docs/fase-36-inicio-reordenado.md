@@ -77,7 +77,7 @@ Sin dependencias nuevas ni cambios de API: el margen sale de
 | `npm.cmd run lint` | sin hallazgos |
 | `npm.cmd run build` | correcto |
 | `npm.cmd run test` | 38 archivos, 173 pruebas, todas pasan (en dos corridas: 35 archivos en la primera; los 3 que no arrancaron por "Failed to start threads worker" pasaron al repetirlos) |
-| `npm.cmd run test:e2e` | **no se corrió** en esta fase (requiere volver a resetear `Cuentas_Test`). El E2E solo depende del saludo "Hola, …" y de la navegación, que no cambiaron |
+| `npm.cmd run test:e2e` | 4 pruebas pasan en 6.5 min: credenciales inválidas, flujo completo, importar Excel (escritorio) y flujo móvil |
 
 Validación en pantalla (API local contra `Cuentas_Test`, 375 × 812, tema claro),
 con un usuario nuevo:
