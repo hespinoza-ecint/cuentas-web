@@ -63,7 +63,7 @@ export function VerifyEmailPage() {
       title="Verifica tu correo"
       subtitle="Confirma tu dirección para empezar a operar"
       footer={
-        <Link to="/login" className="font-medium text-ink underline">
+        <Link to="/login" className="inline-flex min-h-11 items-center font-medium text-ink underline">
           Ir a iniciar sesión
         </Link>
       }

@@ -60,6 +60,7 @@ la captura.
 | T9 | Baja | Filas y menús | Solo `hover:`, que en pantalla táctil no existe | `active:bg-surface-subtle` |
 | Y5 | Baja | Formularios | Errores de campo en 12 px | 14 px |
 | A3 | Baja | Avisos | El contenedor tenía `aria-live` y cada aviso su `role`: podía anunciarse dos veces | Solo el `role` de cada aviso |
+| T10 | Media | Acceso | "¿Olvidaste tu contraseña?", "Crear cuenta" y los "volver" de recuperación medían 19 px de alto | 44 px (medido en el navegador a 375 px) |
 
 ## 4. Top 25 por impacto
 
@@ -112,6 +113,7 @@ del error · 18. T7 segmentos · 19. degradado izquierdo de pestañas (no inclui
 | `src/features/purchases/PurchaseFormDialog.tsx` | "Agregar comisión" tocable |
 | `src/features/income/IncomePage.tsx` | Acciones del calendario al "⋯" |
 | `src/lib/dates.ts` | `dayDiff` y `relativeDay` compartidos |
+| `src/features/auth/*.tsx` | Enlaces secundarios de 44 px (`inline-flex min-h-11`) |
 
 ## 7. Decisiones
 
@@ -139,7 +141,9 @@ devuelve).
 - `npm.cmd run test`: 39 archivos, 178 pruebas (5 nuevas: `ref` de
   `MoneyInput`, fila informativa, teclado del menú, umbral de uso con dos
   configuraciones).
+- Medido en el navegador a 375×812 (pantalla de acceso): campos de 44 px, botón
+  de 48 px, enlaces de 44 px y sin desbordamiento horizontal (`scrollWidth` 375).
 - Pendiente: `npm.cmd run test:e2e` (reinicia `Cuentas_Test`) y la pasada visual
-  a 375 px con la app levantada.
+  de las pantallas con datos.
 - No verificable aquí: iPhone físico (F2, teclado sobre el pie de las hojas),
   lector de pantalla real y la PWA instalada volviendo del fondo (N1).

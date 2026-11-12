@@ -37,7 +37,7 @@ export function ResetPasswordPage() {
         title="Restablecer contraseña"
         subtitle="El enlace no es válido"
         footer={
-          <Link to="/recuperar" className="font-medium text-ink underline">
+          <Link to="/recuperar" className="inline-flex min-h-11 items-center font-medium text-ink underline">
             Solicitar un enlace nuevo
           </Link>
         }
@@ -54,7 +54,7 @@ export function ResetPasswordPage() {
       <AuthLayout
         title="Contraseña actualizada"
         footer={
-          <Link to="/login" className="font-medium text-ink underline">
+          <Link to="/login" className="inline-flex min-h-11 items-center font-medium text-ink underline">
             Iniciar sesión
           </Link>
         }
@@ -69,7 +69,7 @@ export function ResetPasswordPage() {
       title="Restablecer contraseña"
       subtitle="Elige una contraseña nueva"
       footer={
-        <Link to="/login" className="font-medium text-ink underline">
+        <Link to="/login" className="inline-flex min-h-11 items-center font-medium text-ink underline">
           Volver a iniciar sesión
         </Link>
       }

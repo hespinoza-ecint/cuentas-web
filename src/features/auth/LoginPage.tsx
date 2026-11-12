@@ -43,7 +43,7 @@ export function LoginPage() {
       footer={
         <>
           ¿No tienes cuenta?{' '}
-          <Link to="/registro" className="font-medium text-brand-ink underline">
+          <Link to="/registro" className="inline-flex min-h-11 items-center font-medium text-brand-ink underline">
             Crear cuenta
           </Link>
         </>
@@ -77,7 +77,7 @@ export function LoginPage() {
         />
         <SubmitButton pending={formState.isSubmitting}>Iniciar sesión</SubmitButton>
         <p className="text-center text-sm">
-          <Link to="/recuperar" className="text-ink-secondary underline">
+          <Link to="/recuperar" className="inline-flex min-h-11 items-center text-ink-secondary underline">
             ¿Olvidaste tu contraseña?
           </Link>
         </p>
