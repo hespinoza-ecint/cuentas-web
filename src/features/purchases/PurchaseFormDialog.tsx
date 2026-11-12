@@ -151,6 +151,7 @@ export function PurchaseFormDialog({
               control={form.control}
               render={({ field }) => (
                 <MoneyInput
+                  ref={field.ref}
                   id="purchaseAmount"
                   label="Monto"
                   valueCents={field.value}
@@ -235,7 +236,7 @@ export function PurchaseFormDialog({
 
             {/* La comision es poco frecuente: plegada, se abre sola si ya tiene valor. */}
             <details open={commissionMode !== 'NONE' || undefined}>
-              <summary className="w-fit cursor-pointer rounded py-2 text-sm font-medium text-ink-muted hover:text-ink-secondary">
+              <summary className="inline-flex min-h-11 w-fit cursor-pointer items-center rounded py-2 text-sm font-medium text-ink-muted hover:text-ink-secondary">
                 Agregar comisión
               </summary>
               <div className="mt-2 grid grid-cols-2 items-start gap-4">
@@ -250,6 +251,7 @@ export function PurchaseFormDialog({
                     control={form.control}
                     render={({ field }) => (
                       <MoneyInput
+                        ref={field.ref}
                         id="commissionAmount"
                         label="Monto de comisión"
                         valueCents={field.value}

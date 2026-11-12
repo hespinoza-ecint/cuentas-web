@@ -259,24 +259,23 @@ export function IncomePage() {
                           {schedule.amountOverride ? ' · monto propio' : ''}
                           {!schedule.isActive ? ' · inactivo' : ''}
                         </span>
-                        <span className="flex gap-0.5">
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            aria-label={`Editar calendario de ${source.name}`}
-                            onClick={() => setEditingSchedule({ source, schedule })}
-                          >
-                            <Pencil className="size-3.5" aria-hidden="true" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            aria-label={`Eliminar calendario de ${source.name}`}
-                            onClick={() => setDeletingSchedule({ source, schedule })}
-                          >
-                            <Trash2 className="size-3.5 text-danger" aria-hidden="true" />
-                          </Button>
-                        </span>
+                        {/* Las acciones del calendario van al "⋯", como en el resto de filas. */}
+                        <ActionMenu
+                          label={`Más acciones del calendario de ${source.name}`}
+                          items={[
+                            {
+                              label: 'Editar',
+                              icon: Pencil,
+                              onSelect: () => setEditingSchedule({ source, schedule }),
+                            },
+                            {
+                              label: 'Eliminar',
+                              icon: Trash2,
+                              tone: 'danger',
+                              onSelect: () => setDeletingSchedule({ source, schedule }),
+                            },
+                          ]}
+                        />
                       </li>
                     ))}
                   </ul>

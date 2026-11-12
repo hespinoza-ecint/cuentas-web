@@ -101,6 +101,7 @@ export function IncomeScheduleDialog({
             control={form.control}
             render={({ field }) => (
               <MoneyInput
+                ref={field.ref}
                 id="amountOverride"
                 label="Monto para este calendario (opcional)"
                 valueCents={field.value}

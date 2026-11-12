@@ -86,7 +86,10 @@ export function AppShell() {
       <header className="safe-t sticky top-0 z-40 border-b border-line bg-surface">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4">
           <div className="flex min-w-0 items-center gap-2 text-base font-semibold text-ink">
-            <Link to="/" className="flex shrink-0 items-center gap-2">
+            <Link
+              to="/"
+              className="flex shrink-0 items-center gap-2 max-md:size-11 max-md:justify-center"
+            >
               <span className="flex size-7 items-center justify-center rounded-lg bg-brand text-on-brand">
                 <Wallet className="size-4" aria-hidden="true" />
               </span>
@@ -273,7 +276,7 @@ export function AppShell() {
                     to={item.to}
                     end={item.end}
                     onClick={() => setMoreOpen(false)}
-                    className="flex min-h-11 items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-ink-secondary hover:bg-surface-subtle"
+                    className="flex min-h-11 items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-ink-secondary transition hover:bg-surface-subtle active:bg-surface-subtle"
                   >
                     <item.icon className="size-4 shrink-0 text-ink-muted" aria-hidden="true" />
                     <span className="truncate">{item.label}</span>

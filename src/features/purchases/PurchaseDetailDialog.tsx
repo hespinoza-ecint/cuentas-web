@@ -56,6 +56,7 @@ export function PurchaseDetailDialog({
 
   const plan = purchase.data?.installmentPlan ?? null
   const nextInstallment = plan?.installments.find((installment) => installment.status !== 'PAID')
+  const paidInstallments = plan?.installments.filter((item) => item.status === 'PAID').length ?? 0
   // RN-30: con el corte o el plan pagados la API rechaza cancelar y eliminar.
   const lockedNote = purchaseLockedNote(purchase.data?.lockedReason)
   const canCancel = purchase.data?.status === 'ACTIVE' && !lockedNote
@@ -127,34 +128,58 @@ export function PurchaseDetailDialog({
               <>
                 <dl className="grid grid-cols-2 gap-2 text-xs text-ink-secondary">
                   <div>
-                    Principal pendiente:{' '}
-                    <MoneyDisplay cents={plan.outstandingPrincipal} className="font-medium" />
+                    <dt className="text-ink-muted">Principal pendiente</dt>
+                    <dd className="font-medium text-ink">
+                      <MoneyDisplay cents={plan.outstandingPrincipal} />
+                    </dd>
                   </div>
                   <div>
-                    Mensualidad promedio:{' '}
-                    <MoneyDisplay cents={plan.estimatedMonthlyPayment} className="font-medium" />
+                    <dt className="text-ink-muted">Mensualidad promedio</dt>
+                    <dd className="font-medium text-ink">
+                      <MoneyDisplay cents={plan.estimatedMonthlyPayment} />
+                    </dd>
                   </div>
                   {plan.totalInterest > 0 && (
                     <div>
-                      Interés total: <MoneyDisplay cents={plan.totalInterest} className="font-medium" />
+                      <dt className="text-ink-muted">Interés total</dt>
+                      <dd className="font-medium text-ink">
+                        <MoneyDisplay cents={plan.totalInterest} />
+                      </dd>
                     </div>
                   )}
                   {plan.totalIva > 0 && (
                     <div>
-                      IVA total: <MoneyDisplay cents={plan.totalIva} className="font-medium" />
+                      <dt className="text-ink-muted">IVA total</dt>
+                      <dd className="font-medium text-ink">
+                        <MoneyDisplay cents={plan.totalIva} />
+                      </dd>
                     </div>
                   )}
                 </dl>
 
                 <div>
-                  <p className="mb-2 font-medium text-ink-secondary">Mensualidades</p>
+                  <div className="mb-2 flex items-baseline justify-between gap-2">
+                    <p className="font-medium text-ink-secondary">Mensualidades</p>
+                    <p className="text-xs text-ink-muted">
+                      Pagadas {paidInstallments} de {plan.installments.length}
+                    </p>
+                  </div>
+                  {/* Progreso del plan: antes habia que contar los badges uno por uno. */}
+                  <div className="mb-2 h-1.5 w-full overflow-hidden rounded-full bg-surface-strong">
+                    <div
+                      className="h-full rounded-full bg-brand"
+                      style={{
+                        width: `${(paidInstallments / Math.max(plan.installments.length, 1)) * 100}%`,
+                      }}
+                    />
+                  </div>
                   <ul className="divide-y divide-line" data-testid="installments-list">
                     {plan.installments.map((installment) => (
-                      <li key={installment.id} className="flex flex-wrap items-center justify-between gap-2 py-1.5">
-                        <span className="text-xs text-ink-muted">
+                      <li key={installment.id} className="flex items-center justify-between gap-2 py-1.5">
+                        <span className="min-w-0 text-xs text-ink-muted">
                           #{installment.number} · vence {formatLocalDate(installment.dueDate)}
                         </span>
-                        <span className="flex items-center gap-2">
+                        <span className="flex shrink-0 items-center gap-2">
                           <MoneyDisplay cents={installment.totalAmount} className="font-medium" />
                           <StatusBadge status={installment.status} />
                         </span>
@@ -190,6 +215,7 @@ export function PurchaseDetailDialog({
                         control={form.control}
                         render={({ field }) => (
                           <MoneyInput
+                            ref={field.ref}
                             id="prepayAmount"
                             label="Monto del anticipo"
                             valueCents={field.value}

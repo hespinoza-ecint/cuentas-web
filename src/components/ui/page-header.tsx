@@ -17,7 +17,7 @@ export function PageHeader({ title, description, actions, back }: PageHeaderProp
       {back && (
         <Link
           to={back.to}
-          className="mb-2 inline-flex h-8 items-center gap-1 rounded-lg pr-2 text-sm font-medium text-ink-muted transition hover:text-ink"
+          className="mb-2 inline-flex h-11 items-center gap-1 rounded-lg pr-2 text-sm font-medium text-ink-muted transition hover:text-ink active:text-ink"
         >
           <ArrowLeft className="size-4" aria-hidden="true" />
           {back.label}

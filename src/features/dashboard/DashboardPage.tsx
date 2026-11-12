@@ -19,12 +19,13 @@ import { Card, CardDescription, CardTitle } from '../../components/ui/card.tsx'
 import { EmptyState } from '../../components/ui/empty-state.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
-import { addDays, formatLocalDate, formatMonth } from '../../lib/dates.ts'
+import { addDays, dayDiff, formatLocalDate, formatMonth, relativeDay } from '../../lib/dates.ts'
 import { cn } from '../../lib/utils.ts'
 import { useSessionUser } from '../auth/use-session.ts'
+import { UtilizationBar } from '../cards/UtilizationBar.tsx'
+import { utilizationLevel } from '../cards/utilization.ts'
 import { useSettings, useToday } from '../users/use-settings.ts'
 import { CashflowChart } from './CashflowChart.tsx'
-import { daySpan } from './cashflow-chart-model.ts'
 import { fetchCashflowProjection, fetchDashboardSummary } from './dashboard-api.ts'
 
 const PAYMENT_TYPES: Record<string, string> = {
@@ -180,11 +181,17 @@ export function DashboardPage() {
                         </>
                       ) : (
                         // Sin colchon definido el aviso no dice nada: se invita a definirlo.
-                        <Link to="/configuracion" className="text-xs font-medium text-brand-ink underline">
+                        <Link
+                          to="/configuracion"
+                          className="inline-flex min-h-11 items-center text-xs font-medium text-brand-ink underline"
+                        >
                           Define tu colchón
                         </Link>
                       )}
-                      <a href="#flujo" className="text-xs font-medium text-brand-ink underline">
+                      <a
+                        href="#flujo"
+                        className="inline-flex min-h-11 items-center text-xs font-medium text-brand-ink underline"
+                      >
                         Ver flujo
                       </a>
                     </div>
@@ -195,7 +202,8 @@ export function DashboardPage() {
 
             <Card>
               <CardTitle>Próximos pagos</CardTitle>
-              <CardDescription>
+              {/* Los totales son parte del dato, no una nota al pie. */}
+              <CardDescription className="text-sm text-ink-secondary">
                 {summary.data.upcomingPayments.horizonDays} días · total{' '}
                 <MoneyDisplay cents={summary.data.upcomingPayments.total} className="font-medium" />
                 {weekTotal > 0 && (
@@ -222,7 +230,7 @@ export function DashboardPage() {
                         <span className="block text-xs text-ink-muted">
                           {PAYMENT_TYPES[payment.type] ?? payment.type} ·{' '}
                           {formatLocalDate(payment.date)} ·{' '}
-                          {relativeDay(daySpan(summary.data.today, payment.date))}
+                          {relativeDay(dayDiff(summary.data.today, payment.date))}
                         </span>
                       </span>
                       <MoneyDisplay cents={payment.amount} className="font-medium text-expense" />
@@ -248,7 +256,7 @@ export function DashboardPage() {
             <div className="flex items-center justify-between gap-3">
               <div>
                 <CardTitle>Tarjetas de crédito</CardTitle>
-                <CardDescription>
+                <CardDescription className="text-sm text-ink-secondary">
                   Deuda total{' '}
                   <MoneyDisplay cents={summary.data.cards.totalDebt} className="font-medium" /> ·
                   disponible{' '}
@@ -276,54 +284,53 @@ export function DashboardPage() {
             ) : (
               <ul className="mt-4 divide-y divide-line" data-testid="dashboard-cards">
                 {cardsByDueDate.map((card) => {
-                  const level =
-                    card.utilizationBps <= maxUtilizationBps
-                      ? { label: 'Uso bajo', tone: 'bg-success' }
-                      : card.utilizationBps <= Math.round((maxUtilizationBps * 5) / 3)
-                        ? { label: 'Uso medio', tone: 'bg-warning' }
-                        : { label: 'Uso alto', tone: 'bg-danger' }
-                  const utilization = Math.min(card.utilizationBps / 100, 100)
+                  const level = utilizationLevel(card.utilizationBps, maxUtilizationBps)
                   return (
-                    <li key={card.id} className="py-3 first:pt-0 last:pb-0">
-                      <div className="flex items-baseline justify-between gap-2">
-                        <p className="text-sm font-medium text-ink">
-                          {card.alias} <span className="text-ink-muted">····{card.last4}</span>
-                        </p>
-                        <span className="text-sm font-medium text-ink tabular-nums">
-                          {(card.utilizationBps / 100).toFixed(1)}%
-                        </span>
-                      </div>
-                      <div
-                        role="meter"
-                        aria-label={`Utilización de ${card.alias}`}
-                        aria-valuemin={0}
-                        aria-valuemax={100}
-                        aria-valuenow={utilization}
-                        className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-surface-strong"
+                    <li key={card.id} className="py-1 first:pt-0 last:pb-0">
+                      {/* La fila entera abre el detalle de la tarjeta. */}
+                      <Link
+                        to={`/tarjetas/${card.id}`}
+                        className="-mx-2 flex items-center gap-2 rounded-lg px-2 py-2 transition active:bg-surface-subtle"
                       >
-                        <div
-                          className={cn('h-full rounded-full', level.tone)}
-                          style={{ width: `${utilization}%` }}
-                        />
-                      </div>
-                      <p className="mt-2 text-xs text-ink-muted">
-                        {level.label} · saldo{' '}
-                        <MoneyDisplay cents={card.currentBalance} className="font-medium" /> de{' '}
-                        <MoneyDisplay cents={card.creditLimit} className="font-medium" />
-                      </p>
-                      {card.pendingPayment > 0 ? (
-                        <p className="mt-1 text-xs text-ink-secondary">
-                          Paga{' '}
-                          <MoneyDisplay cents={card.pendingPayment} className="font-semibold text-ink" />{' '}
-                          antes del {formatLocalDate(card.nextDueDate)} ·{' '}
-                          {relativeDay(daySpan(summary.data.today, card.nextDueDate))}
-                        </p>
-                      ) : (
-                        <p className="mt-1 text-xs text-ink-muted">
-                          Corte {formatLocalDate(card.nextCutDate)} · pago{' '}
-                          {formatLocalDate(card.nextDueDate)}
-                        </p>
-                      )}
+                        <span className="min-w-0 flex-1">
+                          <span className="flex items-baseline justify-between gap-2">
+                            <span className="truncate text-sm font-medium text-ink">
+                              {card.alias} <span className="text-ink-muted">····{card.last4}</span>
+                            </span>
+                            <span className="shrink-0 text-sm font-medium text-ink tabular-nums">
+                              {(card.utilizationBps / 100).toFixed(1)}%
+                            </span>
+                          </span>
+                          <UtilizationBar
+                            bps={card.utilizationBps}
+                            maxUtilizationBps={maxUtilizationBps}
+                            label={`Utilización de ${card.alias}`}
+                            className="mt-2"
+                          />
+                          <span className="mt-2 block text-xs text-ink-muted">
+                            {level.label} · saldo{' '}
+                            <MoneyDisplay cents={card.currentBalance} className="font-medium" /> de{' '}
+                            <MoneyDisplay cents={card.creditLimit} className="font-medium" />
+                          </span>
+                          {card.pendingPayment > 0 ? (
+                            <span className="mt-1 block text-xs text-ink-secondary">
+                              Paga{' '}
+                              <MoneyDisplay
+                                cents={card.pendingPayment}
+                                className="font-semibold text-ink"
+                              />{' '}
+                              antes del {formatLocalDate(card.nextDueDate)} ·{' '}
+                              {relativeDay(dayDiff(summary.data.today, card.nextDueDate))}
+                            </span>
+                          ) : (
+                            <span className="mt-1 block text-xs text-ink-muted">
+                              Corte {formatLocalDate(card.nextCutDate)} · pago{' '}
+                              {formatLocalDate(card.nextDueDate)}
+                            </span>
+                          )}
+                        </span>
+                        <ChevronRight className="size-4 shrink-0 text-ink-muted" aria-hidden="true" />
+                      </Link>
                     </li>
                   )
                 })}
@@ -396,9 +403,10 @@ export function DashboardPage() {
                       key={`${income.incomeScheduleId}-${income.date}`}
                       className="flex items-center justify-between gap-3 py-2 text-sm"
                     >
-                      <span className="min-w-0 truncate text-ink-secondary">
-                        {income.name}
-                        <span className="ml-2 text-xs text-ink-muted">
+                      {/* Dos lineas: el nombre no se come la fecha (igual que en pagos). */}
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-ink-secondary">{income.name}</span>
+                        <span className="block text-xs text-ink-muted">
                           {formatLocalDate(income.date)}
                         </span>
                       </span>
@@ -449,14 +457,6 @@ export function DashboardPage() {
       )}
     </div>
   )
-}
-
-/** "hoy", "mañana", "en 5 días" o "vencido" a partir de la diferencia en dias. */
-function relativeDay(days: number): string {
-  if (days < 0) return 'vencido'
-  if (days === 0) return 'hoy'
-  if (days === 1) return 'mañana'
-  return `en ${days} días`
 }
 
 const FIRST_RUN_STEPS = [

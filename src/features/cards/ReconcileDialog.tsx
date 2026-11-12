@@ -63,6 +63,7 @@ export function ReconcileDialog({
               control={form.control}
               render={({ field }) => (
                 <MoneyInput
+                  ref={field.ref}
                   id="reportedBalance"
                   label="Saldo reportado por el banco"
                   valueCents={field.value}

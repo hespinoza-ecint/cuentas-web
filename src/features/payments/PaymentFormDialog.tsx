@@ -169,6 +169,7 @@ export function PaymentFormDialog({
               control={form.control}
               render={({ field }) => (
                 <MoneyInput
+                  ref={field.ref}
                   id="paymentAmount"
                   label="Monto"
                   valueCents={field.value}

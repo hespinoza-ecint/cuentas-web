@@ -162,5 +162,6 @@ actualizaciones) está en
 - [Fase 36 — Inicio reordenado (bloque D de la auditoría)](docs/fase-36-inicio-reordenado.md)
 - [Fase 37 — Listas y cabecera (bloque E de la auditoría)](docs/fase-37-listas-y-cabecera.md)
 - [Fase 38 — Oscuro cálido (bloque F de la auditoría)](docs/fase-38-oscuro-calido.md)
+- [Fase 39 — Pulido móvil](docs/fase-39-pulido-movil.md)
 - [Pruebas E2E con Playwright](docs/e2e-playwright.md)
 - [Auditoría UX/UI y de diseño visual (noviembre 2026)](docs/auditoria-ux-ui.md)

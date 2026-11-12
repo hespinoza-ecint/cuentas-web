@@ -47,7 +47,7 @@ export function SectionTabs({ label, tabs }: SectionTabsProps) {
           end={tab.end}
           className={({ isActive }) =>
             cn(
-              '-mb-px flex h-10 shrink-0 items-center border-b-2 px-3 text-sm font-medium whitespace-nowrap transition',
+              '-mb-px flex h-11 shrink-0 items-center border-b-2 px-3 text-sm font-medium whitespace-nowrap transition',
               isActive
                 ? 'border-brand text-brand-ink'
                 : 'border-transparent text-ink-muted hover:text-ink',

@@ -166,6 +166,7 @@ export function CardFormDialog({
                 control={form.control}
                 render={({ field }) => (
                   <MoneyInput
+                    ref={field.ref}
                     id="creditLimit"
                     label="Límite de crédito"
                     valueCents={field.value}
@@ -217,6 +218,7 @@ export function CardFormDialog({
                   control={form.control}
                   render={({ field }) => (
                     <MoneyInput
+                      ref={field.ref}
                       id="cardOpeningBalance"
                       label="Saldo inicial (opcional)"
                       valueCents={field.value}
@@ -255,6 +257,7 @@ export function CardFormDialog({
                     control={form.control}
                     render={({ field }) => (
                       <MoneyInput
+                        ref={field.ref}
                         id="annualFee"
                         label="Anualidad (opcional)"
                         valueCents={field.value}

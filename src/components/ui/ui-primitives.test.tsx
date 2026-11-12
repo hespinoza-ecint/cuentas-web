@@ -37,9 +37,46 @@ describe('ActionMenu', () => {
     expect(screen.queryByRole('menuitem')).not.toBeInTheDocument()
     expect(trigger).toHaveFocus()
   })
+
+  it('recorre las acciones con las flechas y Tab cierra el menú', async () => {
+    const user = userEvent.setup()
+
+    render(
+      <ActionMenu
+        label="Acciones de prueba"
+        items={[
+          { label: 'Uno', onSelect: vi.fn() },
+          { label: 'Dos', onSelect: vi.fn() },
+        ]}
+      />,
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Acciones de prueba' }))
+    const primero = await screen.findByRole('menuitem', { name: 'Uno' })
+    expect(primero).toHaveFocus()
+
+    await user.keyboard('{ArrowDown}')
+    expect(screen.getByRole('menuitem', { name: 'Dos' })).toHaveFocus()
+    await user.keyboard('{ArrowDown}')
+    expect(primero).toHaveFocus()
+
+    await user.keyboard('{Tab}')
+    expect(screen.queryByRole('menuitem')).not.toBeInTheDocument()
+  })
 })
 
 describe('ListRow', () => {
+  it('sin onOpen la fila es informativa y no un botón deshabilitado', () => {
+    render(
+      <ul>
+        <ListRow title="Solo lectura" subtitle="Sin acciones" trailing="$10.00" />
+      </ul>,
+    )
+
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
+    expect(screen.getByText('Solo lectura')).toBeInTheDocument()
+  })
+
   it('tocar la fila abre el detalle; el menú "⋯" no dispara la fila', async () => {
     const user = userEvent.setup()
     const onOpen = vi.fn()

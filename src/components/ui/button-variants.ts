@@ -18,12 +18,12 @@ export const buttonVariants = cva(
       size: {
         // En movil los objetivos tactiles son mas altos (40-44px); desde sm
         // vuelven a la densidad original de escritorio.
-        sm: 'h-9 px-3 text-xs sm:h-8',
-        md: 'h-10 px-4 sm:h-9',
-        lg: 'h-11 px-5 sm:h-10',
-        // Boton cuadrado para acciones de fila (icono): objetivo tactil de 40px.
-        icon: 'size-10 sm:size-9',
-        'icon-sm': 'size-9 sm:size-8',
+        sm: 'h-11 px-3 text-xs sm:h-8',
+        md: 'h-11 px-4 sm:h-9',
+        lg: 'h-12 px-5 sm:h-10',
+        // Boton cuadrado para acciones de fila (icono): objetivo tactil de 44px.
+        icon: 'size-11 sm:size-9',
+        'icon-sm': 'size-10 sm:size-8',
       },
     },
     defaultVariants: {

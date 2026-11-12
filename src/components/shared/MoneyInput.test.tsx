@@ -1,9 +1,23 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { createRef } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import { MoneyInput } from './MoneyInput.tsx'
 
 describe('MoneyInput', () => {
+  it('expone el input por ref: el formulario puede enfocarlo al fallar la validación', () => {
+    const ref = createRef<HTMLInputElement>()
+
+    render(
+      <MoneyInput ref={ref} label="Monto" valueCents={undefined} onCentsChange={() => {}} />,
+    )
+
+    ref.current?.focus()
+
+    expect(ref.current).toBe(screen.getByLabelText('Monto'))
+    expect(ref.current).toHaveFocus()
+  })
+
   it('emite centavos al capturar pesos', async () => {
     const onCentsChange = vi.fn()
     const user = userEvent.setup()

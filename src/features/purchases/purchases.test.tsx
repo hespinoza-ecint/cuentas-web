@@ -141,7 +141,7 @@ describe('compras', () => {
 
     const list = await screen.findByTestId('purchases-list')
     expect(within(list).getByText('Telefono')).toBeInTheDocument()
-    expect(within(list).getByText('MSI')).toBeInTheDocument()
+    expect(within(list).getByText(/^MSI \d+\/\d+$/)).toBeInTheDocument()
     expect(within(list).getByText(/próxima #1/)).toBeInTheDocument()
     expect(within(list).getByText('$1,000.00')).toBeInTheDocument()
   })

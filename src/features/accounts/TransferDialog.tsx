@@ -108,6 +108,7 @@ export function TransferDialog({
               control={form.control}
               render={({ field }) => (
                 <MoneyInput
+                  ref={field.ref}
                   id="amount"
                   label="Monto"
                   valueCents={field.value}

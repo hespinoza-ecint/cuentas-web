@@ -26,6 +26,7 @@ interface ActionMenuProps {
 export function ActionMenu({ items, label = 'Más acciones', className }: ActionMenuProps) {
   const [open, setOpen] = useState(false)
   const triggerRef = useRef<HTMLButtonElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
   const firstItemRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
@@ -37,7 +38,34 @@ export function ActionMenu({ items, label = 'Más acciones', className }: Action
       if (event.key === 'Escape') {
         setOpen(false)
         triggerRef.current?.focus()
+        return
       }
+      // El foco no debe irse al contenido que queda detras del velo.
+      if (event.key === 'Tab') {
+        setOpen(false)
+        return
+      }
+      if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
+        return
+      }
+      const items = Array.from(
+        menuRef.current?.querySelectorAll<HTMLButtonElement>('[role="menuitem"]:not(:disabled)') ??
+          [],
+      )
+      if (items.length === 0) {
+        return
+      }
+      event.preventDefault()
+      const current = items.indexOf(document.activeElement as HTMLButtonElement)
+      const index =
+        event.key === 'Home'
+          ? 0
+          : event.key === 'End'
+            ? items.length - 1
+            : event.key === 'ArrowDown'
+              ? (current + 1) % items.length
+              : (current - 1 + items.length) % items.length
+      items[index]?.focus()
     }
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
@@ -67,16 +95,17 @@ export function ActionMenu({ items, label = 'Más acciones', className }: Action
            * Escritorio: desplegable junto al boton, como siempre.
            */}
           <div
-            className="fixed inset-0 z-40 max-sm:z-50 max-sm:bg-overlay/60"
+            className="fixed inset-0 z-40 max-sm:z-50 max-sm:animate-[fade-in_150ms_ease-out] max-sm:bg-overlay/60"
             aria-hidden="true"
             onClick={() => setOpen(false)}
           />
           <div
+            ref={menuRef}
             role="menu"
             aria-label={label}
             className={cn(
               'absolute right-0 z-50 mt-1 w-48 overflow-hidden rounded-xl border border-line bg-surface py-1 shadow-menu',
-              'max-sm:fixed max-sm:inset-x-0 max-sm:bottom-0 max-sm:mt-0 max-sm:w-auto max-sm:rounded-t-2xl max-sm:rounded-b-none max-sm:px-2 max-sm:pt-2 max-sm:shadow-sheet',
+              'max-sm:fixed max-sm:inset-x-0 max-sm:bottom-0 max-sm:mt-0 max-sm:w-auto max-sm:animate-[sheet-in_200ms_ease-out] max-sm:rounded-t-2xl max-sm:rounded-b-none max-sm:px-2 max-sm:pt-2 max-sm:shadow-sheet',
               'max-sm:[padding-bottom:calc(0.5rem+env(safe-area-inset-bottom,0px))]',
             )}
           >
@@ -92,7 +121,7 @@ export function ActionMenu({ items, label = 'Más acciones', className }: Action
                   item.onSelect()
                 }}
                 className={cn(
-                  'flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm transition hover:bg-surface-subtle disabled:opacity-55 max-sm:min-h-12 max-sm:rounded-lg max-sm:text-base',
+                  'flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm transition hover:bg-surface-subtle active:bg-surface-subtle disabled:opacity-55 max-sm:min-h-12 max-sm:rounded-lg max-sm:text-base',
                   item.tone === 'danger' ? 'text-danger' : 'text-ink-secondary',
                 )}
               >

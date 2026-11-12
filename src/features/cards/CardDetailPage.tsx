@@ -11,15 +11,19 @@ import { SelectField } from '../../components/shared/SelectField.tsx'
 import { StatusBadge } from '../../components/shared/StatusBadge.tsx'
 import { Badge } from '../../components/ui/badge.tsx'
 import { Button } from '../../components/ui/button.tsx'
+import { ButtonLink } from '../../components/ui/button-link.tsx'
 import { Card, CardDescription, CardTitle } from '../../components/ui/card.tsx'
 import { PageHeader } from '../../components/ui/page-header.tsx'
 import { Skeleton } from '../../components/ui/skeleton.tsx'
 import { toast } from '../../lib/toast.ts'
-import { formatLocalDate } from '../../lib/dates.ts'
+import { dayDiff, formatLocalDate, relativeDay } from '../../lib/dates.ts'
 import { cn } from '../../lib/utils.ts'
+import { useToday } from '../users/use-settings.ts'
 import { CardFormDialog } from './CardFormDialog.tsx'
 import { ReconcileDialog } from './ReconcileDialog.tsx'
 import { StatementDetailDialog } from './StatementDetailDialog.tsx'
+import { UtilizationBar } from './UtilizationBar.tsx'
+import { utilizationLevel, useMaxUtilizationBps } from './utilization.ts'
 import {
   deleteCard,
   getCard,
@@ -48,6 +52,8 @@ export function CardDetailPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
+  const today = useToday()
+  const maxUtilizationBps = useMaxUtilizationBps()
   const card = useQuery({ queryKey: ['card', id], queryFn: () => getCard(id) })
   const cycle = useQuery({ queryKey: ['cycle', id], queryFn: () => getCurrentCycle(id) })
   const statements = useQuery({ queryKey: ['statements', id], queryFn: () => listStatements(id) })
@@ -105,9 +111,14 @@ export function CardDetailPage() {
   }
 
   const data = card.data
-  const utilization = data.creditLimit > 0 ? data.currentBalance / data.creditLimit : 0
-  const usage =
-    utilization <= 0.3 ? 'Uso bajo' : utilization <= 0.5 ? 'Uso medio' : 'Uso alto'
+  const utilizationBps =
+    data.creditLimit > 0 ? Math.round((data.currentBalance / data.creditLimit) * 10_000) : 0
+  const utilization = utilizationBps / 10_000
+  const level = utilizationLevel(utilizationBps, maxUtilizationBps)
+  // Primer corte sin pagar: lo que hay que pagar y para cuando.
+  const nextStatement = (statements.data ?? [])
+    .filter((statement) => statement.status !== 'PAID')
+    .sort((a, b) => a.dueDate.localeCompare(b.dueDate))[0]
 
   return (
     <div data-testid="card-detail-page">
@@ -126,6 +137,7 @@ export function CardDetailPage() {
               Editar
             </Button>
             <ActionMenu
+              className="max-sm:flex-none!"
               label={`Más acciones de ${data.alias}`}
               items={[
                 {
@@ -161,21 +173,58 @@ export function CardDetailPage() {
           <p className="mt-3 text-3xl font-semibold tracking-tight text-ink tabular-nums">
             <MoneyDisplay cents={data.currentBalance} />
           </p>
-          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-surface-strong">
-            <div
-              className={cn(
-                'h-full rounded-full',
-                utilization <= 0.3 ? 'bg-success' : utilization <= 0.5 ? 'bg-warning' : 'bg-danger',
-              )}
-              style={{ width: `${Math.min(utilization * 100, 100)}%` }}
-            />
-          </div>
-          <p className="mt-2 text-xs text-ink-muted">
-            {usage} · disponible{' '}
-            <MoneyDisplay cents={data.availableCredit} className="font-medium" /> de{' '}
-            <MoneyDisplay cents={data.creditLimit} className="font-medium" /> ·{' '}
-            {(utilization * 100).toFixed(1)}% utilizado · <StatusBadge status={data.status} />
+          <p className="mt-1 flex flex-wrap items-center gap-1.5 text-sm text-ink-secondary">
+            {level.label} · {(utilization * 100).toFixed(1)}% del límite
+            {data.status !== 'ACTIVE' && <StatusBadge status={data.status} />}
           </p>
+          <UtilizationBar
+            bps={utilizationBps}
+            maxUtilizationBps={maxUtilizationBps}
+            label={`Utilización de ${data.alias}`}
+            className="mt-2"
+          />
+          <dl className="mt-3 grid grid-cols-2 gap-3">
+            <div>
+              <dt className="text-xs text-ink-muted">Disponible</dt>
+              <dd className="text-sm font-medium text-ink tabular-nums">
+                <MoneyDisplay cents={data.availableCredit} />
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs text-ink-muted">Límite de crédito</dt>
+              <dd className="text-sm font-medium text-ink tabular-nums">
+                <MoneyDisplay cents={data.creditLimit} />
+              </dd>
+            </div>
+          </dl>
+          {nextStatement && (
+            <div className="mt-4 rounded-lg bg-surface-subtle p-3">
+              <p className="text-sm text-ink">
+                Paga{' '}
+                <span className="font-semibold tabular-nums">
+                  <MoneyDisplay
+                    cents={
+                      nextStatement.noInterestPaymentReported ??
+                      nextStatement.noInterestPaymentCalc
+                    }
+                  />
+                </span>{' '}
+                antes del {formatLocalDate(nextStatement.dueDate)}
+              </p>
+              <p className="mt-0.5 text-xs text-ink-muted">
+                {relativeDay(dayDiff(today, nextStatement.dueDate))} · pago para no generar
+                intereses
+              </p>
+              <ButtonLink
+                to="/pagos?nuevo=1"
+                variant="secondary"
+                size="sm"
+                className="mt-2 max-sm:w-full"
+              >
+                Registrar pago
+              </ButtonLink>
+            </div>
+          )}
           {(data.annualFee ?? 0) > 0 && (
             <p className="mt-2 text-xs text-ink-muted">
               Anualidad <MoneyDisplay cents={data.annualFee ?? 0} className="font-medium" />
@@ -231,28 +280,34 @@ export function CardDetailPage() {
                 <button
                   type="button"
                   onClick={() => setSelectedStatement(statement)}
-                  className="flex w-full flex-wrap items-center justify-between gap-3 py-3 text-left transition hover:bg-surface-subtle"
+                  className="flex w-full items-center justify-between gap-3 py-3 text-left transition hover:bg-surface-subtle active:bg-surface-subtle"
                 >
-                  <div>
-                    <p className="flex flex-wrap items-center gap-2 text-sm text-ink">
-                      <span className="font-medium">Corte {formatLocalDate(statement.cutDate)}</span>
+                  {/* Primero lo que hay que pagar y cuando; el resto, en la segunda linea. */}
+                  <span className="min-w-0 flex-1">
+                    <span className="flex flex-wrap items-center gap-2 text-sm text-ink">
+                      <span className="font-medium">
+                        Vence {formatLocalDate(statement.dueDate)}
+                      </span>
                       <StatusBadge status={statement.status} />
                       {statement.minimumPaymentReported !== null && (
                         <Badge tone="info">Montos del banco</Badge>
                       )}
-                    </p>
-                    <p className="mt-0.5 text-xs text-ink-muted">
-                      Vence {formatLocalDate(statement.dueDate)} · sin intereses{' '}
-                      <MoneyDisplay
-                        cents={statement.noInterestPaymentReported ?? statement.noInterestPaymentCalc}
-                      />{' '}
-                      · mínimo{' '}
+                    </span>
+                    <span className="mt-0.5 block text-xs text-ink-muted">
+                      Corte {formatLocalDate(statement.cutDate)} · saldo{' '}
+                      <MoneyDisplay cents={statement.statementBalance} /> · mínimo{' '}
                       <MoneyDisplay
                         cents={statement.minimumPaymentReported ?? statement.minimumPaymentEstimated}
                       />
-                    </p>
-                  </div>
-                  <MoneyDisplay cents={statement.statementBalance} className="font-semibold" />
+                    </span>
+                  </span>
+                  <span className="shrink-0 text-right">
+                    <MoneyDisplay
+                      cents={statement.noInterestPaymentReported ?? statement.noInterestPaymentCalc}
+                      className="font-semibold"
+                    />
+                    <span className="block text-2xs text-ink-muted">sin intereses</span>
+                  </span>
                 </button>
               </li>
             ))}
@@ -290,17 +345,20 @@ export function CardDetailPage() {
         {entries.length > 0 && (
           <ul className="mt-3 divide-y divide-line" data-testid="ledger-list">
             {entries.map((entry) => (
-              <li key={entry.id} className="flex flex-wrap items-center justify-between gap-3 py-2.5">
-                <div>
+              <li key={entry.id} className="flex items-center justify-between gap-3 py-2.5">
+                <div className="min-w-0 flex-1">
                   <p className="flex flex-wrap items-center gap-2 text-sm text-ink">
                     <Badge tone="neutral">{LEDGER_TYPE_LABELS[entry.type] ?? entry.type}</Badge>
-                    <span className="font-medium">{entry.description}</span>
+                    <span className="font-medium [overflow-wrap:anywhere]">{entry.description}</span>
                   </p>
                   <p className="mt-0.5 text-xs text-ink-muted">{formatLocalDate(entry.occurredOn)}</p>
                 </div>
                 <MoneyDisplay
                   cents={entry.amount}
-                  className={cn('font-semibold', entry.amount > 0 ? 'text-expense' : 'text-income')}
+                  className={cn(
+                    'shrink-0 font-semibold',
+                    entry.amount > 0 ? 'text-expense' : 'text-income',
+                  )}
                 />
               </li>
             ))}

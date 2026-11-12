@@ -84,6 +84,7 @@ export function ConfirmIncomeDialog({
               control={form.control}
               render={({ field }) => (
                 <MoneyInput
+                  ref={field.ref}
                   id="actualAmount"
                   label="Monto recibido"
                   valueCents={field.value}

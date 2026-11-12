@@ -134,6 +134,7 @@ export function StatementDetailDialog({
                 control={form.control}
                 render={({ field }) => (
                   <MoneyInput
+                    ref={field.ref}
                     id="noInterestPaymentReported"
                     label="Pago para no generar intereses"
                     valueCents={field.value}
@@ -146,6 +147,7 @@ export function StatementDetailDialog({
                 control={form.control}
                 render={({ field }) => (
                   <MoneyInput
+                    ref={field.ref}
                     id="minimumPaymentReported"
                     label="Pago mínimo"
                     valueCents={field.value}

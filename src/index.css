@@ -241,6 +241,19 @@ textarea {
   animation: toast-in 180ms ease-out both;
 }
 
+/* Hojas y dialogos al aparecer (fase 39). Entrada sola: cerrar debe ser inmediato. */
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
 /* Trazo de la grafica de flujo al aparecer (fase 21). */
 @keyframes chart-draw {
   from {

@@ -36,7 +36,7 @@ export function SelectField({
         {children}
       </select>
       {error && (
-        <p id={errorId} role="alert" className="mt-1 text-xs font-medium text-danger">
+        <p id={errorId} role="alert" className="mt-1 text-sm font-medium text-danger">
           {error}
         </p>
       )}

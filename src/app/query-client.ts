@@ -10,7 +10,8 @@ export const queryClient = new QueryClient({
     queries: {
       staleTime: 30_000,
       retry: 1,
-      refetchOnWindowFocus: false,
+      // Al volver a la app (PWA instalada) los saldos se refrescan solos; staleTime evita ráfagas.
+      refetchOnWindowFocus: true,
     },
     mutations: {
       retry: 0,

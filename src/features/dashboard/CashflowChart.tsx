@@ -71,6 +71,8 @@ export function CashflowChart({
   const svgRef = useRef<SVGSVGElement | null>(null)
   const [measuredWidth, setMeasuredWidth] = useState(FALLBACK_WIDTH)
   const [requested, setRequested] = useState<string | null>(null)
+  // En movil las fechas exactas son secundarias: se abren a demanda.
+  const [datesOpen, setDatesOpen] = useState(false)
 
   useEffect(() => {
     const element = wrapperRef.current
@@ -251,8 +253,25 @@ export function CashflowChart({
               })}
             </div>
 
-            <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:items-end">
-              <label className="flex min-w-0 flex-col gap-0.5 text-2xs font-medium text-ink-muted sm:text-xs">
+            <Button
+              variant="secondary"
+              size="sm"
+              className="sm:hidden"
+              aria-expanded={datesOpen}
+              aria-controls="cashflow-dates"
+              onClick={() => setDatesOpen((value) => !value)}
+            >
+              Fechas
+            </Button>
+
+            <div
+              id="cashflow-dates"
+              className={cn(
+                'grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:items-end',
+                !datesOpen && 'max-sm:hidden',
+              )}
+            >
+              <label className="flex min-w-0 flex-col gap-0.5 text-xs font-medium text-ink-muted">
                 Desde
                 <input
                   type="date"
@@ -263,7 +282,7 @@ export function CashflowChart({
                   className={controlClass({ className: 'sm:w-auto' })}
                 />
               </label>
-              <label className="flex min-w-0 flex-col gap-0.5 text-2xs font-medium text-ink-muted sm:text-xs">
+              <label className="flex min-w-0 flex-col gap-0.5 text-xs font-medium text-ink-muted">
                 Hasta
                 <input
                   type="date"
@@ -280,28 +299,28 @@ export function CashflowChart({
 
         <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-3">
           <div>
-            <dt className="text-2xs text-ink-muted sm:text-xs">Saldo inicial</dt>
+            <dt className="text-xs text-ink-muted">Saldo inicial</dt>
             <dd className="text-sm font-semibold text-ink tabular-nums sm:text-base">
               <MoneyDisplay cents={projection.startingBalance} />
             </dd>
           </div>
           <div>
-            <dt className="text-2xs text-ink-muted sm:text-xs">Mínimo proyectado</dt>
+            <dt className="text-xs text-ink-muted">Mínimo proyectado</dt>
             <dd className="text-sm font-semibold tabular-nums sm:text-base">
               <MoneyDisplay
                 cents={projection.minimum.balance}
                 className={projection.belowBuffer ? 'text-danger' : 'text-ink'}
               />
             </dd>
-            <p className="text-2xs text-ink-muted">{formatLocalDate(projection.minimum.date)}</p>
+            <p className="text-xs text-ink-muted">{formatLocalDate(projection.minimum.date)}</p>
           </div>
           <div className="col-span-2 sm:col-span-1">
-            <dt className="text-2xs text-ink-muted sm:text-xs">Saldo final</dt>
+            <dt className="text-xs text-ink-muted">Saldo final</dt>
             <dd className="text-sm font-semibold text-ink tabular-nums sm:text-base">
               <MoneyDisplay cents={projection.finalBalance} />
             </dd>
             {delta !== 0 && (
-              <p className="text-2xs">
+              <p className="text-xs">
                 <span className={cn('font-medium', delta > 0 ? 'text-income' : 'text-expense')}>
                   {delta > 0 ? '+' : ''}
                   {formatCents(delta)}
@@ -418,7 +437,7 @@ export function CashflowChart({
                 key={value}
                 x={PADDING.left + 2}
                 y={yOf(value) - 3}
-                fontSize="10"
+                fontSize="11"
                 className="fill-ink-muted stroke-surface"
                 strokeWidth={3}
                 paintOrder="stroke"
@@ -430,7 +449,7 @@ export function CashflowChart({
               x={width - PADDING.right - 2}
               y={geometry.bufferY - 4}
               textAnchor="end"
-              fontSize="10"
+              fontSize="11"
               className="fill-warning stroke-surface"
               strokeWidth={3}
               paintOrder="stroke"
@@ -442,7 +461,7 @@ export function CashflowChart({
                 x={Math.min(Math.max(geometry.todayX, PADDING.left + 14), width - PADDING.right - 14)}
                 y={plotTop + 10}
                 textAnchor="middle"
-                fontSize="10"
+                fontSize="11"
                 className="fill-ink-muted stroke-surface"
                 strokeWidth={3}
                 paintOrder="stroke"
@@ -536,7 +555,7 @@ export function CashflowChart({
                 x={Math.min(Math.max(xOf(tick.date), PADDING.left + 16), width - PADDING.right - 16)}
                 y={height - 6}
                 textAnchor="middle"
-                fontSize="10"
+                fontSize="11"
                 className="fill-ink-muted stroke-surface"
                 strokeWidth={3}
                 paintOrder="stroke"
@@ -547,7 +566,7 @@ export function CashflowChart({
           </svg>
         </div>
 
-        <p className="mt-1 text-2xs text-ink-muted sm:text-xs">
+        <p className="mt-1 text-xs text-ink-muted">
           Franja inferior: ingresos y gastos por día · línea punteada ámbar: colchón
           {projection.belowBuffer && ' · los tramos rojos caen debajo del colchón'}
         </p>
@@ -565,7 +584,7 @@ export function CashflowChart({
         />
 
         <details className="mt-2">
-          <summary className="w-fit cursor-pointer rounded text-xs font-medium text-ink-muted hover:text-ink-secondary">
+          <summary className="inline-flex min-h-11 w-fit cursor-pointer items-center rounded text-xs font-medium text-ink-muted hover:text-ink-secondary">
             Ver como tabla
           </summary>
           <div className="mt-2 overflow-x-auto">

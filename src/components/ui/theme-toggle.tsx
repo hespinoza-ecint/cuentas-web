@@ -12,7 +12,7 @@ export function ThemeToggle() {
     <Button
       variant="ghost"
       size="sm"
-      className="px-2"
+      className="px-2 max-sm:w-11"
       aria-label={label}
       title={label}
       onClick={toggle}

@@ -14,12 +14,12 @@ export function DialogContent({
 }: ComponentProps<typeof DialogPrimitive.Content>) {
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-overlay/60" />
+      <DialogPrimitive.Overlay className="fixed inset-0 z-50 animate-[fade-in_150ms_ease-out] bg-overlay/60" />
       <DialogPrimitive.Content
         className={cn(
           // Móvil: hoja anclada abajo, ancho completo, con scroll interno y
           // agarradera visual para indicar que se puede arrastrar/cerrar.
-          'fixed inset-x-0 bottom-0 z-50 max-h-[90dvh] overflow-y-auto overscroll-contain rounded-t-2xl border border-line bg-surface px-5 pt-3 pb-5 shadow-sheet focus:outline-none',
+          'fixed inset-x-0 bottom-0 z-50 max-h-[90dvh] overflow-y-auto overscroll-contain rounded-t-2xl border border-line bg-surface px-5 pt-3 pb-5 shadow-sheet focus:outline-none max-sm:animate-[sheet-in_200ms_ease-out]',
           // Escritorio: diálogo centrado como siempre.
           'sm:top-1/2 sm:right-auto sm:bottom-auto sm:left-1/2 sm:max-h-[85dvh] sm:w-[calc(100vw-2rem)] sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:pt-5 sm:shadow-menu',
           className,

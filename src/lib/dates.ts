@@ -49,6 +49,23 @@ export function addDays(date: string, days: number): string {
   return `${yyyy}-${mm}-${dd}`
 }
 
+/** Diferencia en dias de calendario entre dos fechas `YYYY-MM-DD`. */
+export function dayDiff(from: string, to: string): number {
+  const [fromYear, fromMonth, fromDay] = from.split('-').map(Number)
+  const [toYear, toMonth, toDay] = to.split('-').map(Number)
+  return Math.round(
+    (Date.UTC(toYear, toMonth - 1, toDay) - Date.UTC(fromYear, fromMonth - 1, fromDay)) / 86_400_000,
+  )
+}
+
+/** "hoy", "mañana", "en 5 dias" o "vencido" a partir de la diferencia en dias. */
+export function relativeDay(days: number): string {
+  if (days < 0) return 'vencido'
+  if (days === 0) return 'hoy'
+  if (days === 1) return 'mañana'
+  return `en ${days} días`
+}
+
 /** Texto legible para mostrar: "5 oct 2026". */
 export function formatLocalDate(date: string, locale = 'es-MX'): string {
   const [year, month, day] = date.split('-').map(Number)

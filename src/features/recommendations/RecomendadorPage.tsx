@@ -122,6 +122,7 @@ export function RecomendadorPage() {
               control={form.control}
               render={({ field }) => (
                 <MoneyInput
+                  ref={field.ref}
                   id="recommendationAmount"
                   label="Monto de la compra"
                   valueCents={field.value}

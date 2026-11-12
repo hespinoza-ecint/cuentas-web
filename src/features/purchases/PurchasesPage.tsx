@@ -9,6 +9,7 @@ import { SelectField } from '../../components/shared/SelectField.tsx'
 import { StatusBadge } from '../../components/shared/StatusBadge.tsx'
 import { Badge } from '../../components/ui/badge.tsx'
 import { Button } from '../../components/ui/button.tsx'
+import { ButtonLink } from '../../components/ui/button-link.tsx'
 import { EmptyState } from '../../components/ui/empty-state.tsx'
 import { FiltersCard } from '../../components/ui/filters-card.tsx'
 import { ListGroup, ListRow } from '../../components/ui/list-row.tsx'
@@ -106,7 +107,7 @@ export function PurchasesPage() {
         title="Compras"
         description="Regulares, meses sin intereses y diferidas"
         actions={
-          <div className="flex items-center gap-2">
+          <>
             <Button
               className="hidden md:inline-flex"
               size="sm"
@@ -119,7 +120,7 @@ export function PurchasesPage() {
             <Button size="sm" onClick={() => setCreateOpen(true)} disabled={!hasCards}>
               Registrar compra
             </Button>
-          </div>
+          </>
         }
       />
 
@@ -161,16 +162,26 @@ export function PurchasesPage() {
         <ErrorState error={purchases.error} onRetry={() => void purchases.refetch()} />
       )}
 
-      {purchases.data && items.length === 0 && (
+      {purchases.data && items.length === 0 && hasCards && (
         <EmptyState
           title="Sin compras"
           description="Registra una compra para dar seguimiento a sus mensualidades."
           action={
-            hasCards ? (
-              <Button variant="secondary" onClick={() => setCreateOpen(true)}>
-                Registrar compra
-              </Button>
-            ) : undefined
+            <Button variant="secondary" onClick={() => setCreateOpen(true)}>
+              Registrar compra
+            </Button>
+          }
+        />
+      )}
+      {purchases.data && items.length === 0 && !hasCards && (
+        // Sin tarjeta el boton de arriba esta deshabilitado: hay que decir por que.
+        <EmptyState
+          title="Primero registra una tarjeta"
+          description="Las compras se registran sobre una tarjeta de crédito."
+          action={
+            <ButtonLink to="/tarjetas" variant="secondary">
+              Ir a Tarjetas
+            </ButtonLink>
           }
         />
       )}
@@ -178,9 +189,14 @@ export function PurchasesPage() {
       {items.length > 0 && (
         <ListGroup data-testid="purchases-list">
           {items.map((purchase) => {
-            const nextInstallment = purchase.installmentPlan?.installments.find(
+            const plan = purchase.installmentPlan
+            const nextInstallment = plan?.installments.find(
               (installment) => installment.status !== 'PAID',
             )
+            // "MSI 3/12" dice de un vistazo cuanto falta, sin abrir el detalle.
+            const typeLabel = plan
+              ? `${TYPE_LABELS[purchase.type] ?? purchase.type} ${plan.installments.filter((item) => item.status === 'PAID').length}/${plan.installments.length}`
+              : (TYPE_LABELS[purchase.type] ?? purchase.type)
             // RN-30: con el corte o el plan pagados, la API rechaza cancelar y
             // eliminar; se ocultan las acciones y se explica el motivo.
             const lockedNote = purchaseLockedNote(purchase.lockedReason)
@@ -207,7 +223,7 @@ export function PurchasesPage() {
                 title={
                   <span className="flex flex-wrap items-center gap-2">
                     {purchase.description}
-                    <Badge tone="neutral">{TYPE_LABELS[purchase.type] ?? purchase.type}</Badge>
+                    <Badge tone="neutral">{typeLabel}</Badge>
                     <StatusBadge status={purchase.status} />
                   </span>
                 }
@@ -220,7 +236,7 @@ export function PurchasesPage() {
                           : undefined,
                         formatLocalDate(purchase.purchaseDate),
                         nextInstallment
-                          ? `próxima #${nextInstallment.number} por ${(nextInstallment.totalAmount / 100).toFixed(2)} el ${formatLocalDate(nextInstallment.dueDate)}`
+                          ? `próxima #${nextInstallment.number} por ${formatCents(nextInstallment.totalAmount)} el ${formatLocalDate(nextInstallment.dueDate)}`
                           : undefined,
                       ]
                         .filter(Boolean)

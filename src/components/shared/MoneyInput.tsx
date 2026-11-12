@@ -1,4 +1,4 @@
-import { useId, useState } from 'react'
+import { useId, useState, type Ref } from 'react'
 import { parsePesosToCents } from '../../lib/money.ts'
 import { controlClass } from '../ui/control.ts'
 
@@ -14,6 +14,8 @@ interface MoneyInputProps {
   valueCents: number | undefined
   onCentsChange: (cents: number | undefined) => void
   onBlur?: () => void
+  /** Para que react-hook-form pueda enfocarlo cuando falla la validacion. */
+  ref?: Ref<HTMLInputElement>
 }
 
 function centsToText(cents: number | undefined): string {
@@ -32,6 +34,7 @@ export function MoneyInput({
   valueCents,
   onCentsChange,
   onBlur,
+  ref,
 }: MoneyInputProps) {
   const generatedId = useId()
   const inputId = id ?? name ?? generatedId
@@ -81,6 +84,7 @@ export function MoneyInput({
           $
         </span>
         <input
+          ref={ref}
           id={inputId}
           name={name}
           value={text}
@@ -104,7 +108,7 @@ export function MoneyInput({
         </p>
       )}
       {message && (
-        <p id={errorId} role="alert" className="mt-1 text-xs font-medium text-danger">
+        <p id={errorId} role="alert" className="mt-1 text-sm font-medium text-danger">
           {message}
         </p>
       )}

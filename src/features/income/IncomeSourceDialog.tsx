@@ -151,6 +151,7 @@ export function IncomeSourceDialog({
               control={form.control}
               render={({ field }) => (
                 <MoneyInput
+                  ref={field.ref}
                   id="estimatedAmount"
                   label="Monto estimado"
                   valueCents={field.value}

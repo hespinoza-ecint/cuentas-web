@@ -12,7 +12,7 @@ export function Card({ className, ...props }: ComponentProps<'section'>) {
 }
 
 export function CardTitle({ className, ...props }: ComponentProps<'h2'>) {
-  return <h2 className={cn('text-sm font-semibold text-ink', className)} {...props} />
+  return <h2 className={cn('text-base font-semibold text-ink', className)} {...props} />
 }
 
 export function CardDescription({ className, ...props }: ComponentProps<'p'>) {

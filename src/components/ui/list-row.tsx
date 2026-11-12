@@ -44,27 +44,35 @@ export function ListRow({
   menuLabel,
   className,
 }: ListRowProps) {
+  // Sin `onOpen` la fila es informativa: un div, no un boton deshabilitado.
+  const bodyClass = cn(
+    'flex min-w-0 flex-1 items-center gap-3 rounded-xl px-4 py-3 text-left transition',
+    onOpen && 'active:bg-surface-subtle',
+  )
+  const content = (
+    <>
+      <span className="min-w-0 flex-1">
+        {/* Descripciones importadas del banco pueden venir sin espacios. */}
+        <span className="block text-sm font-medium text-ink [overflow-wrap:anywhere]">{title}</span>
+        {subtitle && (
+          <span className="mt-0.5 block text-xs leading-relaxed text-ink-muted [overflow-wrap:anywhere]">
+            {subtitle}
+          </span>
+        )}
+      </span>
+      {trailing && <span className="shrink-0 text-right">{trailing}</span>}
+    </>
+  )
+
   return (
     <li className={cn('flex items-stretch', className)}>
-      <button
-        type="button"
-        onClick={onOpen}
-        disabled={!onOpen}
-        className={cn(
-          'flex min-w-0 flex-1 items-center gap-3 rounded-xl px-4 py-3 text-left transition',
-          onOpen && 'active:bg-surface-subtle',
-        )}
-      >
-        <span className="min-w-0 flex-1">
-          <span className="block text-sm font-medium text-ink">{title}</span>
-          {subtitle && (
-            <span className="mt-0.5 block text-xs leading-relaxed text-ink-muted">
-              {subtitle}
-            </span>
-          )}
-        </span>
-        {trailing && <span className="shrink-0 text-right">{trailing}</span>}
-      </button>
+      {onOpen ? (
+        <button type="button" onClick={onOpen} className={bodyClass}>
+          {content}
+        </button>
+      ) : (
+        <div className={bodyClass}>{content}</div>
+      )}
 
       {menu && menu.length > 0 && (
         <div className="flex items-center pr-1">

@@ -90,6 +90,7 @@ export function ExpenseFormDialog({
               control={form.control}
               render={({ field }) => (
                 <MoneyInput
+                  ref={field.ref}
                   id="expenseAmount"
                   label="Monto"
                   valueCents={field.value}

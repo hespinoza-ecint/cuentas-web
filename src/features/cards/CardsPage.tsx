@@ -14,24 +14,15 @@ import { Skeleton } from '../../components/ui/skeleton.tsx'
 import { ActionMenu } from '../../components/ui/action-menu.tsx'
 import { toast } from '../../lib/toast.ts'
 import { ReasonDialog } from '../../components/shared/ReasonDialog.tsx'
-import { cn } from '../../lib/utils.ts'
 import { CardFormDialog } from './CardFormDialog.tsx'
+import { UtilizationBar } from './UtilizationBar.tsx'
+import { utilizationLevel, useMaxUtilizationBps } from './utilization.ts'
 import { deleteCard, listCards, resetCard, type CreditCard } from './cards-api.ts'
-
-/** Nivel de uso con palabra (no solo color): accesible para daltonismo. */
-function utilizationLevel(ratio: number): { label: string; tone: string } {
-  if (ratio <= 0.3) {
-    return { label: 'Uso bajo', tone: 'bg-success' }
-  }
-  if (ratio <= 0.5) {
-    return { label: 'Uso medio', tone: 'bg-warning' }
-  }
-  return { label: 'Uso alto', tone: 'bg-danger' }
-}
 
 export function CardsPage() {
   const queryClient = useQueryClient()
   const cards = useQuery({ queryKey: ['cards'], queryFn: listCards })
+  const maxUtilizationBps = useMaxUtilizationBps()
 
   const [createOpen, setCreateOpen] = useState(false)
   const [editing, setEditing] = useState<CreditCard | null>(null)
@@ -96,7 +87,8 @@ export function CardsPage() {
         <ul className="grid gap-4 sm:grid-cols-2" data-testid="cards-list">
           {list.map((card) => {
             const ratio = card.creditLimit > 0 ? card.currentBalance / card.creditLimit : 0
-            const level = utilizationLevel(ratio)
+            const utilizationBps = Math.round(ratio * 10_000)
+            const level = utilizationLevel(utilizationBps, maxUtilizationBps)
             return (
               <li key={card.id}>
                 <Card className="p-0">
@@ -143,12 +135,12 @@ export function CardsPage() {
                         className="text-base font-semibold"
                       />
                     </div>
-                    <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-surface-strong">
-                      <div
-                        className={cn('h-full rounded-full', level.tone)}
-                        style={{ width: `${Math.min(ratio * 100, 100)}%` }}
-                      />
-                    </div>
+                    <UtilizationBar
+                      bps={utilizationBps}
+                      maxUtilizationBps={maxUtilizationBps}
+                      label={`Utilización de ${card.alias}`}
+                      className="mt-2"
+                    />
                     <p className="mt-2 text-xs text-ink-muted">
                       {level.label} · {(ratio * 100).toFixed(1)}% · disponible{' '}
                       <MoneyDisplay cents={card.availableCredit} className="font-medium" /> de{' '}

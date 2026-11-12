@@ -62,6 +62,7 @@ export function OpeningBalanceDialog({
               control={form.control}
               render={({ field }) => (
                 <MoneyInput
+                  ref={field.ref}
                   id="openingAmount"
                   label="Saldo inicial"
                   valueCents={field.value}

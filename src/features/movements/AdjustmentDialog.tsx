@@ -94,6 +94,7 @@ export function AdjustmentDialog({
               control={form.control}
               render={({ field }) => (
                 <MoneyInput
+                  ref={field.ref}
                   id="amount"
                   label="Monto (puede ser negativo)"
                   valueCents={field.value}

@@ -28,7 +28,7 @@ export function SegmentedField({ label, options, name, className, ...rest }: Seg
               className="peer sr-only"
               {...rest}
             />
-            <span className="flex min-h-9 cursor-pointer items-center justify-center rounded-md px-2 text-center text-sm font-medium text-ink-secondary transition peer-checked:bg-surface peer-checked:text-ink peer-checked:shadow-card peer-focus-visible:ring-2 peer-focus-visible:ring-focus">
+            <span className="flex min-h-11 cursor-pointer items-center justify-center rounded-md px-2 text-center text-sm font-medium text-ink-secondary transition peer-checked:bg-surface peer-checked:text-ink peer-checked:shadow-card peer-focus-visible:ring-2 peer-focus-visible:ring-focus">
               {option.label}
             </span>
           </label>

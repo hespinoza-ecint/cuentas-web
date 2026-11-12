@@ -181,6 +181,7 @@ export function RecurringFormDialog({
               control={form.control}
               render={({ field }) => (
                 <MoneyInput
+                  ref={field.ref}
                   id="recurringAmount"
                   label="Monto"
                   valueCents={field.value}

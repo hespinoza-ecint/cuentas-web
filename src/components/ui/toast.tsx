@@ -25,8 +25,8 @@ export function Toaster() {
   const items = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
 
   return (
+    // Cada aviso ya lleva role="status"/"alert": el contenedor no repite el anuncio.
     <div
-      aria-live="polite"
       aria-atomic="false"
       className="pointer-events-none fixed inset-x-0 bottom-0 z-[70] flex flex-col items-center gap-2 px-4 pb-[calc(5.25rem+env(safe-area-inset-bottom,0px))] md:pb-6"
     >
@@ -48,7 +48,7 @@ export function Toaster() {
               type="button"
               aria-label="Cerrar aviso"
               onClick={() => dismissToast(item.id)}
-              className="-m-1 shrink-0 rounded-lg p-1 opacity-70 transition hover:opacity-100"
+              className="-m-2.5 shrink-0 rounded-lg p-2.5 opacity-70 transition hover:opacity-100"
             >
               <X className="size-4" aria-hidden="true" />
             </button>

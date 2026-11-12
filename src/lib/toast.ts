@@ -50,7 +50,7 @@ export function toast(
   // Máximo 3 avisos; el más viejo cede su lugar.
   toasts = [...toasts.slice(-2), item]
   emit()
-  const duration = options.duration ?? (item.tone === 'danger' ? 6000 : 3500)
+  const duration = options.duration ?? (item.tone === 'danger' ? 6000 : 5000)
   window.setTimeout(() => dismissToast(item.id), duration)
   return item.id
 }

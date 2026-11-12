@@ -168,6 +168,7 @@ export function SettingsPage() {
                 control={form.control}
                 render={({ field }) => (
                   <MoneyInput
+                    ref={field.ref}
                     id="minCashBuffer"
                     name="minCashBuffer"
                     label="Colchón mínimo de efectivo"
