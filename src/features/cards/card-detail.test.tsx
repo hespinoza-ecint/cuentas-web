@@ -123,4 +123,63 @@ describe('detalle de tarjeta', () => {
     await waitFor(() => expect(patched).not.toBeNull())
     expect(patched?.noInterestPaymentReported).toBe(190000)
   })
+
+  function cardHandlers(statements: unknown[]) {
+    return [
+      refreshOk,
+      settingsHandler,
+      http.get(`${API_BASE}/api/v1/cards/card-1`, () => HttpResponse.json(card)),
+      http.get(`${API_BASE}/api/v1/cards/card-1/statements/current`, () =>
+        HttpResponse.json({
+          cardId: 'card-1',
+          today: '2026-10-20',
+          lastCutDate: '2026-10-15',
+          nextCutDate: '2026-11-15',
+          currentPeriodStart: '2026-10-16',
+          cycleChargesToDate: 0,
+          currentBalance: 200000,
+          availableCredit: 800000,
+          projectedDueDate: '2026-12-05',
+        }),
+      ),
+      http.get(`${API_BASE}/api/v1/cards/card-1/statements`, () => HttpResponse.json(statements)),
+      http.get(`${API_BASE}/api/v1/cards/card-1/ledger`, () =>
+        HttpResponse.json({ data: [], meta: { limit: 20, nextCursor: null, hasMore: false } }),
+      ),
+    ]
+  }
+
+  /** El parrafo "Paga $X antes del D" (el monto va en su propio span). */
+  const payLine = (_: string, element: Element | null) =>
+    element?.tagName === 'P' && /^Paga /.test(element.textContent ?? '')
+
+  it('muestra lo que falta del corte más reciente, no el corte viejo ni el monto completo', async () => {
+    server.use(
+      ...cardHandlers([
+        // Corte anterior sin pagar: el mas reciente ya arrastra su saldo.
+        { ...statement, id: 'st-0', cutDate: '2026-09-15', dueDate: '2026-10-05', noInterestPaymentCalc: 90000 },
+        // Corte mas reciente con abono parcial: falta 200000 - 50000.
+        { ...statement, status: 'PARTIALLY_PAID', paidAmount: 50000 },
+      ]),
+    )
+
+    renderApp(['/tarjetas/card-1'])
+
+    const line = await screen.findByText(payLine)
+    expect(line).toHaveTextContent('Paga $1,500.00 antes del 4 nov 2026')
+    expect(screen.getByRole('link', { name: 'Registrar pago' })).toHaveAttribute(
+      'href',
+      '/pagos?nuevo=1&tarjeta=card-1',
+    )
+  })
+
+  it('no muestra el bloque de pago si el corte ya está pagado', async () => {
+    server.use(...cardHandlers([{ ...statement, status: 'PAID', paidAmount: 200000 }]))
+
+    renderApp(['/tarjetas/card-1'])
+
+    expect(await screen.findByTestId('statements-list')).toBeInTheDocument()
+    expect(screen.queryByText(payLine)).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Registrar pago' })).not.toBeInTheDocument()
+  })
 })

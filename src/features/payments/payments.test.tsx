@@ -99,6 +99,17 @@ function baseHandlers() {
 }
 
 describe('pagos de tarjeta', () => {
+  it('desde el detalle de una tarjeta abre el formulario con esa tarjeta elegida', async () => {
+    const other = { ...card, id: 'card-2', alias: 'Azul', last4: '9999' }
+    server.use(...baseHandlers())
+    server.use(http.get(`${API_BASE}/api/v1/cards`, () => HttpResponse.json([card, other])))
+
+    renderApp(['/pagos?nuevo=1&tarjeta=card-2'])
+
+    const dialog = await screen.findByRole('dialog')
+    expect(within(dialog).getByLabelText('Tarjeta')).toHaveValue('card-2')
+  })
+
   it('lista los pagos con tarjeta y tipo', async () => {
     server.use(...baseHandlers())
     renderApp(['/pagos'])

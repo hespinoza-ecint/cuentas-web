@@ -18,6 +18,7 @@ import { Skeleton } from '../../components/ui/skeleton.tsx'
 import { toast } from '../../lib/toast.ts'
 import { dayDiff, formatLocalDate, relativeDay } from '../../lib/dates.ts'
 import { cn } from '../../lib/utils.ts'
+import { paymentSuggestions } from '../payments/payment-suggestions.ts'
 import { useToday } from '../users/use-settings.ts'
 import { CardFormDialog } from './CardFormDialog.tsx'
 import { ReconcileDialog } from './ReconcileDialog.tsx'
@@ -115,10 +116,11 @@ export function CardDetailPage() {
     data.creditLimit > 0 ? Math.round((data.currentBalance / data.creditLimit) * 10_000) : 0
   const utilization = utilizationBps / 10_000
   const level = utilizationLevel(utilizationBps, maxUtilizationBps)
-  // Primer corte sin pagar: lo que hay que pagar y para cuando.
-  const nextStatement = (statements.data ?? [])
-    .filter((statement) => statement.status !== 'PAID')
-    .sort((a, b) => a.dueDate.localeCompare(b.dueDate))[0]
+  // Misma regla que Inicio y el formulario de pago: solo cuenta el corte mas
+  // reciente (ya arrastra el saldo anterior) y se descuenta lo ya abonado.
+  const suggestions = paymentSuggestions(statements.data ?? [], data)
+  const nextStatement = suggestions.pending
+  const statementDue = suggestions.options.find((option) => option.key === 'statement')?.amount ?? 0
 
   return (
     <div data-testid="card-detail-page">
@@ -202,12 +204,7 @@ export function CardDetailPage() {
               <p className="text-sm text-ink">
                 Paga{' '}
                 <span className="font-semibold tabular-nums">
-                  <MoneyDisplay
-                    cents={
-                      nextStatement.noInterestPaymentReported ??
-                      nextStatement.noInterestPaymentCalc
-                    }
-                  />
+                  <MoneyDisplay cents={statementDue} />
                 </span>{' '}
                 antes del {formatLocalDate(nextStatement.dueDate)}
               </p>
@@ -216,7 +213,7 @@ export function CardDetailPage() {
                 intereses
               </p>
               <ButtonLink
-                to="/pagos?nuevo=1"
+                to={`/pagos?nuevo=1&tarjeta=${data.id}`}
                 variant="secondary"
                 size="sm"
                 className="mt-2 max-sm:w-full"

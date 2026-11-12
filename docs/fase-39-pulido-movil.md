@@ -63,6 +63,9 @@ la captura.
 | T10 | Media | Acceso | "¿Olvidaste tu contraseña?", "Crear cuenta" y los "volver" de recuperación medían 19 px de alto | 44 px (medido en el navegador a 375 px) |
 | Y6 | Media | Detalle de compra | Los estados de mensualidad sin traducción: `SCHEDULED` en mayúsculas junto a "Pagado" | "Programada" y "En el corte" |
 | L6 | Media | Lista de compras | Descripción y badges compartían renglón: el texto quedaba en 160 px y partía en 5 líneas | La descripción ocupa su renglón; los badges van debajo |
+| C1b | Alta | Detalle de tarjeta | El bloque "Paga $X" tomaba el corte sin pagar más antiguo y el monto completo sin intereses: con dos cortes pendientes o un abono parcial no coincidía con Inicio ni con el formulario de pago | Reutiliza `paymentSuggestions`: solo el corte más reciente (ya arrastra el saldo anterior) y descuenta lo abonado |
+| C1c | Media | Detalle de tarjeta → Pagos | "Registrar pago" abría el formulario con la primera tarjeta, no con la que se estaba viendo | `?tarjeta=<id>` preselecciona la tarjeta |
+| F6 | Alta | Pagos (también "＋ → Pago de tarjeta") | Con `?nuevo=1` el formulario se montaba antes de cargar tarjetas y cuentas: la hoja mostraba una tarjeta pero el formulario la tenía vacía y al guardar decía "Elige la tarjeta" | El formulario se monta cuando ya hay tarjetas y cuentas |
 
 ## 4. Top 25 por impacto
 
@@ -140,9 +143,10 @@ devuelve).
 
 - `npm.cmd run lint` sin avisos.
 - `npm.cmd run build` correcto.
-- `npm.cmd run test`: 39 archivos, 178 pruebas (5 nuevas: `ref` de
+- `npm.cmd run test`: 39 archivos, 181 pruebas (8 nuevas: `ref` de
   `MoneyInput`, fila informativa, teclado del menú, umbral de uso con dos
-  configuraciones).
+  configuraciones, pago próximo con abono parcial, corte pagado y preselección
+  de tarjeta desde la URL; esta última falló antes del arreglo F6).
 - Medido en el navegador a 375×812 con una cuenta y dos tarjetas de prueba:
   - Acceso: campos de 44 px, botón de 48 px, enlaces de 44 px.
   - Inicio: filas de tarjeta enlazadas (94 px), totales a 14 px, "Ver flujo",
@@ -160,8 +164,10 @@ devuelve).
   escritorio, importación de Excel y flujo móvil.
 - Pendiente: la pasada visual de las pantallas con datos a 375 px.
 - No verificable aquí: iPhone físico (F2, teclado sobre el pie de las hojas),
-  lector de pantalla real y la PWA instalada volviendo del fondo (N1). Tampoco
-  se pudo ver el bloque "Paga $X antes del D" (C1): exige un corte ya generado,
-  y una tarjeta creada hoy todavía no tiene estados de cuenta. La animación de
+  lector de pantalla real y la PWA instalada volviendo del fondo (N1). El bloque
+  "Paga $X antes del D" (C1) no se pudo ver en pantalla porque exige un corte ya
+  generado; queda cubierto por pruebas: dos cortes pendientes con abono parcial
+  (muestra lo que falta del más reciente, $1,500.00) y corte pagado (sin
+  bloque). La animación de
   la hoja no se pudo observar (el panel del navegador estaba oculto y no
   repinta), pero su estado final sí se comprobó: la hoja queda anclada abajo.

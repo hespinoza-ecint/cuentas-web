@@ -197,11 +197,16 @@ export function CardPaymentsPage() {
         </div>
       )}
 
-      {createOpen && (
+      {/*
+       * Con ?nuevo=1 el formulario se pediria antes de cargar tarjetas y cuentas:
+       * sus valores por defecto quedarian vacios y al guardar diria "Elige la tarjeta".
+       */}
+      {createOpen && cards.data && accounts.data && (
         <PaymentFormDialog
           cards={cards.data ?? []}
           accounts={accounts.data ?? []}
-          defaultCardId={cardFilter || undefined}
+          // "Registrar pago" desde el detalle de una tarjeta llega con ?tarjeta=<id>.
+          defaultCardId={searchParams.get('tarjeta') || cardFilter || undefined}
           open
           onOpenChange={changeCreateOpen}
           onCreated={(allocations) => {
