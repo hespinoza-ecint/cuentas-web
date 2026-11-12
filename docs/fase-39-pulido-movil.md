@@ -143,7 +143,9 @@ devuelve).
   configuraciones).
 - Medido en el navegador a 375×812 (pantalla de acceso): campos de 44 px, botón
   de 48 px, enlaces de 44 px y sin desbordamiento horizontal (`scrollWidth` 375).
-- Pendiente: `npm.cmd run test:e2e` (reinicia `Cuentas_Test`) y la pasada visual
-  de las pantallas con datos.
+- `npm.cmd run test:e2e`: 4 de 4 especificaciones en verde (4.1 min) tras
+  reiniciar `Cuentas_Test`: credenciales inválidas, flujo completo de
+  escritorio, importación de Excel y flujo móvil.
+- Pendiente: la pasada visual de las pantallas con datos a 375 px.
 - No verificable aquí: iPhone físico (F2, teclado sobre el pie de las hojas),
   lector de pantalla real y la PWA instalada volviendo del fondo (N1).
