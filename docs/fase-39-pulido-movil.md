@@ -61,6 +61,8 @@ la captura.
 | Y5 | Baja | Formularios | Errores de campo en 12 px | 14 px |
 | A3 | Baja | Avisos | El contenedor tenía `aria-live` y cada aviso su `role`: podía anunciarse dos veces | Solo el `role` de cada aviso |
 | T10 | Media | Acceso | "¿Olvidaste tu contraseña?", "Crear cuenta" y los "volver" de recuperación medían 19 px de alto | 44 px (medido en el navegador a 375 px) |
+| Y6 | Media | Detalle de compra | Los estados de mensualidad sin traducción: `SCHEDULED` en mayúsculas junto a "Pagado" | "Programada" y "En el corte" |
+| L6 | Media | Lista de compras | Descripción y badges compartían renglón: el texto quedaba en 160 px y partía en 5 líneas | La descripción ocupa su renglón; los badges van debajo |
 
 ## 4. Top 25 por impacto
 
@@ -141,11 +143,25 @@ devuelve).
 - `npm.cmd run test`: 39 archivos, 178 pruebas (5 nuevas: `ref` de
   `MoneyInput`, fila informativa, teclado del menú, umbral de uso con dos
   configuraciones).
-- Medido en el navegador a 375×812 (pantalla de acceso): campos de 44 px, botón
-  de 48 px, enlaces de 44 px y sin desbordamiento horizontal (`scrollWidth` 375).
+- Medido en el navegador a 375×812 con una cuenta y dos tarjetas de prueba:
+  - Acceso: campos de 44 px, botón de 48 px, enlaces de 44 px.
+  - Inicio: filas de tarjeta enlazadas (94 px), totales a 14 px, "Ver flujo",
+    "Define tu colchón" y "Ver como tabla" de 44 px, fechas de la gráfica
+    plegadas, ejes a 11 px, gráfica de 220 px.
+  - Tarjetas: barra de uso con `role="meter"` (45 % → "Uso medio"), tarjeta de
+    184 px; acciones de la cabecera 291 px + "⋯" de 44 px (antes media fila).
+  - Detalle de tarjeta: `dl` Disponible / Límite y acciones de 44 px.
+  - Compras: "MSI 0/12" y "próxima #1 por $1,000.00"; el "⋯" abre hoja anclada
+    abajo (698–812 px) con opciones de 48 px y foco en la primera.
+  - Detalle de compra: "Pagadas 0 de 12" con barra y estados traducidos.
+  - `scrollWidth` = 375 en todas: sin desbordamiento horizontal.
 - `npm.cmd run test:e2e`: 4 de 4 especificaciones en verde (4.1 min) tras
   reiniciar `Cuentas_Test`: credenciales inválidas, flujo completo de
   escritorio, importación de Excel y flujo móvil.
 - Pendiente: la pasada visual de las pantallas con datos a 375 px.
 - No verificable aquí: iPhone físico (F2, teclado sobre el pie de las hojas),
-  lector de pantalla real y la PWA instalada volviendo del fondo (N1).
+  lector de pantalla real y la PWA instalada volviendo del fondo (N1). Tampoco
+  se pudo ver el bloque "Paga $X antes del D" (C1): exige un corte ya generado,
+  y una tarjeta creada hoy todavía no tiene estados de cuenta. La animación de
+  la hoja no se pudo observar (el panel del navegador estaba oculto y no
+  repinta), pero su estado final sí se comprobó: la hoja queda anclada abajo.

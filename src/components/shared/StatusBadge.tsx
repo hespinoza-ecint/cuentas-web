@@ -5,6 +5,8 @@ const STATUS_MAP: Record<string, { label: string; tone: BadgeProps['tone'] }> = 
   INACTIVE: { label: 'Inactiva', tone: 'neutral' },
   OPEN: { label: 'Abierto', tone: 'info' },
   CLOSED: { label: 'Cerrado', tone: 'neutral' },
+  SCHEDULED: { label: 'Programada', tone: 'neutral' },
+  BILLED: { label: 'En el corte', tone: 'info' },
   PAID: { label: 'Pagado', tone: 'success' },
   PARTIALLY_PAID: { label: 'Parcial', tone: 'warning' },
   OVERDUE: { label: 'Vencido', tone: 'danger' },

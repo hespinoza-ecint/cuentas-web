@@ -221,10 +221,13 @@ export function PurchasesPage() {
                 key={purchase.id}
                 onOpen={() => setDetailId(purchase.id)}
                 title={
-                  <span className="flex flex-wrap items-center gap-2">
-                    {purchase.description}
-                    <Badge tone="neutral">{typeLabel}</Badge>
-                    <StatusBadge status={purchase.status} />
+                  // La descripción en su línea: con los badges al lado se quedaba en 160 px.
+                  <span className="block">
+                    <span className="block [overflow-wrap:anywhere]">{purchase.description}</span>
+                    <span className="mt-1 flex flex-wrap items-center gap-2">
+                      <Badge tone="neutral">{typeLabel}</Badge>
+                      <StatusBadge status={purchase.status} />
+                    </span>
                   </span>
                 }
                 subtitle={
